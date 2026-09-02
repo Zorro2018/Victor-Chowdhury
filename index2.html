@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ profile.name }} &mdash; {{ profile.tagline }}</title>
+<meta name="description" content="{{ profile.subhead }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700;8..60,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          navy: { DEFAULT: '#16233F', 2: '#24365E' },
+          accent: { DEFAULT: '#0F7B6C', soft: '#D5E9E5' },
+          ink: '#1B2230',
+          slate2: '#5A667C',
+        },
+        fontFamily: {
+          serif: ['"Source Serif 4"', 'Georgia', 'serif'],
+          sans: ['Inter', '-apple-system', 'sans-serif'],
+        },
+      },
+    },
+  };
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', sans-serif; }
+  .serif { font-family: 'Source Serif 4', Georgia, serif; }
+  .bucket-panel { display: none; }
+  .bucket-panel.active { display: block; }
+  .bucket-btn.active { background: #16233F; color: #fff; }
+  .bucket-btn.active .bucket-count { color: #9FD3CA; }
+</style>
+</head>
+<body class="bg-white text-ink">
+
+<!-- NAV -->
+<nav class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-gray-200">
+  <div class="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+    <a href="#top" class="serif font-bold text-lg text-navy">{{ profile.name }}</a>
+    <div class="hidden md:flex items-center gap-7 text-sm font-medium text-slate2">
+      <a href="#impact" class="hover:text-accent">Impact</a>
+      <a href="#work" class="hover:text-accent">Experience</a>
+      <a href="#samples" class="hover:text-accent">Work Samples</a>
+      <a href="#articles" class="hover:text-accent">Articles</a>
+      <a href="#certificates" class="hover:text-accent">Certificates</a>
+      <a href="#timeline" class="hover:text-accent">Career</a>
+      <a href="#about" class="hover:text-accent">About</a>
+      <a href="{{ profile.linkedin }}" target="_blank" rel="noopener"
+         class="px-4 py-2 rounded-full bg-navy text-white hover:bg-navy-2 transition">LinkedIn</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header id="top" class="relative bg-navy text-white overflow-hidden">
+  <div class="absolute inset-0 opacity-[0.06]"
+       style="background-image:radial-gradient(circle at 25px 25px, white 2px, transparent 0);background-size:50px 50px;"></div>
+  <div class="max-w-6xl mx-auto px-6 pt-20 pb-24 relative">
+    <div class="inline-block text-[11px] tracking-[0.2em] uppercase text-accent-soft font-semibold bg-white/10 px-3 py-1 rounded-full mb-6">
+      {{ profile.current_role }}
+    </div>
+    <h1 class="serif font-bold text-4xl md:text-6xl leading-[1.08] mb-6 max-w-3xl">
+      {{ profile.tagline }}, turning enterprise data into decisions.
+    </h1>
+    <p class="text-lg md:text-xl text-gray-300 max-w-2xl leading-relaxed mb-8">{{ profile.subhead }}</p>
+    <div class="flex flex-wrap items-center gap-4 text-sm text-gray-300 mb-9">
+      <span>{{ profile.location }}</span>
+      <span class="opacity-40">&middot;</span>
+      <span>{{ profile.years_industry }} years in industry &middot; {{ profile.years_walmart }} at Walmart</span>
+    </div>
+    <div class="flex flex-wrap gap-3">
+      <a href="https://outlook.office.com/mail/deeplink/compose?to={{ profile.email }}&subject=Let%27s%20Connect" target="_blank" rel="noopener" class="px-5 py-3 rounded-lg bg-accent hover:bg-[#0c665a] transition font-semibold text-sm">Get in touch</a>
+      <a href="{{ profile.linkedin }}" target="_blank" rel="noopener" class="px-5 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm">View LinkedIn</a>
+      <a href="/static/Victor_Chowdhury_CV_Data_AI.pdf" download
+         class="px-5 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm">Download R&eacute;sum&eacute;</a>
+    </div>
+  </div>
+</header>
+
+<!-- IMPACT -->
+<section id="impact" class="max-w-6xl mx-auto px-6 py-20">
+  <div class="mb-10">
+    <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">Signature Work</div>
+    <h2 class="serif font-bold text-3xl text-navy">Impact, by the numbers</h2>
+  </div>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    {% for item in impact %}
+    <div class="border border-gray-200 rounded-xl p-5 hover:border-accent hover:shadow-md transition bg-white">
+      <div class="serif font-black text-2xl md:text-3xl text-navy leading-none mb-2">{{ item.metric }}</div>
+      <div class="font-semibold text-sm text-ink mb-1">{{ item.label }}</div>
+      <div class="text-[10px] tracking-[0.1em] uppercase text-accent font-bold mb-3">{{ item.tag }}</div>
+      <div class="text-xs text-slate2 leading-relaxed">{{ item.detail }}</div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="bg-[#F7F8FA] border-y border-gray-200">
+  <div class="max-w-4xl mx-auto px-6 py-20">
+    <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">About</div>
+    <h2 class="serif font-bold text-3xl text-navy mb-8">The pattern behind the roles</h2>
+    <div class="space-y-5 text-[17px] leading-relaxed text-[#2C3548]">
+      {% for para in about %}
+      <p>{{ para }}</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE BUCKETS -->
+<section id="work" class="max-w-6xl mx-auto px-6 py-20">
+  <div class="mb-10">
+    <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">Experience, by Lens</div>
+    <h2 class="serif font-bold text-3xl text-navy mb-3">Four ways to look at the same career</h2>
+    <p class="text-slate2 max-w-2xl">The work overlaps constantly &mdash; an AI launch is also a product bet, a data platform is also a business-strategy call. These buckets are just the four lenses people usually ask about.</p>
+  </div>
+
+  <div class="flex flex-wrap gap-2 mb-8" role="tablist">
+    {% for b in buckets %}
+    <button class="bucket-btn px-5 py-2.5 rounded-full border border-gray-300 text-sm font-semibold text-navy hover:border-navy transition {{ 'active' if loop.first else '' }}"
+            data-target="bucket-{{ b.id }}" onclick="showBucket('{{ b.id }}')">
+      {{ b.label }} <span class="bucket-count text-xs text-slate2">&middot; {{ b.anecdotes|length }}</span>
+    </button>
+    {% endfor %}
+  </div>
+
+  {% for b in buckets %}
+  <div id="bucket-{{ b.id }}" class="bucket-panel {{ 'active' if loop.first else '' }}">
+    <p class="text-[15px] text-slate2 leading-relaxed mb-8 max-w-3xl border-l-2 border-accent pl-4">{{ b.intro }}</p>
+    <div class="grid md:grid-cols-2 gap-5">
+      {% for a in b.anecdotes %}
+      <div class="border border-gray-200 rounded-xl p-6 hover:shadow-md transition">
+        <div class="text-[10px] tracking-[0.12em] uppercase text-accent font-bold mb-2">{{ a.tag }}</div>
+        <h3 class="serif font-bold text-lg text-navy mb-2 leading-snug">{{ a.title }}</h3>
+        <p class="text-sm text-[#3A4459] leading-relaxed">{{ a.body }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</section>
+
+<!-- WORK SAMPLES -->
+<section id="samples" class="bg-[#F7F8FA] border-y border-gray-200">
+  <div class="max-w-6xl mx-auto px-6 py-20">
+    <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">Work Samples</div>
+    <h2 class="serif font-bold text-3xl text-navy mb-3">See it, not just read about it</h2>
+    <p class="text-slate2 max-w-2xl mb-10">Live, interactive artifacts — click through to explore the real thing.</p>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for s in work_samples %}
+      <a href="{{ s.url }}" target="_blank" rel="noopener"
+         class="group block bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg hover:border-accent transition">
+        <div class="aspect-[16/10] overflow-hidden bg-gray-100 border-b border-gray-200">
+          <img src="{{ s.thumbnail }}" alt="{{ s.title }}" loading="lazy"
+               class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300">
+        </div>
+        <div class="p-5">
+          <div class="text-[10px] tracking-[0.12em] uppercase text-accent font-bold mb-2">{{ s.tag }}</div>
+          <h3 class="serif font-bold text-lg text-navy mb-2 leading-snug group-hover:text-accent transition">{{ s.title }}</h3>
+          <p class="text-sm text-[#3A4459] leading-relaxed mb-3">{{ s.description }}</p>
+          <div class="text-xs font-semibold text-accent">View live &rarr;</div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ARTICLES -->
+<section id="articles" class="max-w-6xl mx-auto px-6 py-20">
+  <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">Articles</div>
+  <h2 class="serif font-bold text-3xl text-navy mb-3">Writing on data, AI, and how teams should work</h2>
+  <p class="text-slate2 max-w-2xl mb-10">Frameworks and points of view, written up so the thinking travels beyond one meeting.</p>
+  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for a in articles %}
+    <a href="{{ a.url }}" target="_blank" rel="noopener"
+       class="group block bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg hover:border-accent transition">
+      <div class="aspect-[16/10] overflow-hidden bg-gray-100 border-b border-gray-200">
+        <img src="{{ a.thumbnail }}" alt="{{ a.title }}" loading="lazy"
+             class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300">
+      </div>
+      <div class="p-5">
+        <div class="text-[10px] tracking-[0.12em] uppercase text-accent font-bold mb-2">{{ a.tag }}</div>
+        <h3 class="serif font-bold text-lg text-navy mb-2 leading-snug group-hover:text-accent transition">{{ a.title }}</h3>
+        <p class="text-sm text-[#3A4459] leading-relaxed mb-3">{{ a.description }}</p>
+        <div class="text-xs font-semibold text-accent">Read article &rarr;</div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- CERTIFICATES -->
+<section id="certificates" class="bg-[#F7F8FA] border-y border-gray-200">
+  <div class="max-w-6xl mx-auto px-6 py-20">
+    <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">Certificates</div>
+    <h2 class="serif font-bold text-3xl text-navy mb-3">Verified credentials</h2>
+    <p class="text-slate2 max-w-2xl mb-10">Click through to verify directly on eCornell.</p>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for c in certificates %}
+      <a href="{{ c.url }}" target="_blank" rel="noopener"
+         class="group block bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg hover:border-accent transition">
+        <div class="aspect-[16/10] overflow-hidden bg-gray-100 border-b border-gray-200">
+          <img src="{{ c.thumbnail }}" alt="{{ c.title }}" loading="lazy"
+               class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300">
+        </div>
+        <div class="p-5">
+          <div class="text-[10px] tracking-[0.12em] uppercase text-accent font-bold mb-2">{{ c.tag }}</div>
+          <h3 class="serif font-bold text-lg text-navy mb-2 leading-snug group-hover:text-accent transition">{{ c.title }}</h3>
+          <p class="text-sm text-[#3A4459] leading-relaxed mb-3">{{ c.description }}</p>
+          <div class="text-xs font-semibold text-accent">Verify credential &rarr;</div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section id="timeline" class="bg-navy text-white">
+  <div class="max-w-4xl mx-auto px-6 py-20">
+    <div class="text-[11px] tracking-[0.2em] uppercase text-accent-soft font-bold mb-2">Career</div>
+    <h2 class="serif font-bold text-3xl mb-10">The full arc</h2>
+    <div class="space-y-0">
+      {% for job in timeline %}
+      <div class="flex gap-5 pb-8 relative">
+        <div class="flex flex-col items-center">
+          <div class="w-3 h-3 rounded-full bg-accent mt-1.5 flex-shrink-0"></div>
+          {% if not loop.last %}<div class="w-px flex-1 bg-white/15 mt-1"></div>{% endif %}
+        </div>
+        <div class="pb-2">
+          <div class="text-xs font-semibold text-accent-soft mb-1">{{ job.dates }}</div>
+          <div class="serif font-bold text-lg leading-snug">{{ job.title }}</div>
+          <div class="text-sm text-gray-400 mb-2">{{ job.org }}</div>
+          <div class="text-sm text-gray-300 leading-relaxed max-w-xl">{{ job.blurb }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- CAPABILITIES -->
+<section class="max-w-6xl mx-auto px-6 py-20">
+  <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">Capabilities</div>
+  <h2 class="serif font-bold text-3xl text-navy mb-8">What I bring to the table</h2>
+  <div class="flex flex-wrap gap-2.5">
+    {% for c in capabilities %}
+    <span class="px-4 py-2 rounded-lg bg-[#F4F6FA] border border-gray-200 text-sm font-medium text-[#2C3548]">{{ c }}</span>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- EDUCATION / CREDENTIALS -->
+<section class="bg-[#F7F8FA] border-y border-gray-200">
+  <div class="max-w-6xl mx-auto px-6 py-20 grid md:grid-cols-3 gap-10">
+    <div>
+      <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-4">Education</div>
+      {% for e in education %}
+      <div class="mb-4">
+        <div class="font-semibold text-navy text-sm">{{ e.title }}</div>
+        <div class="text-xs text-slate2">{{ e.org }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    <div>
+      <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-4">Certifications</div>
+      <ul class="space-y-2">
+        {% for c in certifications %}
+        <li class="text-sm text-[#2C3548]">{{ c }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div>
+      <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-4">Recognition</div>
+      <div class="mb-4">
+        <div class="font-semibold text-navy text-sm">Patent</div>
+        <div class="text-xs text-slate2">{{ recognition.patent }}</div>
+      </div>
+      <div class="mb-4">
+        <div class="font-semibold text-navy text-sm">Honors & Awards</div>
+        <div class="text-xs text-slate2">{{ recognition.honors }}</div>
+      </div>
+      <div>
+        <div class="font-semibold text-navy text-sm">Languages</div>
+        <div class="text-xs text-slate2">{{ recognition.languages }}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER / CONTACT -->
+<footer class="bg-navy text-white">
+  <div class="max-w-6xl mx-auto px-6 py-16 text-center">
+    <h2 class="serif font-bold text-3xl mb-4">Let's talk data, AI, or product.</h2>
+    <p class="text-gray-300 mb-8 max-w-xl mx-auto">Open to conversations on AI strategy, product analytics, and building teams that ship. Reach out any time.</p>
+    <div class="flex flex-wrap justify-center gap-3 mb-10">
+      <a href="https://outlook.office.com/mail/deeplink/compose?to={{ profile.email }}&subject=Let%27s%20Connect" target="_blank" rel="noopener" class="px-6 py-3 rounded-lg bg-accent hover:bg-[#0c665a] transition font-semibold text-sm">Email Me</a>
+      <a href="{{ profile.linkedin }}" target="_blank" rel="noopener" class="px-6 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm">LinkedIn</a>
+    </div>
+    <div class="flex flex-wrap justify-center gap-4 text-xs text-gray-400 mb-8">
+      {% for r in resumes %}
+      <a href="/static/{{ r.file }}" download class="hover:text-white underline underline-offset-2">{{ r.label }}</a>
+      {% endfor %}
+    </div>
+    <div class="text-xs text-gray-500 border-t border-white/10 pt-6">{{ profile.name }} &middot; {{ profile.location }}</div>
+  </div>
+</footer>
+
+<script>
+  function showBucket(id) {
+    document.querySelectorAll('.bucket-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.bucket-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('bucket-' + id).classList.add('active');
+    document.querySelector('[data-target="bucket-' + id + '"]').classList.add('active');
+  }
+</script>
+
+</body>
+</html>
