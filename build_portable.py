@@ -49,6 +49,11 @@ def inline_static_assets(html: str) -> str:
 
 
 if __name__ == "__main__":
+    template_path = ROOT / "index.html"
+    assert OUT_PATH.resolve() != template_path.resolve(), (
+        "OUT_PATH must never be index.html -- refusing to run."
+    )
+
     html = fetch_rendered_html()
     before_refs = len(re.findall(r'/static/', html))
     html = inline_static_assets(html)
@@ -56,3 +61,15 @@ if __name__ == "__main__":
     OUT_PATH.write_text(html)
     print(f"Inlined {before_refs - after_refs} of {before_refs} /static/ references")
     print(f"Wrote {OUT_PATH} ({OUT_PATH.stat().st_size / 1_000_000:.2f} MB)")
+
+    # Tripwire: this project's index.html got mysteriously clobbered with
+    # fully-rendered content more than once during development. Whatever the
+    # cause, fail loudly right here rather than silently shipping a broken
+    # template on the next request.
+    still_a_template = "{{ profile" in template_path.read_text()
+    assert still_a_template, (
+        f"DANGER: {template_path} no longer looks like a Jinja2 template "
+        "(no '{{ profile' found) after running this script. Restore it "
+        "immediately with: git checkout HEAD -- index.html"
+    )
+    print(f"OK: {template_path} is still a clean template.")
