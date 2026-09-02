@@ -1,0 +1,18 @@
+INFO:     Started server process [12982]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8420 (Press CTRL+C to quit)
+INFO:     127.0.0.1:55876 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55877 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55878 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55879 - "GET /static/Victor_Chowdhury_CV_Data_AI.pdf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55886 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55949 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55949 - "GET /static/appeasement-analysis.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55950 - "GET /static/weekly-update.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55950 - "GET /static/call-complexity.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55949 - "GET /static/ai-vs-bi.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55949 - "GET /static/prioritization-framework.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55949 - "GET /static/cert1.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55949 - "GET /static/cert2.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55968 - "GET /favicon.ico HTTP/1.1" 404 Not Found
