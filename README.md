@@ -38,10 +38,10 @@ though those files physically sit right next to the images.
 ```
 content.py              # single source of truth for all copy/data
 main.py                 # FastAPI app, one route, AssetOnlyStaticFiles guard
-index.html              # Jinja2 template (Tailwind CDN + vanilla JS tab switch)
+template.html           # Jinja2 template (Tailwind CDN + vanilla JS tab switch)
 *.png, *.pdf            # work-sample/article/certificate thumbnails + résumés
 build_portable.py       # bundles the rendered page + all assets into one HTML file
-victor-chowdhury-portfolio-portable.html   # the shareable, self-contained build
+index.html              # the shareable, self-contained build (double-click to open)
 ```
 
 To refresh the portable build after editing content or swapping an asset,

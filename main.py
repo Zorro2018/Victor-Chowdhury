@@ -52,7 +52,7 @@ templates = Jinja2Templates(directory=".")
 def home(request: Request):
     return templates.TemplateResponse(
         request,
-        "index.html",
+        "template.html",
         {
             "profile": content.PROFILE,
             "about": content.ABOUT,

@@ -11,7 +11,7 @@ those still need internet, everything else does not.
 
 Run (with `uvicorn main:app --port 8420` already running):
     python3 build_portable.py
-Writes: victor-chowdhury-portfolio-portable.html
+Writes: index.html
 """
 import base64
 import mimetypes
@@ -21,7 +21,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent
 SITE_URL = "http://127.0.0.1:8420/"
-OUT_PATH = ROOT / "victor-chowdhury-portfolio-portable.html"
+OUT_PATH = ROOT / "index.html"
 
 
 def fetch_rendered_html() -> str:
@@ -49,9 +49,9 @@ def inline_static_assets(html: str) -> str:
 
 
 if __name__ == "__main__":
-    template_path = ROOT / "index.html"
+    template_path = ROOT / "template.html"
     assert OUT_PATH.resolve() != template_path.resolve(), (
-        "OUT_PATH must never be index.html -- refusing to run."
+        "OUT_PATH must never be template.html -- refusing to run."
     )
 
     html = fetch_rendered_html()
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     print(f"Inlined {before_refs - after_refs} of {before_refs} /static/ references")
     print(f"Wrote {OUT_PATH} ({OUT_PATH.stat().st_size / 1_000_000:.2f} MB)")
 
-    # Tripwire: this project's index.html got mysteriously clobbered with
+    # Tripwire: this project's template.html got mysteriously clobbered with
     # fully-rendered content more than once during development. Whatever the
     # cause, fail loudly right here rather than silently shipping a broken
     # template on the next request.
@@ -70,6 +70,6 @@ if __name__ == "__main__":
     assert still_a_template, (
         f"DANGER: {template_path} no longer looks like a Jinja2 template "
         "(no '{{ profile' found) after running this script. Restore it "
-        "immediately with: git checkout HEAD -- index.html"
+        "immediately with: git checkout HEAD -- template.html"
     )
     print(f"OK: {template_path} is still a clean template.")
