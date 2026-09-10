@@ -39,10 +39,6 @@ ABOUT = [
         "increasingly, the AI agents that put certified answers in a leader's hands without a "
         "request queue in between."
     ),
-    (
-        "Equally at home setting three-year data strategy and prototyping the thing that proves "
-        "it \u2014 comfortable with ambiguity, allergic to dashboards nobody acts on."
-    ),
 ]
 
 # ---------------------------------------------------------------------------
@@ -143,8 +139,12 @@ BUCKETS = [
                 "tag": "AI-based CRM Platform",
                 "body": "Partnered directly with Product on AI-based voice and chat agents on the "
                         "CRM platform \u2014 requirements and problem framing, pilot design, launch "
-                        "readiness, adoption tracking, and post-launch iteration. Part of a broader "
-                        "CRM AI push that delivered $36M in realized savings.",
+                        "readiness, adoption tracking, and post-launch iteration. Built sentiment "
+                        "analysis into the measurement layer to track how customers actually felt "
+                        "about AI-handled interactions turn by turn, not just whether the contact "
+                        "resolved \u2014 catching tone and satisfaction drift early enough to fix it "
+                        "before it showed up in CSAT. Part of a broader CRM AI push that delivered "
+                        "$36M in realized savings.",
             },
             {
                 "title": "Computer Vision at the Store of the Future",
@@ -278,6 +278,16 @@ BUCKETS = [
                 "body": "Used text analytics to diagnose root causes across the bottom 10% of "
                         "Sam's Club locations and target intervention precisely \u2014 grounded by "
                         "running field inspections as first-hand user research.",
+            },
+            {
+                "title": "Call Complexity Scorecard: Scoring Every Contact",
+                "tag": "Predictive Scoring",
+                "body": "Built a weighted, six-factor model that scores every contact Low, "
+                        "Medium, or High complexity from contact reason, workflow count, talk %, "
+                        "repeat calls, transfers, and genuine/non-genuine intent \u2014 giving CES a "
+                        "defensible, auditable score to strategize call routing, headcount and "
+                        "skills planning, and scheduling around the real complexity mix instead of "
+                        "raw contact volume.",
             },
         ],
     },
@@ -434,6 +444,32 @@ WORK_SAMPLES = [
         ),
         "thumbnail": "/static/call-complexity.png",
         "url": "https://zorro2018.github.io/Call-Complexity/",
+    },
+    {
+        "title": "Call Complexity vs. Self-Serve Rate",
+        "tag": "Contact Center Analytics",
+        "description": (
+            "Pairs the Call Complexity score against Self-Serve Rate by workflow and "
+            "over time \u2014 a strong negative correlation shows self-service winning "
+            "on the easy stuff while the residual, agent-handled mix quietly gets "
+            "harder, the kind of insight that keeps an SSR win from masking a rising "
+            "AHT problem."
+        ),
+        "thumbnail": "/static/call-complexity-vs-ssr.png",
+        "url": "https://zorro2018.github.io/call-complexity-vs-SSR/",
+    },
+    {
+        "title": "AISLEONE CRM Portable Dashboard Demos",
+        "tag": "Product Analytics Suite",
+        "description": (
+            "Six sanitized, standalone reporting dashboards \u2014 Agent Assist, AHT "
+            "Savings, AHT Deepdive, Fixit Ops, QSR, and Spark \u2014 rebuilt as "
+            "zero-backend, single-file demos with synthetic data so the full product "
+            "analytics story (AHT trends, SLA compliance, contact-reason mix, cost per "
+            "order) can be shared and explored without exposing production data."
+        ),
+        "thumbnail": "/static/product-analytics.png",
+        "url": "https://zorro2018.github.io/Product-Analytics/",
     },
 ]
 
