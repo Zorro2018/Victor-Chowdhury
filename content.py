@@ -471,6 +471,20 @@ WORK_SAMPLES = [
         "thumbnail": "/static/product-analytics.png",
         "url": "https://zorro2018.github.io/Product-Analytics/",
     },
+    {
+        "title": "Creative Solutions: The Store Summary",
+        "tag": "Facility Services",
+        "description": (
+            "When live Tableau/Power BI dashboards kept failing store leaders on bad "
+            "in-store WiFi and unpredictable BI servers, the fix wasn't a better "
+            "dashboard \u2014 it was removing the live connection entirely. A leader "
+            "emails a store number, Power Automate filters the data and renders a "
+            "PDF + open-work-order list, and both land back in their inbox in about "
+            "120 seconds, readable offline before they ever walk in the door."
+        ),
+        "thumbnail": "/static/store-summary.png",
+        "url": "https://zorro2018.github.io/Store-Summary/",
+    },
 ]
 
 # ---------------------------------------------------------------------------
