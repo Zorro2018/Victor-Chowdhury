@@ -485,6 +485,34 @@ WORK_SAMPLES = [
         "thumbnail": "/static/store-summary.png",
         "url": "https://zorro2018.github.io/Store-Summary/",
     },
+    {
+        "title": "From Data to Story: The Weekly Narrative",
+        "tag": "Walmart Fulfillment Services",
+        "description": (
+            "Before AI copilots existed, a ~30-page weekly scorecard export got hand-"
+            "translated into a single leadership email every week \u2014 every KPI framed "
+            "three ways (week-over-week, year-over-year, vs. plan), backed by a formal "
+            "root-cause process, and closed out with a curated scan of industry and "
+            "competitive news so leadership always knew whether a miss was Walmart-"
+            "specific or market-wide."
+        ),
+        "thumbnail": "/static/data-to-story.png",
+        "url": "https://zorro2018.github.io/Data-to-Story/",
+    },
+    {
+        "title": "Intelligent Retail Lab: From Faster Checkout to Smarter Shrink",
+        "tag": "Intelligent Retail Lab",
+        "description": (
+            "Two computer-vision workstreams, one shared discipline: for the next-gen "
+            "self-checkout unit, I broke down thousands of reviewed transactions into "
+            "scan-time and tender-time micro-phases to pinpoint exactly which technology "
+            "and design choices actually cut friction; for asset protection, I built the "
+            "forecasting model that turned raw shrink-detection data into a risk-adjusted, "
+            "defensible savings and forecast number for leadership."
+        ),
+        "thumbnail": "/static/frictionless-checkout.png",
+        "url": "https://zorro2018.github.io/frictionless-checkout-solutions/",
+    },
 ]
 
 # ---------------------------------------------------------------------------
