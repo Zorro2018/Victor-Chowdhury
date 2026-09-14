@@ -368,6 +368,7 @@ TIMELINE = [
 
 CAPABILITIES = [
     "AI & Analytics Strategy / Roadmapping",
+    "Strategic Thinking",
     "Agentic AI & GenAI Applications",
     "Product Analytics & Instrumentation",
     "Enterprise Metric & Semantic Layers",
@@ -378,10 +379,12 @@ CAPABILITIES = [
     "Conversational AI (Voice & Chat)",
     "Business Case & Investment Framing",
     "Executive Stakeholder Influence",
+    "Cross-Functional Leadership",
     "Org Building & Talent Development",
     "Operating Model & Governance Design",
     "Capital & Expense Optimization",
     "Responsible AI, Risk & Privacy",
+    "Data Storytelling & Narrative Design",
     "Rapid Prototyping / \u201cVibe Coding\u201d",
 ]
 
