@@ -577,10 +577,11 @@ ARTICLES = [
 CERTIFICATES = [
     {
         "title": "Certificate in Product Management",
-        "tag": "Cornell Tech · Nov 2020",
+        "tag": "Cornell Tech \u00b7 Nov 2020",
+        "brand": "cornell",
         "description": (
             "Verified credential from Cornell Tech covering product strategy, discovery, "
-            "and roadmapping — the foundation underneath the product-analytics work in the "
+            "and roadmapping \u2014 the foundation underneath the product-analytics work in the "
             "Experience section above."
         ),
         "thumbnail": "/static/cert1.png",
@@ -588,10 +589,11 @@ CERTIFICATES = [
     },
     {
         "title": "Certificate in Machine Learning",
-        "tag": "Cornell Ann S. Bowers CIS · Apr 2021",
+        "tag": "Cornell Ann S. Bowers CIS \u00b7 Apr 2021",
+        "brand": "cornell",
         "description": (
             "Verified credential from Cornell's Ann S. Bowers College of Computing and "
-            "Information Science — the technical grounding behind the ML deployment and "
+            "Information Science \u2014 the technical grounding behind the ML deployment and "
             "computer-vision work at Intelligent Retail Lab."
         ),
         "thumbnail": "/static/cert2.png",
@@ -599,10 +601,11 @@ CERTIFICATES = [
     },
     {
         "title": "15.071x: The Analytics Edge",
-        "tag": "MITx (edX) · May 2015",
+        "tag": "MITx (edX) \u00b7 May 2015",
+        "brand": "mitx",
         "description": (
             "Verified certificate from MIT Sloan's Operations Research and Statistics "
-            "faculty — data-driven decision-making, regression, classification, and "
+            "faculty \u2014 data-driven decision-making, regression, classification, and "
             "optimization, taught by Dimitris Bertsimas and Allison O'Hair."
         ),
         "thumbnail": "/static/cert-analytics-edge.png",
@@ -610,10 +613,11 @@ CERTIFICATES = [
     },
     {
         "title": "6.00.1x: Intro to Computer Science and Programming Using Python",
-        "tag": "MITx (edX) · Mar 2016",
+        "tag": "MITx (edX) \u00b7 Mar 2016",
+        "brand": "mitx",
         "description": (
             "Verified certificate from MIT's Department of Electrical Engineering and "
-            "Computer Science — the Python foundation underneath the analytics and "
+            "Computer Science \u2014 the Python foundation underneath the analytics and "
             "tooling work throughout this site."
         ),
         "thumbnail": "/static/cert-python.png",
@@ -621,9 +625,10 @@ CERTIFICATES = [
     },
     {
         "title": "Tableau Desktop Specialist",
-        "tag": "Tableau · May 2019",
+        "tag": "Tableau \u00b7 May 2019",
+        "brand": "tableau",
         "description": (
-            "Certified on essential Tableau Desktop knowledge and data analysis — the "
+            "Certified on essential Tableau Desktop knowledge and data analysis \u2014 the "
             "dashboarding and visualization skill set behind the BI reporting work "
             "referenced across the Product and Data lenses above."
         ),
@@ -632,20 +637,34 @@ CERTIFICATES = [
     },
     {
         "title": "Alteryx Designer Core",
-        "tag": "Alteryx · Apr 2018",
+        "tag": "Alteryx \u00b7 Apr 2018",
+        "brand": "alteryx",
         "description": (
             "Certified on Alteryx Designer's core data-prep and workflow-automation "
-            "toolset — part of the analytics engineering behind the pricing, "
+            "toolset \u2014 part of the analytics engineering behind the pricing, "
             "reporting, and pipeline work referenced throughout this site."
         ),
         "thumbnail": "/static/cert-alteryx.png",
         "url": "https://www.alteryx.com/certification",
     },
     {
-        "title": "Google Analytics for Beginners",
-        "tag": "Google Analytics Academy · Expired May 2022",
+        "title": "Core Designer Certificate",
+        "tag": "Dataiku \u00b7 May 2023",
+        "brand": "dataiku",
         "description": (
-            "Certificate of completion from Google Analytics Academy — core web "
+            "Certified on Dataiku's core visual data-prep and workflow-design "
+            "toolset \u2014 another pillar of the analytics-engineering skill set "
+            "underneath the pipeline and automation work referenced throughout this site."
+        ),
+        "thumbnail": "/static/cert-dataiku.png",
+        "url": "https://verify.skilljar.com/c/63rx89864dyo",
+    },
+    {
+        "title": "Google Analytics for Beginners",
+        "tag": "Google Analytics Academy \u00b7 Expired May 2022",
+        "brand": "google",
+        "description": (
+            "Certificate of completion from Google Analytics Academy \u2014 core web "
             "analytics and measurement fundamentals underpinning the instrumentation "
             "and funnel-analysis work in the Product lens above."
         ),
@@ -654,10 +673,11 @@ CERTIFICATES = [
     },
     {
         "title": "Introduction to Generative AI for Data Analysis",
-        "tag": "Microsoft · Coursera · May 2025",
+        "tag": "Microsoft \u00b7 Coursera \u00b7 May 2025",
+        "brand": "microsoft",
         "description": (
             "Part of the Microsoft Generative AI for Data Analysis Professional "
-            "Certificate — prompt engineering, AI-assisted data cleaning, and "
+            "Certificate \u2014 prompt engineering, AI-assisted data cleaning, and "
             "responsible-AI considerations directly underneath the agentic AI work "
             "in the AI lens above."
         ),
