@@ -513,6 +513,20 @@ WORK_SAMPLES = [
         "thumbnail": "/static/frictionless-checkout.png",
         "url": "https://zorro2018.github.io/frictionless-checkout-solutions/",
     },
+    {
+        "title": "Creative Solutions: The Smart Fuel Pricing Engine",
+        "tag": "Fuel & Convenience",
+        "description": (
+            "Designed and built in 2020, this was Fuel & Convenience's first "
+            "automated pricing tool: it ingested WTI and Brent crude benchmarks "
+            "alongside Kalibrate's third-party competitor pricing, let the pricing "
+            "team set a radius and a price-gap threshold, and ran 24/7 to flag any "
+            "competitor breach with the site, the delta, and an estimated dollar "
+            "cost of not repricing \u2014 delivered via Power BI and mobile alerts."
+        ),
+        "thumbnail": "/static/fuel-and-convenience.png",
+        "url": "https://zorro2018.github.io/Fuel-and-Convenience/",
+    },
 ]
 
 # ---------------------------------------------------------------------------
