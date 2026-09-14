@@ -652,4 +652,16 @@ CERTIFICATES = [
         "thumbnail": "/static/cert-google-analytics.png",
         "url": "https://analytics.google.com/analytics/academy/",
     },
+    {
+        "title": "Introduction to Generative AI for Data Analysis",
+        "tag": "Microsoft · Coursera · May 2025",
+        "description": (
+            "Part of the Microsoft Generative AI for Data Analysis Professional "
+            "Certificate — prompt engineering, AI-assisted data cleaning, and "
+            "responsible-AI considerations directly underneath the agentic AI work "
+            "in the AI lens above."
+        ),
+        "thumbnail": "/static/cert-genai-data-analysis.png",
+        "url": "https://www.coursera.org/learn/introduction-to-generative-ai-for-data-analysis",
+    },
 ]
