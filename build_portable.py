@@ -54,8 +54,10 @@ def inline_static_assets(html: str) -> str:
             print(f"WARNING: {local_path} not found, leaving reference as-is")
             return match.group(0)
 
-        if local_path.suffix.lower() == ".pdf":
-            # Leave as a plain relative link -- see module docstring.
+        if local_path.suffix.lower() in {".pdf", ".vcf"}:
+            # Leave as a plain relative link -- see module docstring. vCards
+            # are also better as a real downloadable file than a data URI,
+            # since some contact-app "import" flows expect an actual file.
             return f'{attr}="{filename}"'
 
         if local_path.suffix.lower() not in INLINE_EXTENSIONS:

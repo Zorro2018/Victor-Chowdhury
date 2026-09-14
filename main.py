@@ -20,7 +20,7 @@ import content
 # Extensions that are safe to serve publicly from the flat project root.
 # Everything else (.py, .md, .txt, .gitignore, etc.) 404s even though it
 # physically lives in the same folder as the assets below.
-_SERVABLE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".svg", ".ico", ".pdf", ".css", ".js"}
+_SERVABLE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".svg", ".ico", ".pdf", ".css", ".js", ".vcf"}
 
 
 class AssetOnlyStaticFiles(StaticFiles):
