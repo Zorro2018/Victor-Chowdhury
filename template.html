@@ -5,6 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{{ profile.name }} &mdash; {{ profile.tagline }}</title>
 <meta name="description" content="{{ profile.subhead }}">
+
+<!-- Open Graph / Twitter preview card -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{ profile.name }} &mdash; {{ profile.tagline }}">
+<meta property="og:description" content="{{ profile.subhead }}">
+<meta property="og:image" content="https://zorro2018.github.io/Victor-Chowdhury/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://zorro2018.github.io/Victor-Chowdhury/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ profile.name }} &mdash; {{ profile.tagline }}">
+<meta name="twitter:description" content="{{ profile.subhead }}">
+<meta name="twitter:image" content="https://zorro2018.github.io/Victor-Chowdhury/og-image.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700;8..60,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -90,22 +104,38 @@
   .samples-nav:hover { background: #fff; transform: translateY(-50%) scale(1.08); }
   .samples-nav.prev { left: 0.4rem; }
   .samples-nav.next { right: 0.4rem; }
+
+  /* Scroll progress bar */
+  #scrollProgress {
+    position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+    background: linear-gradient(90deg, #FFC220, #E4A400);
+    z-index: 60; transition: width 0.08s linear;
+  }
+
+  /* Scroll-spy nav link state */
+  .nav-link.active-nav { color: #0F7B6C; font-weight: 700; }
+
+  /* Count-up impact metrics -- avoid layout shift before JS sets the digits */
+  .impact-metric { font-variant-numeric: tabular-nums; }
 </style>
 </head>
 <body class="bg-white text-ink">
+
+<!-- SCROLL PROGRESS BAR -->
+<div id="scrollProgress"></div>
 
 <!-- NAV -->
 <nav class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-gray-200">
   <div class="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
     <a href="#top" class="serif font-bold text-lg text-navy">{{ profile.name }}</a>
     <div class="hidden md:flex items-center gap-7 text-sm font-medium text-slate2">
-      <a href="#impact" class="hover:text-accent">Impact</a>
-      <a href="#work" class="hover:text-accent">Experience</a>
-      <a href="#samples" class="hover:text-accent">Work Samples</a>
-      <a href="#articles" class="hover:text-accent">Articles</a>
-      <a href="#certificates" class="hover:text-accent">Certificates</a>
-      <a href="#timeline" class="hover:text-accent">Career</a>
-      <a href="#about" class="hover:text-accent">About</a>
+      <a href="#impact" class="nav-link hover:text-accent">Impact</a>
+      <a href="#work" class="nav-link hover:text-accent">Experience</a>
+      <a href="#samples" class="nav-link hover:text-accent">Work Samples</a>
+      <a href="#articles" class="nav-link hover:text-accent">Articles</a>
+      <a href="#certificates" class="nav-link hover:text-accent">Certificates</a>
+      <a href="#timeline" class="nav-link hover:text-accent">Career</a>
+      <a href="#about" class="nav-link hover:text-accent">About</a>
       <a href="{{ profile.linkedin }}" target="_blank" rel="noopener"
          class="px-4 py-2 rounded-full bg-navy text-white hover:bg-navy-2 transition">LinkedIn</a>
     </div>
@@ -147,7 +177,7 @@
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
     {% for item in impact %}
     <div class="border border-gray-200 rounded-xl p-5 hover:border-accent hover:shadow-md transition bg-white">
-      <div class="serif font-black text-2xl md:text-3xl text-navy leading-none mb-2">{{ item.metric }}</div>
+      <div class="impact-metric serif font-black text-2xl md:text-3xl text-navy leading-none mb-2">{{ item.metric }}</div>
       <div class="font-semibold text-sm text-ink mb-1">{{ item.label }}</div>
       <div class="text-[10px] tracking-[0.1em] uppercase text-accent font-bold mb-3">{{ item.tag }}</div>
       <div class="text-xs text-slate2 leading-relaxed">{{ item.detail }}</div>
@@ -462,6 +492,115 @@
     });
 
     window.addEventListener('resize', () => { oneSetWidth = track.scrollWidth / 2; });
+  })();
+
+  // Scroll progress bar -- thin gold bar tracking how far down the page
+  // the reader is, updated on scroll via rAF to avoid layout thrash.
+  (function initScrollProgress() {
+    const bar = document.getElementById('scrollProgress');
+    if (!bar) return;
+    let ticking = false;
+    function update() {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const pct = height > 0 ? (scrollTop / height) * 100 : 0;
+      bar.style.width = pct + '%';
+      ticking = false;
+    }
+    window.addEventListener('scroll', () => {
+      if (!ticking) { requestAnimationFrame(update); ticking = true; }
+    }, { passive: true });
+    update();
+  })();
+
+  // Scroll-spy nav -- highlights whichever section heading is currently
+  // in view, so the nav reflects where the reader actually is on the page.
+  (function initScrollSpy() {
+    const sectionIds = ['impact', 'work', 'samples', 'articles', 'certificates', 'timeline', 'about'];
+    const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
+    const links = Array.from(document.querySelectorAll('.nav-link'));
+    if (!sections.length || !links.length) return;
+
+    function setActive(id) {
+      links.forEach(link => {
+        const isMatch = link.getAttribute('href') === '#' + id;
+        link.classList.toggle('active-nav', isMatch);
+      });
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      // Prefer the entry closest to the top of the viewport among those visible.
+      const visible = entries.filter(e => e.isIntersecting);
+      if (visible.length) {
+        visible.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        setActive(visible[0].target.id);
+      }
+    }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+
+    sections.forEach(section => observer.observe(section));
+  })();
+
+  // Count-up animation for the "Impact, by the numbers" tiles. Parses
+  // formats like "$36M", "35%", and "51% \u2192 73.5%" -- animates the
+  // numeric portion from 0 (or, for an arrow transition, keeps the "before"
+  // value static and animates just the "after" number) while preserving
+  // whatever currency symbol / % / unit letter surrounds it. Anything that
+  // doesn't look like a clean number+unit (e.g. a product name like
+  // "AISLE1") is left exactly as rendered.
+  (function initCountUp() {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const els = document.querySelectorAll('.impact-metric');
+    if (!els.length) return;
+
+    function parseSimple(str) {
+      const m = str.trim().match(/^([$€£]?)(\d+(?:\.\d+)?)(%|M|K|B|Cr|L)?$/);
+      if (!m) return null;
+      const numStr = m[2];
+      return {
+        prefix: m[1] || '',
+        suffix: m[3] || '',
+        value: parseFloat(numStr),
+        decimals: numStr.includes('.') ? numStr.split('.')[1].length : 0,
+      };
+    }
+
+    function parseMetric(raw) {
+      const arrowSplit = raw.split(/\s*(?:\u2192|->)\s*/);
+      if (arrowSplit.length === 2) {
+        const after = parseSimple(arrowSplit[1]);
+        if (!after) return null;
+        return { before: arrowSplit[0].trim(), ...after };
+      }
+      const simple = parseSimple(raw);
+      return simple ? { before: null, ...simple } : null;
+    }
+
+    function animate(el, parsed) {
+      const { before, prefix, suffix, value, decimals } = parsed;
+      const duration = 1200;
+      const start = performance.now();
+      function frame(now) {
+        const t = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
+        const current = (value * eased).toFixed(decimals);
+        el.textContent = (before ? before + ' \u2192 ' : '') + prefix + current + suffix;
+        if (t < 1) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        obs.unobserve(el);
+        const parsed = parseMetric(el.textContent);
+        if (!parsed || reducedMotion) return; // leave static text as-is
+        animate(el, parsed);
+      });
+    }, { threshold: 0.4 });
+
+    els.forEach(el => observer.observe(el));
   })();
 </script>
 
