@@ -641,4 +641,15 @@ CERTIFICATES = [
         "thumbnail": "/static/cert-alteryx.png",
         "url": "https://www.alteryx.com/certification",
     },
+    {
+        "title": "Google Analytics for Beginners",
+        "tag": "Google Analytics Academy · Expired May 2022",
+        "description": (
+            "Certificate of completion from Google Analytics Academy — core web "
+            "analytics and measurement fundamentals underpinning the instrumentation "
+            "and funnel-analysis work in the Product lens above."
+        ),
+        "thumbnail": "/static/cert-google-analytics.png",
+        "url": "https://analytics.google.com/analytics/academy/",
+    },
 ]
