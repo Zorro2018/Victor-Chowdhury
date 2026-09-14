@@ -358,7 +358,6 @@
     <div class="carousel-viewport" id="certsViewport">
       <div class="carousel-track" id="certsTrack">
       {% for c in certificates %}{{ cert_card(c) }}{% endfor %}
-      {% for c in certificates %}{{ cert_card(c, duplicate=True) }}{% endfor %}
       </div>
     </div>
   </div>
@@ -466,10 +465,14 @@
   // Work Samples / Certificates filmstrip -- ambient auto-scroll (rAF-driven
   // native scroll, not a CSS transform animation, so the prev/next buttons
   // can nudge the exact same scroll position without fighting an animation
-  // timeline). Each track's content is duplicated once (see the two-loop
-  // macros above), so wrapping scrollLeft past the width of one set loops
-  // seamlessly back to the start. Shared by both carousels via config.
-  function initFilmstripCarousel({ viewportId, trackId, prevId, nextId, cardSelector, pxPerSecond }) {
+  // timeline). Two modes:
+  //  - loop:true  -- the track's content is duplicated once (see the two-loop
+  //    sample_card macro), so wrapping scrollLeft past one set's width loops
+  //    seamlessly back to the start. Used by Work Samples.
+  //  - loop:false -- no duplicated cards in the DOM at all (each certificate
+  //    appears exactly once); auto-scroll instead bounces back and forth
+  //    between the two ends. Used by Certificates, so no card ever repeats.
+  function initFilmstripCarousel({ viewportId, trackId, prevId, nextId, cardSelector, pxPerSecond, loop = true }) {
     const viewport = document.getElementById(viewportId);
     const track = document.getElementById(trackId);
     const prevBtn = document.getElementById(prevId);
@@ -477,7 +480,8 @@
     if (!viewport || !track || !prevBtn || !nextBtn) return;
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let oneSetWidth = track.scrollWidth / 2;
+    let oneSetWidth = loop ? track.scrollWidth / 2 : 0;
+    let direction = 1; // only used when loop is false
     let paused = reducedMotion;
     let resumeTimer = null;
     let lastTs = null;
@@ -486,6 +490,10 @@
       const card = track.querySelector(cardSelector);
       const gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap) || 24;
       return (card ? card.offsetWidth : 320) + gap;
+    }
+
+    function maxScroll() {
+      return Math.max(0, track.scrollWidth - viewport.clientWidth);
     }
 
     function wrapIfNeeded() {
@@ -499,8 +507,15 @@
       const dt = (ts - lastTs) / 1000;
       lastTs = ts;
       if (!paused) {
-        viewport.scrollLeft += pxPerSecond * dt;
-        wrapIfNeeded();
+        if (loop) {
+          viewport.scrollLeft += pxPerSecond * dt;
+          wrapIfNeeded();
+        } else {
+          viewport.scrollLeft += direction * pxPerSecond * dt;
+          const max = maxScroll();
+          if (viewport.scrollLeft >= max) { viewport.scrollLeft = max; direction = -1; }
+          else if (viewport.scrollLeft <= 0) { viewport.scrollLeft = 0; direction = 1; }
+        }
       }
       requestAnimationFrame(tick);
     }
@@ -524,31 +539,36 @@
 
     nextBtn.addEventListener('click', () => {
       pauseTemporarily();
+      direction = 1;
       viewport.scrollBy({ left: cardStep(), behavior: reducedMotion ? 'auto' : 'smooth' });
     });
     prevBtn.addEventListener('click', () => {
       pauseTemporarily();
       const step = cardStep();
-      // Native scrollLeft can't go negative -- if we're near the start,
-      // silently teleport into the duplicate second set first (instant,
-      // imperceptible since it's identical content), then scroll back by
-      // one card so "previous" always has somewhere to go.
-      if (viewport.scrollLeft < step) viewport.scrollLeft += oneSetWidth;
+      if (loop) {
+        // Native scrollLeft can't go negative -- if we're near the start,
+        // silently teleport into the duplicate second set first (instant,
+        // imperceptible since it's identical content), then scroll back by
+        // one card so "previous" always has somewhere to go.
+        if (viewport.scrollLeft < step) viewport.scrollLeft += oneSetWidth;
+      } else {
+        direction = -1;
+      }
       viewport.scrollBy({ left: -step, behavior: reducedMotion ? 'auto' : 'smooth' });
     });
 
-    window.addEventListener('resize', () => { oneSetWidth = track.scrollWidth / 2; });
+    window.addEventListener('resize', () => { oneSetWidth = loop ? track.scrollWidth / 2 : 0; });
   }
 
   initFilmstripCarousel({
     viewportId: 'samplesViewport', trackId: 'samplesTrack',
     prevId: 'samplesPrev', nextId: 'samplesNext',
-    cardSelector: '.carousel-card', pxPerSecond: 28, // slow enough to read a card while it drifts by
+    cardSelector: '.carousel-card', pxPerSecond: 28, loop: true, // slow enough to read a card while it drifts by
   });
   initFilmstripCarousel({
     viewportId: 'certsViewport', trackId: 'certsTrack',
     prevId: 'certsPrev', nextId: 'certsNext',
-    cardSelector: '.carousel-card', pxPerSecond: 24,
+    cardSelector: '.carousel-card', pxPerSecond: 24, loop: false, // no duplicated cards -- bounces instead of looping
   });
 
   // Scroll progress bar -- thin gold bar tracking how far down the page
