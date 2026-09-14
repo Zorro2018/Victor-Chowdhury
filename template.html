@@ -296,20 +296,58 @@
   <div class="max-w-6xl mx-auto px-6 py-20">
     <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">Certificates</div>
     <h2 class="serif font-bold text-3xl text-navy mb-3">Verified credentials</h2>
-    <p class="text-slate2 max-w-2xl mb-10">Click through to verify directly with the issuing institution.</p>
+    <p class="text-slate2 max-w-2xl mb-10">Click through to verify directly with the issuing institution. University credentials are marked with a Cornell banner; platform certifications carry the issuer's mark.</p>
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
       {% for c in certificates %}
       <a href="{{ c.url }}" target="_blank" rel="noopener"
-         class="group block bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg hover:border-accent transition">
-        <div class="aspect-[16/10] overflow-hidden bg-gray-100 border-b border-gray-200">
+         class="group block bg-white border rounded-xl overflow-hidden transition hover:shadow-lg {{ 'border-[#B31B1B]/30 hover:border-[#B31B1B]' if c.brand == 'cornell' else 'border-gray-200 hover:border-accent' }}">
+        <div class="relative aspect-[16/10] overflow-hidden bg-gray-100 border-b border-gray-200">
           <img src="{{ c.thumbnail }}" alt="{{ c.title }}" loading="lazy"
                class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300">
+
+          {% if c.brand == 'cornell' %}
+          <!-- University-credential ribbon -- visually separates Cornell degrees/certs
+               from the platform certifications below. -->
+          <div class="absolute top-0 inset-x-0 bg-[#B31B1B] text-white text-[10px] font-bold tracking-[0.2em] uppercase text-center py-1.5 shadow-sm">
+            Cornell University
+          </div>
+          {% else %}
+          <!-- Issuer badge -- small brand mark so the certifying platform is
+               recognizable at a glance without reading the tag text. -->
+          <div class="absolute bottom-2.5 right-2.5 w-9 h-9 rounded-full bg-white shadow-md ring-1 ring-black/5 flex items-center justify-center overflow-hidden">
+            {% if c.brand == 'mitx' %}
+            <span class="text-[11px] font-black tracking-tight"><span style="color:#E31C79">ed</span><span style="color:#1F2D5C">X</span></span>
+            {% elif c.brand == 'tableau' %}
+            <span class="grid grid-cols-2 gap-[2px]">
+              <span class="w-[7px] h-[7px] rounded-sm" style="background:#4E79A7"></span>
+              <span class="w-[7px] h-[7px] rounded-sm" style="background:#F28E2B"></span>
+              <span class="w-[7px] h-[7px] rounded-sm" style="background:#59A14F"></span>
+              <span class="w-[7px] h-[7px] rounded-sm" style="background:#E15759"></span>
+            </span>
+            {% elif c.brand == 'alteryx' %}
+            <span class="text-sm font-black lowercase" style="color:#0078C8">a</span>
+            {% elif c.brand == 'dataiku' %}
+            <span class="w-0 h-0 relative" style="border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:12px solid #FFC935">
+              <span class="absolute -top-[9px] left-1/2 -translate-x-1/2 w-[3px] h-[3px] rounded-full" style="background:#0D1B34"></span>
+            </span>
+            {% elif c.brand == 'google' %}
+            <span class="text-xs font-black"><span style="color:#4285F4">G</span><span style="color:#EA4335">A</span></span>
+            {% elif c.brand == 'microsoft' %}
+            <span class="grid grid-cols-2 gap-[2px]">
+              <span class="w-[7px] h-[7px]" style="background:#F25022"></span>
+              <span class="w-[7px] h-[7px]" style="background:#7FBA00"></span>
+              <span class="w-[7px] h-[7px]" style="background:#00A4EF"></span>
+              <span class="w-[7px] h-[7px]" style="background:#FFB900"></span>
+            </span>
+            {% endif %}
+          </div>
+          {% endif %}
         </div>
         <div class="p-5">
-          <div class="text-[10px] tracking-[0.12em] uppercase text-accent font-bold mb-2">{{ c.tag }}</div>
+          <div class="text-[10px] tracking-[0.12em] uppercase font-bold mb-2 {{ 'text-[#B31B1B]' if c.brand == 'cornell' else 'text-accent' }}">{{ c.tag }}</div>
           <h3 class="serif font-bold text-lg text-navy mb-2 leading-snug group-hover:text-accent transition">{{ c.title }}</h3>
           <p class="text-sm text-[#3A4459] leading-relaxed mb-3">{{ c.description }}</p>
-          <div class="text-xs font-semibold text-accent">Verify credential &rarr;</div>
+          <div class="text-xs font-semibold {{ 'text-[#B31B1B]' if c.brand == 'cornell' else 'text-accent' }}">Verify credential &rarr;</div>
         </div>
       </a>
       {% endfor %}
