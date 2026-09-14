@@ -4,10 +4,19 @@ be emailed, dragged into Slack, or opened via file:// with zero server and
 zero local file dependencies.
 
 Fetches the already-Jinja2-rendered page from the running dev server (so all
-templating is resolved), then inlines every /static/... image and resume PDF
-as a base64 data URI. Google Fonts + Tailwind CDN remain as external <link>/
-<script> tags (same tradeoff used for the Call Complexity portable demo) --
-those still need internet, everything else does not.
+templating is resolved), then inlines every /static/... IMAGE as a base64
+data URI. PDFs (resumes) are deliberately left as plain relative links
+instead of being inlined -- three resumes' worth of base64 PDF text used to
+balloon this file into the 10+ MB range, which is a slow, janky first
+open on mobile. Since index.html is committed to the repo root alongside
+the actual PDF files (and served that way from GitHub Pages), a bare
+relative filename resolves correctly there, and also works if someone
+downloads the whole repo and opens index.html locally -- the PDFs just
+need to stay sitting next to it.
+
+Google Fonts + Tailwind CDN remain as external <link>/<script> tags (same
+tradeoff used for the Call Complexity portable demo) -- those still need
+internet, everything else (aside from the linked PDFs) does not.
 
 Run (with `uvicorn main:app --port 8420` already running):
     python3 build_portable.py
@@ -22,6 +31,10 @@ from pathlib import Path
 ROOT = Path(__file__).parent
 SITE_URL = "http://127.0.0.1:8420/"
 OUT_PATH = ROOT / "index.html"
+
+# Extensions that get base64-inlined. PDFs are excluded on purpose -- see
+# the module docstring -- and instead rewritten to a bare relative link.
+INLINE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".svg", ".ico"}
 
 
 def fetch_rendered_html() -> str:
@@ -40,6 +53,14 @@ def inline_static_assets(html: str) -> str:
         if not local_path.exists():
             print(f"WARNING: {local_path} not found, leaving reference as-is")
             return match.group(0)
+
+        if local_path.suffix.lower() == ".pdf":
+            # Leave as a plain relative link -- see module docstring.
+            return f'{attr}="{filename}"'
+
+        if local_path.suffix.lower() not in INLINE_EXTENSIONS:
+            return match.group(0)
+
         mime, _ = mimetypes.guess_type(str(local_path))
         mime = mime or "application/octet-stream"
         data = base64.b64encode(local_path.read_bytes()).decode("ascii")
@@ -59,7 +80,8 @@ if __name__ == "__main__":
     html = inline_static_assets(html)
     after_refs = len(re.findall(r'/static/', html))
     OUT_PATH.write_text(html)
-    print(f"Inlined {before_refs - after_refs} of {before_refs} /static/ references")
+    print(f"Resolved {before_refs - after_refs} of {before_refs} /static/ references "
+          f"(images inlined as base64, PDFs relinked as relative files)")
     print(f"Wrote {OUT_PATH} ({OUT_PATH.stat().st_size / 1_000_000:.2f} MB)")
 
     # Tripwire: this project's template.html got mysteriously clobbered with
