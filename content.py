@@ -597,4 +597,26 @@ CERTIFICATES = [
         "thumbnail": "/static/cert2.png",
         "url": "https://mycredentials.ecornell.cornell.edu/credential/DIWWrrVWPN",
     },
+    {
+        "title": "15.071x: The Analytics Edge",
+        "tag": "MITx (edX) · May 2015",
+        "description": (
+            "Verified certificate from MIT Sloan's Operations Research and Statistics "
+            "faculty — data-driven decision-making, regression, classification, and "
+            "optimization, taught by Dimitris Bertsimas and Allison O'Hair."
+        ),
+        "thumbnail": "/static/cert-analytics-edge.png",
+        "url": "https://verify.edx.org/cert/d1ce7f098337499da322ade9d367ebf2",
+    },
+    {
+        "title": "6.00.1x: Intro to Computer Science and Programming Using Python",
+        "tag": "MITx (edX) · Mar 2016",
+        "description": (
+            "Verified certificate from MIT's Department of Electrical Engineering and "
+            "Computer Science — the Python foundation underneath the analytics and "
+            "tooling work throughout this site."
+        ),
+        "thumbnail": "/static/cert-python.png",
+        "url": "https://courses.edx.org/certificates/61a271ab042b43c195d206af897452e8",
+    },
 ]
