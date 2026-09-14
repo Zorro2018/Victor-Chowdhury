@@ -630,4 +630,15 @@ CERTIFICATES = [
         "thumbnail": "/static/cert-tableau.png",
         "url": "https://www.certmetrics.com/tableau/public/verification.aspx",
     },
+    {
+        "title": "Alteryx Designer Core",
+        "tag": "Alteryx · Apr 2018",
+        "description": (
+            "Certified on Alteryx Designer's core data-prep and workflow-automation "
+            "toolset — part of the analytics engineering behind the pricing, "
+            "reporting, and pipeline work referenced throughout this site."
+        ),
+        "thumbnail": "/static/cert-alteryx.png",
+        "url": "https://www.alteryx.com/certification",
+    },
 ]
