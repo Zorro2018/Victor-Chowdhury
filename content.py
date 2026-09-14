@@ -182,6 +182,17 @@ BUCKETS = [
                         "launch.",
             },
             {
+                "title": "Smart Fuel Pricing Engine: Closing the Competitive Gap in Real Time",
+                "tag": "Fuel & Convenience",
+                "body": "Designed and built Fuel & Convenience's first automated pricing tool "
+                        "in 2020: continuous WTI/Brent crude and Kalibrate competitor-pricing "
+                        "feeds, a configurable radius and price-gap threshold, and a BI layer "
+                        "that quantified the dollar cost of any unaddressed breach before "
+                        "alerting the pricing team via Power BI and mobile. Replacing manual, "
+                        "once-a-day price checks with 24/7 monitoring drove an 8.5% quarter-"
+                        "over-quarter increase in gallons sold.",
+            },
+            {
                 "title": "Tech Assist: Turning Maintenance Reactive to Proactive",
                 "tag": "Facility Services",
                 "body": "Partnered with Product to deploy live refrigeration and HVAC telemetry "
