@@ -619,4 +619,15 @@ CERTIFICATES = [
         "thumbnail": "/static/cert-python.png",
         "url": "https://courses.edx.org/certificates/61a271ab042b43c195d206af897452e8",
     },
+    {
+        "title": "Tableau Desktop Specialist",
+        "tag": "Tableau · May 2019",
+        "description": (
+            "Certified on essential Tableau Desktop knowledge and data analysis — the "
+            "dashboarding and visualization skill set behind the BI reporting work "
+            "referenced across the Product and Data lenses above."
+        ),
+        "thumbnail": "/static/cert-tableau.png",
+        "url": "https://www.certmetrics.com/tableau/public/verification.aspx",
+    },
 ]
