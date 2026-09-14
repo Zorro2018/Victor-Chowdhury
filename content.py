@@ -386,8 +386,6 @@ CAPABILITIES = [
 ]
 
 EDUCATION = [
-    {"title": "Certificate, Machine Learning", "org": "Cornell University \u00b7 Apr 2021"},
-    {"title": "Certificate, Product Management", "org": "Cornell University \u00b7 Nov 2020"},
     {"title": "PGDBA, Marketing", "org": "Symbiosis Centre for Distance Learning \u00b7 2012\u20132014"},
     {"title": "B.Tech, Information Technology", "org": "West Bengal University of Technology \u00b7 2006\u20132010"},
 ]
