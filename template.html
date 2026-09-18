@@ -170,6 +170,33 @@
   .chat-bubble.typing span:nth-child(2) { animation-delay: 0.15s; }
   .chat-bubble.typing span:nth-child(3) { animation-delay: 0.3s; }
   @keyframes typingBounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.5; } 30% { transform: translateY(-4px); opacity: 1; } }
+
+  /* "Check My Fit" modal */
+  #jobFitOverlay {
+    position: fixed; inset: 0; z-index: 70; background: rgba(15,23,42,0.6);
+    display: none; align-items: center; justify-content: center; padding: 1rem;
+  }
+  #jobFitOverlay.open { display: flex; }
+  #jobFitModal {
+    background: #fff; border-radius: 1rem; width: 100%; max-width: 540px;
+    max-height: 88vh; overflow-y: auto; box-shadow: 0 30px 70px -15px rgba(0,0,0,0.45);
+  }
+  .fit-spinner {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 3px solid #E4E7ED; border-top-color: #0F7B6C;
+    animation: fitSpin 0.8s linear infinite; margin: 0 auto;
+  }
+  @keyframes fitSpin { to { transform: rotate(360deg); } }
+  .fit-score-ring {
+    width: 110px; height: 110px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1rem; font-weight: 800; font-size: 2rem; color: #16233F;
+    background: conic-gradient(var(--fit-color, #0F7B6C) calc(var(--fit-pct, 0) * 1%), #EDEFF3 0);
+  }
+  .fit-score-ring-inner {
+    width: 88px; height: 88px; border-radius: 50%; background: #fff;
+    display: flex; align-items: center; justify-content: center; flex-direction: column;
+  }
+  .fit-score-ring-inner small { font-size: 0.6rem; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.08em; }
 </style>
 </head>
 <body class="bg-white text-ink">
@@ -221,6 +248,7 @@
       <a href="/static/Victor_Chowdhury_CV_Data_AI.pdf" download="Victor Chowdhury Resume.pdf"
          class="px-5 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm">Download R&eacute;sum&eacute;</a>
       <a href="/static/Victor-Chowdhury.vcf" download class="px-5 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm">Save My Contact</a>
+      <button type="button" id="jobFitLauncher" class="px-5 py-3 rounded-lg bg-accent hover:bg-[#0c665a] transition font-semibold text-sm">Check My Fit &rarr;</button>
     </div>
   </div>
 </header>
@@ -885,9 +913,9 @@
   })();
 </script>
 
-<!-- ASK ABOUT MY WORK -- lightweight, on-page Q&A grounded in this site's own
-     content. Matches the question against a topic list built from Victor's
-     actual profile/impact/certifications data below; not a live model call. -->
+<!-- ASK ABOUT MY WORK -- floating chat widget. Calls a Supabase Edge
+     Function (ask-about-victor) backed by Gemini, grounded in this site's
+     own content via a system prompt. -->
 <button id="chatLauncher" aria-label="Ask about my work" aria-expanded="false" aria-controls="chatPanel">
   <span style="font-size:1.1rem">&#128172;</span> Ask about my work
 </button>
@@ -906,6 +934,32 @@
            style="flex:1;padding:0.55rem 0.8rem;border:1px solid #E4E7ED;border-radius:0.6rem;font-size:0.83rem;outline:none;">
     <button type="submit" style="background:#0F7B6C;color:#fff;border:none;border-radius:0.6rem;padding:0.55rem 0.9rem;font-weight:700;font-size:0.83rem;cursor:pointer;">Ask</button>
   </form>
+</div>
+
+<!-- CHECK MY FIT -- pastes a job link or job description, calls a Supabase
+     Edge Function (check-job-fit) that fetches the link server-side (avoids
+     browser CORS limits), sends it to Gemini alongside Victor's profile, and
+     returns a calibrated 0-100 fit score with rationale. -->
+<div id="jobFitOverlay">
+  <div id="jobFitModal" role="dialog" aria-label="Check job fit">
+    <div style="background:#16233F;color:#fff;padding:1.1rem 1.3rem;display:flex;justify-content:space-between;align-items:flex-start;">
+      <div>
+        <div style="font-weight:800;font-size:1.05rem;">Check My Fit</div>
+        <div style="font-size:0.76rem;color:#9AA6C0;margin-top:2px;">AI-generated match score, grounded in this site's content</div>
+      </div>
+      <button id="jobFitClose" aria-label="Close" style="background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;line-height:1;">&times;</button>
+    </div>
+    <div style="padding:1.3rem;">
+      <form id="jobFitForm">
+        <label for="jobFitInput" style="display:block;font-size:0.8rem;font-weight:600;color:#374151;margin-bottom:0.4rem;">Paste a job posting link or the job description text</label>
+        <textarea id="jobFitInput" rows="4" maxlength="6000" placeholder="https://... or paste the full job description"
+                  style="width:100%;padding:0.7rem 0.85rem;border:1px solid #E4E7ED;border-radius:0.6rem;font-size:0.85rem;outline:none;resize:vertical;font-family:inherit;"></textarea>
+        <div style="font-size:0.72rem;color:#9CA3AF;margin-top:0.4rem;">Note: some sites (LinkedIn especially) block automated link fetching \u2014 if the link doesn't work, paste the job description text directly instead.</div>
+        <button type="submit" id="jobFitSubmit" style="margin-top:0.9rem;width:100%;background:#0F7B6C;color:#fff;border:none;border-radius:0.6rem;padding:0.75rem;font-weight:700;font-size:0.9rem;cursor:pointer;">Check Fit</button>
+      </form>
+      <div id="jobFitResult" style="margin-top:1.3rem;"></div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1005,6 +1059,105 @@
       } finally {
         if (submitBtn) submitBtn.disabled = false;
         input.focus();
+      }
+    });
+  })();
+
+  // "Check My Fit" -- posts to check-job-fit, which fetches a job link
+  // server-side (or uses pasted text directly), scores it against Victor's
+  // profile via Gemini with structured JSON output, and returns a
+  // calibrated 0-100 fit score with a short rationale.
+  (function initJobFitWidget() {
+    const launcher = document.getElementById('jobFitLauncher');
+    const overlay = document.getElementById('jobFitOverlay');
+    const closeBtn = document.getElementById('jobFitClose');
+    const form = document.getElementById('jobFitForm');
+    const input = document.getElementById('jobFitInput');
+    const submitBtn = document.getElementById('jobFitSubmit');
+    const resultEl = document.getElementById('jobFitResult');
+    if (!launcher || !overlay || !form) return;
+
+    const FIT_ENDPOINT = 'https://wownxeielqhubwfzqqor.supabase.co/functions/v1/check-job-fit';
+
+    function scoreColor(pct) {
+      if (pct >= 70) return '#0F7B6C';
+      if (pct >= 40) return '#D97706';
+      return '#DC2626';
+    }
+
+    function escapeHtml(s) {
+      const div = document.createElement('div');
+      div.textContent = s;
+      return div.innerHTML;
+    }
+
+    function renderResult(data) {
+      const color = scoreColor(data.fit_percent);
+      const strengths = (data.strengths || []).map(s => `<li style="margin-bottom:0.35rem;display:flex;gap:0.5rem;"><span style="color:#0F7B6C;flex-shrink:0;">&#10003;</span><span>${escapeHtml(s)}</span></li>`).join('');
+      const gaps = (data.gaps || []).map(g => `<li style="margin-bottom:0.35rem;display:flex;gap:0.5rem;"><span style="color:#D97706;flex-shrink:0;">&#8212;</span><span>${escapeHtml(g)}</span></li>`).join('');
+
+      resultEl.innerHTML = `
+        <div style="text-align:center;">
+          <div class="fit-score-ring" style="--fit-pct:${data.fit_percent};--fit-color:${color};">
+            <div class="fit-score-ring-inner">
+              <span style="font-size:1.6rem;line-height:1;color:${color};">${data.fit_percent}%</span>
+              <small>Fit</small>
+            </div>
+          </div>
+          <div style="font-weight:700;color:#16233F;font-size:0.95rem;margin-bottom:0.5rem;">${escapeHtml(data.headline || '')}</div>
+          <p style="font-size:0.85rem;color:#3A4459;line-height:1.55;margin-bottom:1rem;text-align:left;">${escapeHtml(data.rationale || '')}</p>
+        </div>
+        ${strengths ? `<div style="margin-bottom:0.9rem;"><div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#0F7B6C;margin-bottom:0.4rem;">Strengths</div><ul style="font-size:0.83rem;color:#374151;list-style:none;padding:0;">${strengths}</ul></div>` : ''}
+        ${gaps ? `<div><div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#D97706;margin-bottom:0.4rem;">Worth Noting</div><ul style="font-size:0.83rem;color:#374151;list-style:none;padding:0;">${gaps}</ul></div>` : ''}
+      `;
+    }
+
+    function renderError(msg) {
+      resultEl.innerHTML = `<div style="background:#FEF2F2;border:1px solid #FCA5A5;color:#991B1B;font-size:0.83rem;padding:0.75rem 1rem;border-radius:0.6rem;">${escapeHtml(msg)}</div>`;
+    }
+
+    function renderLoading() {
+      resultEl.innerHTML = `<div style="text-align:center;padding:1rem 0;"><div class="fit-spinner"></div><div style="font-size:0.8rem;color:#6B7280;margin-top:0.7rem;">Analyzing fit against Victor's profile\u2026 (this can take up to 15 seconds)</div></div>`;
+    }
+
+    function openModal() {
+      overlay.classList.add('open');
+      input.focus();
+    }
+    function closeModal() {
+      overlay.classList.remove('open');
+    }
+
+    launcher.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const val = input.value.trim();
+      if (!val || submitBtn.disabled) return;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Checking\u2026';
+      renderLoading();
+
+      try {
+        const resp = await fetch(FIT_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ input: val }),
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) {
+          renderError(data.error || 'Something went wrong -- please try again.');
+        } else {
+          renderResult(data);
+        }
+      } catch (err) {
+        renderError('Something went wrong -- please try again.');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Check Fit';
       }
     });
   })();
