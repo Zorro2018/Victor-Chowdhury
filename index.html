@@ -118,6 +118,61 @@
 
   /* Count-up impact metrics -- avoid layout shift before JS sets the digits */
   .impact-metric { font-variant-numeric: tabular-nums; }
+
+  /* Hero: subtle film-grain texture over the navy gradient */
+  .hero-grain {
+    position: absolute; inset: 0; pointer-events: none; opacity: 0.35; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Hero: cursor-reactive spotlight (desktop/mouse only -- see JS guard) */
+  .hero-spotlight {
+    position: absolute; inset: 0; pointer-events: none; opacity: 0;
+    transition: opacity 0.4s ease;
+    background: radial-gradient(600px circle at var(--mx, 50%) var(--my, 50%), rgba(79,191,174,0.20), transparent 45%);
+  }
+  .hero-spotlight.active { opacity: 1; }
+
+  /* Hero: animated gradient headline */
+  .gradient-text {
+    background: linear-gradient(90deg, #ffffff, #4FBFAE, #FFC220, #ffffff);
+    background-size: 300% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: gradientShift 8s ease infinite;
+  }
+  @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+  @media (prefers-reduced-motion: reduce) { .gradient-text { animation: none; background-position: 0% 50%; } }
+
+  /* Bento-style Impact grid -- one featured tile spans 2x2, rest pack around it */
+  .bento-grid { display: grid; grid-auto-flow: dense; }
+
+  /* "Ask about my work" chat widget */
+  #chatLauncher {
+    position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 50;
+    display: flex; align-items: center; gap: 0.6rem;
+    background: #16233F; color: #fff; border: none; border-radius: 999px;
+    padding: 0.85rem 1.3rem; font-weight: 700; font-size: 0.85rem;
+    box-shadow: 0 10px 30px -8px rgba(22,35,63,0.5); cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  #chatLauncher:hover { transform: translateY(-2px); box-shadow: 0 14px 34px -6px rgba(22,35,63,0.55); }
+  #chatPanel {
+    position: fixed; bottom: 5.5rem; right: 1.5rem; z-index: 50;
+    width: min(360px, calc(100vw - 2.5rem)); max-height: min(520px, calc(100vh - 8rem));
+    background: #fff; border-radius: 1rem; overflow: hidden;
+    box-shadow: 0 24px 60px -12px rgba(22,35,63,0.35); border: 1px solid #E4E7ED;
+    display: none; flex-direction: column;
+  }
+  #chatPanel.open { display: flex; }
+  #chatMessages { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.7rem; }
+  .chat-bubble { max-width: 85%; padding: 0.6rem 0.9rem; border-radius: 0.8rem; font-size: 0.85rem; line-height: 1.45; }
+  .chat-bubble.user { align-self: flex-end; background: #16233F; color: #fff; border-bottom-right-radius: 0.2rem; }
+  .chat-bubble.bot { align-self: flex-start; background: #F3F6FB; color: #1F2937; border-bottom-left-radius: 0.2rem; }
+  .chat-bubble.typing { display: flex; gap: 4px; align-items: center; }
+  .chat-bubble.typing span { width: 6px; height: 6px; border-radius: 50%; background: #94A3B8; animation: typingBounce 1.2s infinite ease-in-out; }
+  .chat-bubble.typing span:nth-child(2) { animation-delay: 0.15s; }
+  .chat-bubble.typing span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes typingBounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.5; } 30% { transform: translateY(-4px); opacity: 1; } }
 </style>
 </head>
 <body class="bg-white text-ink">
@@ -148,12 +203,14 @@
 <header id="top" class="relative bg-navy text-white overflow-hidden">
   <div class="absolute inset-0 opacity-[0.06]"
        style="background-image:radial-gradient(circle at 25px 25px, white 2px, transparent 0);background-size:50px 50px;"></div>
+  <div class="hero-grain"></div>
+  <div class="hero-spotlight" id="heroSpotlight"></div>
   <div class="max-w-6xl mx-auto px-6 pt-20 pb-24 relative">
     <div class="inline-block text-[11px] tracking-[0.2em] uppercase text-accent-soft font-semibold bg-white/10 px-3 py-1 rounded-full mb-6">
       Director, Strategic Insights &amp; AI — Walmart
     </div>
     <h1 class="serif font-bold text-4xl md:text-6xl leading-[1.08] mb-6 max-w-3xl">
-      Data, AI &amp; Product Leader, turning enterprise data into decisions.
+      <span class="gradient-text">Data, AI &amp; Product Leader</span>, turning enterprise data into decisions.
     </h1>
     <p class="text-lg md:text-xl text-gray-300 max-w-2xl leading-relaxed mb-8">I build the systems that decide what a business does next — metric layers, experiments, and the AI agents that put insight directly in a leader&#39;s hands — then help Product and Engineering ship it.</p>
     <div class="flex flex-wrap items-center gap-4 text-sm text-gray-300 mb-9">
@@ -177,88 +234,105 @@
     <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">Signature Work</div>
     <h2 class="serif font-bold text-3xl text-navy">Impact, by the numbers</h2>
   </div>
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+  <div class="bento-grid grid grid-cols-2 md:grid-cols-4 gap-4">
     
-    <div class="group bg-white border border-gray-200 hover:border-accent rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+    
+    <div class="group border hover:border-accent rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col
+                bg-white border-gray-200">
       <div class="h-1.5 bg-gradient-to-r from-accent to-[#0c665a]"></div>
       <div class="p-5">
-        <div class="impact-metric serif font-black text-2xl md:text-3xl text-navy leading-none mb-2">$36M</div>
-        <div class="font-semibold text-sm text-ink mb-1">CRM AI Savings</div>
-        <div class="text-[10px] tracking-[0.1em] uppercase text-accent font-bold mb-3">Customer Engagement</div>
-        <div class="text-xs text-slate2 leading-relaxed">Championed AI initiatives across CRM — including AI-based voice and chat agents (Agent Assist) — measured and tracked through to realized savings.</div>
+        <div class="impact-metric serif font-black leading-none mb-2 text-navy text-2xl md:text-3xl">$36M</div>
+        <div class="font-semibold text-ink mb-1 text-sm">CRM AI Savings</div>
+        <div class="tracking-[0.1em] uppercase text-accent font-bold mb-3 text-[10px]">Customer Engagement</div>
+        <div class="text-slate2 leading-relaxed text-xs">Championed AI initiatives across CRM — including AI-based voice and chat agents (Agent Assist) — measured and tracked through to realized savings.</div>
       </div>
     </div>
     
-    <div class="group bg-white border border-gray-200 hover:border-accent rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-      <div class="h-1.5 bg-gradient-to-r from-accent to-[#0c665a]"></div>
-      <div class="p-5">
-        <div class="impact-metric serif font-black text-2xl md:text-3xl text-navy leading-none mb-2">$330M</div>
-        <div class="font-semibold text-sm text-ink mb-1">Asset Protection</div>
-        <div class="text-[10px] tracking-[0.1em] uppercase text-accent font-bold mb-3">Intelligent Retail Lab</div>
-        <div class="text-xs text-slate2 leading-relaxed">Proactive alerting on shifting theft patterns, turning shrink prevention from a lagging report into a live defense feeding Product and Engineering fixes.</div>
+    
+    <div class="group border hover:border-accent rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col
+                col-span-2 md:col-span-2 md:row-span-2 bg-gradient-to-br from-[#EAF7F4] to-white border-accent/40">
+      <div class="h-2 bg-gradient-to-r from-accent to-[#0c665a]"></div>
+      <div class="p-6 md:p-8 flex-1 flex flex-col justify-center">
+        <div class="impact-metric serif font-black leading-none mb-2 text-navy text-4xl md:text-6xl">$330M</div>
+        <div class="font-semibold text-ink mb-1 text-lg md:text-xl">Asset Protection</div>
+        <div class="tracking-[0.1em] uppercase text-accent font-bold mb-3 text-xs">Intelligent Retail Lab</div>
+        <div class="text-slate2 leading-relaxed text-sm max-w-sm">Proactive alerting on shifting theft patterns, turning shrink prevention from a lagging report into a live defense feeding Product and Engineering fixes.</div>
       </div>
     </div>
     
-    <div class="group bg-white border border-gray-200 hover:border-accent rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+    
+    <div class="group border hover:border-accent rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col
+                bg-white border-gray-200">
       <div class="h-1.5 bg-gradient-to-r from-accent to-[#0c665a]"></div>
       <div class="p-5">
-        <div class="impact-metric serif font-black text-2xl md:text-3xl text-navy leading-none mb-2">35%</div>
-        <div class="font-semibold text-sm text-ink mb-1">GMV Lift</div>
-        <div class="text-[10px] tracking-[0.1em] uppercase text-accent font-bold mb-3">WFS · Marketplace</div>
-        <div class="text-xs text-slate2 leading-relaxed">Driven by transport partner acquisition, multi-channel strategy, and efficiency gains across a multibillion-dollar fulfillment business.</div>
+        <div class="impact-metric serif font-black leading-none mb-2 text-navy text-2xl md:text-3xl">35%</div>
+        <div class="font-semibold text-ink mb-1 text-sm">GMV Lift</div>
+        <div class="tracking-[0.1em] uppercase text-accent font-bold mb-3 text-[10px]">WFS · Marketplace</div>
+        <div class="text-slate2 leading-relaxed text-xs">Driven by transport partner acquisition, multi-channel strategy, and efficiency gains across a multibillion-dollar fulfillment business.</div>
       </div>
     </div>
     
-    <div class="group bg-white border border-gray-200 hover:border-accent rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+    
+    <div class="group border hover:border-accent rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col
+                bg-white border-gray-200">
       <div class="h-1.5 bg-gradient-to-r from-accent to-[#0c665a]"></div>
       <div class="p-5">
-        <div class="impact-metric serif font-black text-2xl md:text-3xl text-navy leading-none mb-2">30% → 70%</div>
-        <div class="font-semibold text-sm text-ink mb-1">Self-Serve Rate</div>
-        <div class="text-[10px] tracking-[0.1em] uppercase text-accent font-bold mb-3">Sierra Voice AI</div>
-        <div class="text-xs text-slate2 leading-relaxed">Lifted self-serve adoption for the AI voice assistant replacing traditional IVR, with a consistent rise in CSAT alongside it.</div>
+        <div class="impact-metric serif font-black leading-none mb-2 text-navy text-2xl md:text-3xl">30% → 70%</div>
+        <div class="font-semibold text-ink mb-1 text-sm">Self-Serve Rate</div>
+        <div class="tracking-[0.1em] uppercase text-accent font-bold mb-3 text-[10px]">Sierra Voice AI</div>
+        <div class="text-slate2 leading-relaxed text-xs">Lifted self-serve adoption for the AI voice assistant replacing traditional IVR, with a consistent rise in CSAT alongside it.</div>
       </div>
     </div>
     
-    <div class="group bg-white border border-gray-200 hover:border-accent rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+    
+    <div class="group border hover:border-accent rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col
+                bg-white border-gray-200">
       <div class="h-1.5 bg-gradient-to-r from-accent to-[#0c665a]"></div>
       <div class="p-5">
-        <div class="impact-metric serif font-black text-2xl md:text-3xl text-navy leading-none mb-2">51% → 73.5%</div>
-        <div class="font-semibold text-sm text-ink mb-1">Appeasement Utilization</div>
-        <div class="text-[10px] tracking-[0.1em] uppercase text-accent font-bold mb-3">Customer Engagement</div>
-        <div class="text-xs text-slate2 leading-relaxed">Redesigned appeasement strategy by issue type, customer value, and history; insights went on to shape Walmart+ adoption strategy.</div>
+        <div class="impact-metric serif font-black leading-none mb-2 text-navy text-2xl md:text-3xl">51% → 73.5%</div>
+        <div class="font-semibold text-ink mb-1 text-sm">Appeasement Utilization</div>
+        <div class="tracking-[0.1em] uppercase text-accent font-bold mb-3 text-[10px]">Customer Engagement</div>
+        <div class="text-slate2 leading-relaxed text-xs">Redesigned appeasement strategy by issue type, customer value, and history; insights went on to shape Walmart+ adoption strategy.</div>
       </div>
     </div>
     
-    <div class="group bg-white border border-gray-200 hover:border-accent rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+    
+    <div class="group border hover:border-accent rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col
+                bg-white border-gray-200">
       <div class="h-1.5 bg-gradient-to-r from-accent to-[#0c665a]"></div>
       <div class="p-5">
-        <div class="impact-metric serif font-black text-2xl md:text-3xl text-navy leading-none mb-2">26%</div>
-        <div class="font-semibold text-sm text-ink mb-1">Merchandise Sales Lift</div>
-        <div class="text-[10px] tracking-[0.1em] uppercase text-accent font-bold mb-3">Fuel &amp; Convenience</div>
-        <div class="text-xs text-slate2 leading-relaxed">Demand and in-stock signals that turned fuel traffic into inside-store purchases for associates and merchants.</div>
+        <div class="impact-metric serif font-black leading-none mb-2 text-navy text-2xl md:text-3xl">26%</div>
+        <div class="font-semibold text-ink mb-1 text-sm">Merchandise Sales Lift</div>
+        <div class="tracking-[0.1em] uppercase text-accent font-bold mb-3 text-[10px]">Fuel &amp; Convenience</div>
+        <div class="text-slate2 leading-relaxed text-xs">Demand and in-stock signals that turned fuel traffic into inside-store purchases for associates and merchants.</div>
       </div>
     </div>
     
-    <div class="group bg-white border border-gray-200 hover:border-accent rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+    
+    <div class="group border hover:border-accent rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col
+                bg-white border-gray-200">
       <div class="h-1.5 bg-gradient-to-r from-accent to-[#0c665a]"></div>
       <div class="p-5">
-        <div class="impact-metric serif font-black text-2xl md:text-3xl text-navy leading-none mb-2">AISLE1</div>
-        <div class="font-semibold text-sm text-ink mb-1">Agentic AI Product</div>
-        <div class="text-[10px] tracking-[0.1em] uppercase text-accent font-bold mb-3">Claude + BigQuery</div>
-        <div class="text-xs text-slate2 leading-relaxed">Built the org&#39;s governed metric repository as a conversational AI product — leaders query certified definitions in natural language.</div>
+        <div class="impact-metric serif font-black leading-none mb-2 text-navy text-2xl md:text-3xl">AISLE1</div>
+        <div class="font-semibold text-ink mb-1 text-sm">Agentic AI Product</div>
+        <div class="tracking-[0.1em] uppercase text-accent font-bold mb-3 text-[10px]">Claude + BigQuery</div>
+        <div class="text-slate2 leading-relaxed text-xs">Built the org&#39;s governed metric repository as a conversational AI product — leaders query certified definitions in natural language.</div>
       </div>
     </div>
     
-    <div class="group bg-white border border-gray-200 hover:border-accent rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+    
+    <div class="group border hover:border-accent rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col
+                bg-white border-gray-200">
       <div class="h-1.5 bg-gradient-to-r from-accent to-[#0c665a]"></div>
       <div class="p-5">
-        <div class="impact-metric serif font-black text-2xl md:text-3xl text-navy leading-none mb-2">$6M</div>
-        <div class="font-semibold text-sm text-ink mb-1">Vendor Contract Closed</div>
-        <div class="text-[10px] tracking-[0.1em] uppercase text-accent font-bold mb-3">Wipro · Pre-Sales</div>
-        <div class="text-xs text-slate2 leading-relaxed">Single-handedly closed an exclusive Alteryx agreement from initial evaluation through to a signed preferred-provider deal.</div>
+        <div class="impact-metric serif font-black leading-none mb-2 text-navy text-2xl md:text-3xl">$6M</div>
+        <div class="font-semibold text-ink mb-1 text-sm">Vendor Contract Closed</div>
+        <div class="tracking-[0.1em] uppercase text-accent font-bold mb-3 text-[10px]">Wipro · Pre-Sales</div>
+        <div class="text-slate2 leading-relaxed text-xs">Single-handedly closed an exclusive Alteryx agreement from initial evaluation through to a signed preferred-provider deal.</div>
       </div>
     </div>
     
+  </div>
   </div>
 </section>
 
@@ -1783,6 +1857,137 @@
     }, { threshold: 0.4 });
 
     els.forEach(el => observer.observe(el));
+  })();
+</script>
+
+<!-- ASK ABOUT MY WORK -- lightweight, on-page Q&A grounded in this site's own
+     content. Matches the question against a topic list built from Victor's
+     actual profile/impact/certifications data below; not a live model call. -->
+<button id="chatLauncher" aria-label="Ask about my work" aria-expanded="false" aria-controls="chatPanel">
+  <span style="font-size:1.1rem">&#128172;</span> Ask about my work
+</button>
+<div id="chatPanel" role="dialog" aria-label="Ask about Victor's work">
+  <div style="background:#16233F;color:#fff;padding:1rem 1.1rem;display:flex;justify-content:space-between;align-items:center;">
+    <div>
+      <div style="font-weight:800;font-size:0.9rem;">Ask about my work</div>
+      <div style="font-size:0.72rem;color:#9AA6C0;">Grounded in this site's content &mdash; not a live AI call</div>
+    </div>
+    <button id="chatClose" aria-label="Close chat" style="background:none;border:none;color:#fff;font-size:1.2rem;cursor:pointer;line-height:1;">&times;</button>
+  </div>
+  <div id="chatMessages"></div>
+  <form id="chatForm" style="display:flex;gap:0.5rem;padding:0.75rem;border-top:1px solid #E4E7ED;">
+    <input id="chatInput" type="text" placeholder="e.g. What's his computer vision experience?"
+           autocomplete="off"
+           style="flex:1;padding:0.55rem 0.8rem;border:1px solid #E4E7ED;border-radius:0.6rem;font-size:0.83rem;outline:none;">
+    <button type="submit" style="background:#0F7B6C;color:#fff;border:none;border-radius:0.6rem;padding:0.55rem 0.9rem;font-weight:700;font-size:0.83rem;cursor:pointer;">Ask</button>
+  </form>
+</div>
+
+<script>
+  // Hero cursor-reactive spotlight -- desktop/fine-pointer only, so it never
+  // fires (or leaves a stray CSS var) on touch devices.
+  (function initHeroSpotlight() {
+    const hero = document.getElementById('top');
+    const spotlight = document.getElementById('heroSpotlight');
+    if (!hero || !spotlight) return;
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    hero.addEventListener('mousemove', (e) => {
+      const rect = hero.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      spotlight.style.setProperty('--mx', x + '%');
+      spotlight.style.setProperty('--my', y + '%');
+      spotlight.classList.add('active');
+    });
+    hero.addEventListener('mouseleave', () => spotlight.classList.remove('active'));
+  })();
+
+  // "Ask about my work" -- matches the question against a small topic list
+  // built from this site's own content (see FAQ below) and returns the best
+  // match. This is a local keyword matcher, not a live model call -- the
+  // panel says so up front so it's never mistaken for one.
+  (function initAskWidget() {
+    const launcher = document.getElementById('chatLauncher');
+    const panel = document.getElementById('chatPanel');
+    const closeBtn = document.getElementById('chatClose');
+    const form = document.getElementById('chatForm');
+    const input = document.getElementById('chatInput');
+    const messages = document.getElementById('chatMessages');
+    if (!launcher || !panel || !form) return;
+
+    const FAQ = [
+      { keywords: ['computer vision', 'cv', 'image recognition', 'shrink', 'loss prevention', 'retail lab', 'irl', 'theft'],
+        answer: "At Walmart's Intelligent Retail Lab, Victor led computer-vision-driven shrink prevention \u2014 proactive alerting on shifting theft patterns that turned loss prevention from a lagging report into a live defense, protecting an estimated $330M in assets and feeding fixes directly to Product and Engineering." },
+      { keywords: ['agentic', 'genai', 'generative ai', 'claude', 'llm', 'ai product', 'chatbot', 'conversational ai', 'aisle'],
+        answer: "Victor built AISLE1, a governed metric repository turned into a conversational AI product on Claude + BigQuery \u2014 leaders query certified metric definitions in natural language instead of digging through dashboards. He's also driven AI voice/chat agents (Agent Assist, Sierra Voice AI) that lifted self-serve adoption from 30% to 70%." },
+      { keywords: ['pricing', 'fuel', 'gas station', 'kalibrate', 'wti', 'brent', 'convenience'],
+        answer: "In Fuel & Convenience, Victor designed and built (in 2020) what he considers the business's first automated pricing engine \u2014 ingesting WTI/Brent crude benchmarks plus third-party competitor pricing, letting the pricing team set a radius and price-gap threshold, and auto-alerting via Power BI and mobile. It drove an 8.5% quarter-over-quarter increase in gallons sold." },
+      { keywords: ['team', 'leadership', 'manage', 'org', 'direct reports', 'people'],
+        answer: "Victor currently leads a 25-person team spanning four pillars: AI/Chatbot (Self-Serve), CRM, Workforce Management, and Operations." },
+      { keywords: ['certified', 'certificate', 'certification', 'tableau', 'alteryx', 'dataiku', 'python', 'mba', 'education', 'degree'],
+        answer: "Victor holds certificates from Cornell (Product Management, Machine Learning), MITx/edX (The Analytics Edge, Intro to CS & Python), Tableau Desktop Specialist, Alteryx Designer Core, Dataiku Core Designer, Google Analytics, and Microsoft's Generative AI for Data Analysis (via Coursera) \u2014 see the Certificates section above for the full list with verification links." },
+      { keywords: ['experience', 'background', 'career', 'history', 'years', 'walmart'],
+        answer: "Victor has about 16 years of industry experience, 9+ at Walmart \u2014 spanning Real Estate, Facility Services, Fuel & Convenience, Walmart Fulfillment Services, the Intelligent Retail Lab, and Customer Engagement Services. See the Career timeline above for the full path." },
+      { keywords: ['patent', 'publication', 'award', 'honor', 'recognition'],
+        answer: "Victor has a patent filed for a Virtual Cart Optimization Tool, alongside several internal Walmart recognitions (Certificate of Appreciation, Feather in My Cap x2, Thanks a Zillion, IT Wiz 2005)." },
+      { keywords: ['hire', 'contact', 'available', 'opportunity', 'reach', 'job', 'open to'],
+        answer: "Best way is the contact form at the bottom of this page, or connect directly on LinkedIn \u2014 Victor's open to conversations on AI strategy, product analytics, and building teams that ship." },
+      { keywords: ['product analytics', 'instrumentation', 'metrics', 'dashboard', 'experiment', 'a/b'],
+        answer: "Victor's product-analytics work spans instrumentation, enterprise metric/semantic layers, and experimentation-driven decisions \u2014 see the Product lens in the Experience section above for specific examples." },
+    ];
+
+    function findAnswer(query) {
+      const q = query.toLowerCase();
+      let best = null, bestScore = 0;
+      FAQ.forEach(entry => {
+        let score = 0;
+        entry.keywords.forEach(k => { if (q.includes(k)) score += k.split(' ').length; });
+        if (score > bestScore) { bestScore = score; best = entry; }
+      });
+      return bestScore > 0 ? best.answer : "I don't have a specific answer for that here \u2014 try the contact form at the bottom of the page, or ask on LinkedIn directly.";
+    }
+
+    function addBubble(text, cls) {
+      const div = document.createElement('div');
+      div.className = 'chat-bubble ' + cls;
+      div.textContent = text;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+      return div;
+    }
+
+    function openPanel() {
+      panel.classList.add('open');
+      launcher.setAttribute('aria-expanded', 'true');
+      if (!messages.children.length) {
+        addBubble("Hi! Ask me anything about Victor's work \u2014 computer vision, AI products, leadership, certifications, career history, or how to get in touch.", 'bot');
+      }
+      input.focus();
+    }
+    function closePanel() {
+      panel.classList.remove('open');
+      launcher.setAttribute('aria-expanded', 'false');
+    }
+
+    launcher.addEventListener('click', () => {
+      panel.classList.contains('open') ? closePanel() : openPanel();
+    });
+    closeBtn.addEventListener('click', closePanel);
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const q = input.value.trim();
+      if (!q) return;
+      addBubble(q, 'user');
+      input.value = '';
+      const typing = addBubble('', 'bot typing');
+      typing.innerHTML = '<span></span><span></span><span></span>';
+      setTimeout(() => {
+        typing.remove();
+        addBubble(findAnswer(q), 'bot');
+      }, 600 + Math.random() * 500);
+    });
   })();
 </script>
 
