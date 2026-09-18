@@ -74,6 +74,7 @@
     flex: 0 0 320px;
     transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
   }
+  .carousel-card.narrow { flex-basis: 260px; }
   .carousel-card:hover,
   .carousel-card:focus-visible {
     transform: scale(1.06);
@@ -128,14 +129,15 @@
 <nav class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-gray-200">
   <div class="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
     <a href="#top" class="serif font-bold text-lg text-navy">{{ profile.name }}</a>
-    <div class="hidden md:flex items-center gap-7 text-sm font-medium text-slate2">
+    <div class="hidden lg:flex items-center gap-5 text-sm font-medium text-slate2">
       <a href="#impact" class="nav-link hover:text-accent">Impact</a>
+      <a href="#about" class="nav-link hover:text-accent">About</a>
       <a href="#work" class="nav-link hover:text-accent">Experience</a>
       <a href="#samples" class="nav-link hover:text-accent">Work Samples</a>
       <a href="#articles" class="nav-link hover:text-accent">Articles</a>
       <a href="#certificates" class="nav-link hover:text-accent">Certificates</a>
       <a href="#timeline" class="nav-link hover:text-accent">Career</a>
-      <a href="#about" class="nav-link hover:text-accent">About</a>
+      <a href="#testimonials" class="nav-link hover:text-accent">Recommendations</a>
       <a href="{{ profile.linkedin }}" target="_blank" rel="noopener"
          class="px-4 py-2 rounded-full bg-navy text-white hover:bg-navy-2 transition">LinkedIn</a>
     </div>
@@ -439,7 +441,7 @@
 
 <!-- TESTIMONIALS -->
 {% macro testimonial_card(t) %}
-<div class="carousel-card bg-white border border-gray-200 rounded-xl p-6 flex flex-col">
+<div class="carousel-card narrow bg-white border border-gray-200 rounded-xl p-6 flex flex-col">
   <div class="flex items-center gap-2 mb-4">
     <span class="w-6 h-6 rounded flex items-center justify-center text-white text-xs font-black" style="background:#0A66C2">in</span>
     <span class="text-[10px] tracking-[0.1em] uppercase text-slate2 font-bold">LinkedIn Recommendation</span>
@@ -725,7 +727,7 @@
   // Scroll-spy nav -- highlights whichever section heading is currently
   // in view, so the nav reflects where the reader actually is on the page.
   (function initScrollSpy() {
-    const sectionIds = ['impact', 'work', 'samples', 'articles', 'certificates', 'timeline', 'about'];
+    const sectionIds = ['impact', 'about', 'work', 'samples', 'articles', 'certificates', 'timeline', 'testimonials'];
     const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
     const links = Array.from(document.querySelectorAll('.nav-link'));
     if (!sections.length || !links.length) return;
