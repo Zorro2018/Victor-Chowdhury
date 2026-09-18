@@ -71,6 +71,15 @@
     width: max-content;
     padding: 0.5rem 1.5rem 1.5rem;
   }
+  /* When a carousel has too few cards to need scrolling, center them
+     instead of leaving them left-aligned with empty space on the right.
+     Toggled by JS (see initFilmstripCarousel) based on actual content vs
+     viewport width, so it only kicks in when there's genuinely nothing
+     to scroll. */
+  .carousel-track--centered {
+    width: 100%;
+    justify-content: center;
+  }
   .carousel-card {
     flex: 0 0 320px;
     transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
@@ -797,6 +806,20 @@
     let resumeTimer = null;
     let lastTs = null;
 
+    // When there are few enough cards that the track never needs to
+    // scroll (e.g. only 2 articles), left-aligned content leaves a large
+    // empty gap on wide screens. Center it instead, and hide the now-
+    // pointless prev/next buttons. Re-checked on resize since it depends
+    // on viewport width.
+    function updateFit() {
+      const fitsWithoutScroll = track.scrollWidth <= viewport.clientWidth + 1;
+      track.classList.toggle('carousel-track--centered', fitsWithoutScroll);
+      prevBtn.style.display = fitsWithoutScroll ? 'none' : '';
+      nextBtn.style.display = fitsWithoutScroll ? 'none' : '';
+      return fitsWithoutScroll;
+    }
+    let fitsWithoutScroll = updateFit();
+
     function cardStep() {
       const card = track.querySelector(cardSelector);
       const gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap) || 24;
@@ -817,7 +840,7 @@
       if (lastTs == null) lastTs = ts;
       const dt = (ts - lastTs) / 1000;
       lastTs = ts;
-      if (!paused) {
+      if (!paused && !fitsWithoutScroll) {
         if (loop) {
           viewport.scrollLeft += pxPerSecond * dt;
           wrapIfNeeded();
@@ -868,7 +891,10 @@
       viewport.scrollBy({ left: -step, behavior: reducedMotion ? 'auto' : 'smooth' });
     });
 
-    window.addEventListener('resize', () => { oneSetWidth = loop ? track.scrollWidth / 2 : 0; });
+    window.addEventListener('resize', () => {
+      oneSetWidth = loop ? track.scrollWidth / 2 : 0;
+      fitsWithoutScroll = updateFit();
+    });
   }
 
   initFilmstripCarousel({
