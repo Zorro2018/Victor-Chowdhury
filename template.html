@@ -43,6 +43,7 @@
 </script>
 <style>
   html { scroll-behavior: smooth; }
+  html, body { overflow-x: hidden; }
   body { font-family: 'Inter', sans-serif; }
   .serif { font-family: 'Source Serif 4', Georgia, serif; }
   .bucket-panel { display: none; }
@@ -114,7 +115,7 @@
   }
 
   /* Scroll-spy nav link state */
-  .nav-link.active-nav { color: #0F7B6C; font-weight: 700; }
+  .nav-link.active-nav, .nav-link-mobile.active-nav { color: #0F7B6C; font-weight: 700; }
 
   /* Count-up impact metrics -- avoid layout shift before JS sets the digits */
   .impact-metric { font-variant-numeric: tabular-nums; }
@@ -153,6 +154,13 @@
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
   #chatLauncher:hover { transform: translateY(-2px); box-shadow: 0 14px 34px -6px rgba(22,35,63,0.55); }
+  /* Mobile only: the fixed launcher is anchored by `right` with no left
+     constraint, so its full-text width can push off-screen on narrow
+     phones. Collapse to icon-only below 480px -- desktop is untouched. */
+  @media (max-width: 480px) {
+    #chatLauncher { padding: 0.85rem; gap: 0; }
+    #chatLauncher .launcher-text, #chatLauncher .launcher-ai-tag { display: none; }
+  }
   #chatPanel {
     position: fixed; bottom: 5.5rem; right: 1.5rem; z-index: 50;
     width: min(360px, calc(100vw - 2.5rem)); max-height: min(520px, calc(100vh - 8rem));
@@ -245,6 +253,29 @@
       <a href="#testimonials" class="nav-link hover:text-accent">Recommendations</a>
       <a href="{{ profile.linkedin }}" target="_blank" rel="noopener"
          class="px-4 py-2 rounded-full bg-navy text-white hover:bg-navy-2 transition">LinkedIn</a>
+    </div>
+    <!-- Mobile-only nav toggle -- lg:hidden guarantees this never shows on
+         desktop, regardless of JS state, so the existing lg:flex nav above
+         is completely unaffected. -->
+    <button type="button" id="mobileNavToggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobileNavPanel"
+            class="lg:hidden flex flex-col justify-center items-center gap-[5px] w-9 h-9 -mr-1">
+      <span id="mnBar1" class="block w-6 h-[2px] bg-navy transition-transform duration-200"></span>
+      <span id="mnBar2" class="block w-6 h-[2px] bg-navy transition-opacity duration-200"></span>
+      <span id="mnBar3" class="block w-6 h-[2px] bg-navy transition-transform duration-200"></span>
+    </button>
+  </div>
+  <div id="mobileNavPanel" class="lg:hidden hidden border-t border-gray-200 bg-white px-6 py-4">
+    <div class="flex flex-col gap-1 text-sm font-medium text-slate2">
+      <a href="#impact" class="nav-link-mobile py-2 hover:text-accent">Impact</a>
+      <a href="#about" class="nav-link-mobile py-2 hover:text-accent">About</a>
+      <a href="#work" class="nav-link-mobile py-2 hover:text-accent">Experience</a>
+      <a href="#samples" class="nav-link-mobile py-2 hover:text-accent">Work Samples</a>
+      <a href="#articles" class="nav-link-mobile py-2 hover:text-accent">Articles</a>
+      <a href="#certificates" class="nav-link-mobile py-2 hover:text-accent">Certificates</a>
+      <a href="#timeline" class="nav-link-mobile py-2 hover:text-accent">Career</a>
+      <a href="#testimonials" class="nav-link-mobile py-2 hover:text-accent">Recommendations</a>
+      <a href="{{ profile.linkedin }}" target="_blank" rel="noopener"
+         class="mt-2 px-4 py-2.5 rounded-full bg-navy text-white text-center hover:bg-navy-2 transition">LinkedIn</a>
     </div>
   </div>
 </nav>
@@ -398,26 +429,35 @@
 </section>
 
 <!-- ARTICLES -->
-<section id="articles" class="max-w-6xl mx-auto px-6 py-20">
-  <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">Articles</div>
-  <h2 class="serif font-bold text-3xl text-navy mb-3">Writing on data, AI, and how teams should work</h2>
-  <p class="text-slate2 max-w-2xl mb-10">Frameworks and points of view, written up so the thinking travels beyond one meeting.</p>
-  <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {% for a in articles %}
-    <a href="{{ a.url }}" target="_blank" rel="noopener"
-       class="group block bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg hover:border-accent transition">
-      <div class="aspect-[16/10] overflow-hidden bg-gray-100 border-b border-gray-200">
-        <img src="{{ a.thumbnail }}" alt="{{ a.title }}" loading="lazy"
-             class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300">
+{% macro article_card(a) %}
+<a href="{{ a.url }}" target="_blank" rel="noopener"
+   class="carousel-card group block bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg hover:border-accent transition">
+  <div class="aspect-[16/10] overflow-hidden bg-gray-100 border-b border-gray-200">
+    <img src="{{ a.thumbnail }}" alt="{{ a.title }}" loading="lazy"
+         class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300">
+  </div>
+  <div class="p-5">
+    <div class="text-[10px] tracking-[0.12em] uppercase text-accent font-bold mb-2">{{ a.tag }}</div>
+    <h3 class="serif font-bold text-lg text-navy mb-2 leading-snug group-hover:text-accent transition">{{ a.title }}</h3>
+    <p class="text-sm text-[#3A4459] leading-relaxed mb-3">{{ a.description }}</p>
+    <div class="text-xs font-semibold text-accent">Read article &rarr;</div>
+  </div>
+</a>
+{% endmacro %}
+<section id="articles" class="overflow-hidden">
+  <div class="max-w-6xl mx-auto px-6 pt-20">
+    <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">Articles</div>
+    <h2 class="serif font-bold text-3xl text-navy mb-3">Writing on data, AI, and how teams should work</h2>
+    <p class="text-slate2 max-w-2xl mb-4">Frameworks and points of view, written up so the thinking travels beyond one meeting.</p>
+  </div>
+  <div class="carousel-wrap">
+    <button type="button" class="carousel-nav prev" id="articlesPrev" aria-label="Scroll articles left">&larr;</button>
+    <button type="button" class="carousel-nav next" id="articlesNext" aria-label="Scroll articles right">&rarr;</button>
+    <div class="carousel-viewport" id="articlesViewport">
+      <div class="carousel-track" id="articlesTrack">
+      {% for a in articles %}{{ article_card(a) }}{% endfor %}
       </div>
-      <div class="p-5">
-        <div class="text-[10px] tracking-[0.12em] uppercase text-accent font-bold mb-2">{{ a.tag }}</div>
-        <h3 class="serif font-bold text-lg text-navy mb-2 leading-snug group-hover:text-accent transition">{{ a.title }}</h3>
-        <p class="text-sm text-[#3A4459] leading-relaxed mb-3">{{ a.description }}</p>
-        <div class="text-xs font-semibold text-accent">Read article &rarr;</div>
-      </div>
-    </a>
-    {% endfor %}
+    </div>
   </div>
 </section>
 
@@ -846,6 +886,11 @@
     prevId: 'testimonialsPrev', nextId: 'testimonialsNext',
     cardSelector: '.carousel-card', pxPerSecond: 22, loop: false,
   });
+  initFilmstripCarousel({
+    viewportId: 'articlesViewport', trackId: 'articlesTrack',
+    prevId: 'articlesPrev', nextId: 'articlesNext',
+    cardSelector: '.carousel-card', pxPerSecond: 20, loop: false,
+  });
 
   // Scroll progress bar -- thin gold bar tracking how far down the page
   // the reader is, updated on scroll via rAF to avoid layout thrash.
@@ -871,7 +916,7 @@
   (function initScrollSpy() {
     const sectionIds = ['impact', 'about', 'work', 'samples', 'articles', 'certificates', 'timeline', 'testimonials'];
     const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
-    const links = Array.from(document.querySelectorAll('.nav-link'));
+    const links = Array.from(document.querySelectorAll('.nav-link, .nav-link-mobile'));
     if (!sections.length || !links.length) return;
 
     function setActive(id) {
@@ -891,6 +936,36 @@
     }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
 
     sections.forEach(section => observer.observe(section));
+  })();
+
+  // Mobile nav toggle -- purely additive: the desktop nav (lg:flex) is
+  // untouched, this only drives the lg:hidden hamburger + dropdown panel.
+  (function initMobileNav() {
+    const toggle = document.getElementById('mobileNavToggle');
+    const panel = document.getElementById('mobileNavPanel');
+    const bar1 = document.getElementById('mnBar1');
+    const bar2 = document.getElementById('mnBar2');
+    const bar3 = document.getElementById('mnBar3');
+    if (!toggle || !panel) return;
+
+    function setOpen(open) {
+      panel.classList.toggle('hidden', !open);
+      toggle.setAttribute('aria-expanded', String(open));
+      bar1.style.transform = open ? 'translateY(7px) rotate(45deg)' : '';
+      bar3.style.transform = open ? 'translateY(-7px) rotate(-45deg)' : '';
+      bar2.style.opacity = open ? '0' : '1';
+    }
+
+    toggle.addEventListener('click', () => {
+      setOpen(panel.classList.contains('hidden'));
+    });
+
+    // Close after tapping a link, and if the viewport crosses into the
+    // desktop breakpoint (e.g. rotating a tablet) so it can't get stuck open.
+    panel.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setOpen(false)));
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 1024) setOpen(false);
+    });
   })();
 
   // Count-up animation for the "Impact, by the numbers" tiles. Parses
@@ -962,8 +1037,8 @@
      own content via a system prompt. -->
 <button id="chatLauncher" class="tt" aria-label="Ask about my work" aria-expanded="false" aria-controls="chatPanel"
         data-tip="Ask a question and get an AI-generated answer grounded in this site's content">
-  <span style="font-size:1.1rem">&#128172;</span> Ask about my work
-  <span style="font-size:0.62rem;opacity:0.75;margin-left:0.15rem;">&#10024; AI</span>
+  <span style="font-size:1.1rem">&#128172;</span> <span class="launcher-text">Ask about my work</span>
+  <span class="launcher-ai-tag" style="font-size:0.62rem;opacity:0.75;margin-left:0.15rem;">&#10024; AI</span>
 </button>
 <div id="chatPanel" role="dialog" aria-label="Ask about Victor's work">
   <div style="background:#16233F;color:#fff;padding:1rem 1.1rem;display:flex;justify-content:space-between;align-items:center;">
