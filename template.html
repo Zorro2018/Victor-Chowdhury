@@ -895,14 +895,14 @@
   <div style="background:#16233F;color:#fff;padding:1rem 1.1rem;display:flex;justify-content:space-between;align-items:center;">
     <div>
       <div style="font-weight:800;font-size:0.9rem;">Ask about my work</div>
-      <div style="font-size:0.72rem;color:#9AA6C0;">Grounded in this site's content &mdash; not a live AI call</div>
+      <div style="font-size:0.72rem;color:#9AA6C0;">AI-generated, grounded in this site's content</div>
     </div>
     <button id="chatClose" aria-label="Close chat" style="background:none;border:none;color:#fff;font-size:1.2rem;cursor:pointer;line-height:1;">&times;</button>
   </div>
   <div id="chatMessages"></div>
   <form id="chatForm" style="display:flex;gap:0.5rem;padding:0.75rem;border-top:1px solid #E4E7ED;">
     <input id="chatInput" type="text" placeholder="e.g. What's his computer vision experience?"
-           autocomplete="off"
+           autocomplete="off" maxlength="400"
            style="flex:1;padding:0.55rem 0.8rem;border:1px solid #E4E7ED;border-radius:0.6rem;font-size:0.83rem;outline:none;">
     <button type="submit" style="background:#0F7B6C;color:#fff;border:none;border-radius:0.6rem;padding:0.55rem 0.9rem;font-weight:700;font-size:0.83rem;cursor:pointer;">Ask</button>
   </form>
@@ -938,39 +938,23 @@
     const closeBtn = document.getElementById('chatClose');
     const form = document.getElementById('chatForm');
     const input = document.getElementById('chatInput');
+    const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
     const messages = document.getElementById('chatMessages');
     if (!launcher || !panel || !form) return;
 
-    const FAQ = [
-      { keywords: ['computer vision', 'cv', 'image recognition', 'shrink', 'loss prevention', 'retail lab', 'irl', 'theft'],
-        answer: "At Walmart's Intelligent Retail Lab, Victor led computer-vision-driven shrink prevention \u2014 proactive alerting on shifting theft patterns that turned loss prevention from a lagging report into a live defense, protecting an estimated $330M in assets and feeding fixes directly to Product and Engineering." },
-      { keywords: ['agentic', 'genai', 'generative ai', 'claude', 'llm', 'ai product', 'chatbot', 'conversational ai', 'aisle'],
-        answer: "Victor built AISLE1, a governed metric repository turned into a conversational AI product on Claude + BigQuery \u2014 leaders query certified metric definitions in natural language instead of digging through dashboards. He's also driven AI voice/chat agents (Agent Assist, Sierra Voice AI) that lifted self-serve adoption from 30% to 70%." },
-      { keywords: ['pricing', 'fuel', 'gas station', 'kalibrate', 'wti', 'brent', 'convenience'],
-        answer: "In Fuel & Convenience, Victor designed and built (in 2020) what he considers the business's first automated pricing engine \u2014 ingesting WTI/Brent crude benchmarks plus third-party competitor pricing, letting the pricing team set a radius and price-gap threshold, and auto-alerting via Power BI and mobile. It drove an 8.5% quarter-over-quarter increase in gallons sold." },
-      { keywords: ['team', 'leadership', 'manage', 'org', 'direct reports', 'people'],
-        answer: "Victor currently leads a 25-person team spanning four pillars: AI/Chatbot (Self-Serve), CRM, Workforce Management, and Operations." },
-      { keywords: ['certified', 'certificate', 'certification', 'tableau', 'alteryx', 'dataiku', 'python', 'mba', 'education', 'degree'],
-        answer: "Victor holds certificates from Cornell (Product Management, Machine Learning), MITx/edX (The Analytics Edge, Intro to CS & Python), Tableau Desktop Specialist, Alteryx Designer Core, Dataiku Core Designer, Google Analytics, and Microsoft's Generative AI for Data Analysis (via Coursera) \u2014 see the Certificates section above for the full list with verification links." },
-      { keywords: ['experience', 'background', 'career', 'history', 'years', 'walmart'],
-        answer: "Victor has about 16 years of industry experience, 9+ at Walmart \u2014 spanning Real Estate, Facility Services, Fuel & Convenience, Walmart Fulfillment Services, the Intelligent Retail Lab, and Customer Engagement Services. See the Career timeline above for the full path." },
-      { keywords: ['patent', 'publication', 'award', 'honor', 'recognition'],
-        answer: "Victor has a patent filed for a Virtual Cart Optimization Tool, alongside several internal Walmart recognitions (Certificate of Appreciation, Feather in My Cap x2, Thanks a Zillion, IT Wiz 2005)." },
-      { keywords: ['hire', 'contact', 'available', 'opportunity', 'reach', 'job', 'open to'],
-        answer: "Best way is the contact form at the bottom of this page, or connect directly on LinkedIn \u2014 Victor's open to conversations on AI strategy, product analytics, and building teams that ship." },
-      { keywords: ['product analytics', 'instrumentation', 'metrics', 'dashboard', 'experiment', 'a/b'],
-        answer: "Victor's product-analytics work spans instrumentation, enterprise metric/semantic layers, and experimentation-driven decisions \u2014 see the Product lens in the Experience section above for specific examples." },
-    ];
+    const ASK_ENDPOINT = 'https://wownxeielqhubwfzqqor.supabase.co/functions/v1/ask-about-victor';
 
-    function findAnswer(query) {
-      const q = query.toLowerCase();
-      let best = null, bestScore = 0;
-      FAQ.forEach(entry => {
-        let score = 0;
-        entry.keywords.forEach(k => { if (q.includes(k)) score += k.split(' ').length; });
-        if (score > bestScore) { bestScore = score; best = entry; }
+    async function askBackend(question) {
+      const resp = await fetch(ASK_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question }),
       });
-      return bestScore > 0 ? best.answer : "I don't have a specific answer for that here \u2014 try the contact form at the bottom of the page, or ask on LinkedIn directly.";
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) {
+        throw new Error(data.error || 'Something went wrong.');
+      }
+      return data.answer;
     }
 
     function addBubble(text, cls) {
@@ -986,7 +970,7 @@
       panel.classList.add('open');
       launcher.setAttribute('aria-expanded', 'true');
       if (!messages.children.length) {
-        addBubble("Hi! Ask me anything about Victor's work \u2014 computer vision, AI products, leadership, certifications, career history, or how to get in touch.", 'bot');
+        addBubble("Hi! Ask me anything about Victor's work \u2014 computer vision, AI products, leadership, certifications, career history, or how to get in touch. Answers are generated live by AI, grounded in this site's content.", 'bot');
       }
       input.focus();
     }
@@ -1000,18 +984,28 @@
     });
     closeBtn.addEventListener('click', closePanel);
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const q = input.value.trim();
-      if (!q) return;
+      if (!q || (submitBtn && submitBtn.disabled)) return;
       addBubble(q, 'user');
       input.value = '';
+      if (submitBtn) submitBtn.disabled = true;
+
       const typing = addBubble('', 'bot typing');
       typing.innerHTML = '<span></span><span></span><span></span>';
-      setTimeout(() => {
+
+      try {
+        const answer = await askBackend(q);
         typing.remove();
-        addBubble(findAnswer(q), 'bot');
-      }, 600 + Math.random() * 500);
+        addBubble(answer, 'bot');
+      } catch (err) {
+        typing.remove();
+        addBubble(err.message || "Something went wrong \u2014 try the contact form below.", 'bot');
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+        input.focus();
+      }
     });
   })();
 </script>
