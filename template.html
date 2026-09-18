@@ -179,11 +179,14 @@
   </div>
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
     {% for item in impact %}
-    <div class="border border-gray-200 rounded-xl p-5 hover:border-accent hover:shadow-md transition bg-white">
-      <div class="impact-metric serif font-black text-2xl md:text-3xl text-navy leading-none mb-2">{{ item.metric }}</div>
-      <div class="font-semibold text-sm text-ink mb-1">{{ item.label }}</div>
-      <div class="text-[10px] tracking-[0.1em] uppercase text-accent font-bold mb-3">{{ item.tag }}</div>
-      <div class="text-xs text-slate2 leading-relaxed">{{ item.detail }}</div>
+    <div class="group bg-white border border-gray-200 hover:border-accent rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+      <div class="h-1.5 bg-gradient-to-r from-accent to-[#0c665a]"></div>
+      <div class="p-5">
+        <div class="impact-metric serif font-black text-2xl md:text-3xl text-navy leading-none mb-2">{{ item.metric }}</div>
+        <div class="font-semibold text-sm text-ink mb-1">{{ item.label }}</div>
+        <div class="text-[10px] tracking-[0.1em] uppercase text-accent font-bold mb-3">{{ item.tag }}</div>
+        <div class="text-xs text-slate2 leading-relaxed">{{ item.detail }}</div>
+      </div>
     </div>
     {% endfor %}
   </div>
