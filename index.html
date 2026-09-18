@@ -197,6 +197,32 @@
     display: flex; align-items: center; justify-content: center; flex-direction: column;
   }
   .fit-score-ring-inner small { font-size: 0.6rem; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* Lightweight hover tooltips for buttons -- pure CSS, no JS */
+  .tt { position: relative; }
+  .tt::after {
+    content: attr(data-tip);
+    position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%);
+    background: #16233F; color: #fff; font-size: 0.72rem; font-weight: 500;
+    padding: 0.5rem 0.7rem; border-radius: 0.5rem; white-space: normal; width: max-content; max-width: 220px;
+    text-align: center; line-height: 1.35;
+    opacity: 0; pointer-events: none; transition: opacity 0.15s ease, transform 0.15s ease;
+    box-shadow: 0 8px 20px -6px rgba(0,0,0,0.35); z-index: 40;
+  }
+  .tt::before {
+    content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%; transform: translateX(-50%);
+    border: 6px solid transparent; border-top-color: #16233F;
+    opacity: 0; pointer-events: none; transition: opacity 0.15s ease; z-index: 40;
+  }
+  .tt:hover::after, .tt:hover::before { opacity: 1; }
+  .tt:hover::after { transform: translateX(-50%) translateY(-2px); }
+
+  /* Small persistent "Powered by AI" caption under AI-driven buttons */
+  .ai-badge {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.04em;
+    color: #4FBFAE; margin-top: 0.4rem;
+  }
 </style>
 </head>
 <body class="bg-white text-ink">
@@ -242,13 +268,25 @@
       <span class="opacity-40">&middot;</span>
       <span>16 years in industry &middot; 9+ at Walmart</span>
     </div>
-    <div class="flex flex-wrap gap-3">
-      <a href="https://outlook.office.com/mail/deeplink/compose?to=victorchowdhury1988@gmail.com&subject=Let%27s%20Connect" target="_blank" rel="noopener" class="px-5 py-3 rounded-lg bg-accent hover:bg-[#0c665a] transition font-semibold text-sm">Get in touch</a>
-      <a href="https://linkedin.com/in/victorchowdhury" target="_blank" rel="noopener" class="px-5 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm">View LinkedIn</a>
+    <div class="flex flex-wrap items-start gap-3">
+      <a href="https://outlook.office.com/mail/deeplink/compose?to=victorchowdhury1988@gmail.com&subject=Let%27s%20Connect" target="_blank" rel="noopener"
+         class="tt px-5 py-3 rounded-lg bg-accent hover:bg-[#0c665a] transition font-semibold text-sm"
+         data-tip="Opens a new email to Victor, ready to send">Get in touch</a>
+      <a href="https://linkedin.com/in/victorchowdhury" target="_blank" rel="noopener"
+         class="tt px-5 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm"
+         data-tip="Opens Victor's LinkedIn profile in a new tab">View LinkedIn</a>
       <a href="Victor_Chowdhury_CV_Data_AI.pdf" download="Victor Chowdhury Resume.pdf"
-         class="px-5 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm">Download R&eacute;sum&eacute;</a>
-      <a href="Victor-Chowdhury.vcf" download class="px-5 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm">Save My Contact</a>
-      <button type="button" id="jobFitLauncher" class="px-5 py-3 rounded-lg bg-accent hover:bg-[#0c665a] transition font-semibold text-sm">Check My Fit &rarr;</button>
+         class="tt px-5 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm"
+         data-tip="Downloads a PDF r\u00e9sum\u00e9 to your device">Download R&eacute;sum&eacute;</a>
+      <a href="Victor-Chowdhury.vcf" download
+         class="tt px-5 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm"
+         data-tip="Downloads a contact card (.vcf) you can save straight into your phone or email contacts">Save My Contact</a>
+      <div class="flex flex-col items-center">
+        <button type="button" id="jobFitLauncher"
+                class="tt px-5 py-3 rounded-lg bg-accent hover:bg-[#0c665a] transition font-semibold text-sm"
+                data-tip="Paste a job link or description and get an instant AI-scored fit percentage against Victor's profile">Check My Fit &rarr;</button>
+        <span class="ai-badge">&#10024; Powered by AI</span>
+      </div>
     </div>
   </div>
 </header>
@@ -1549,9 +1587,15 @@
     </form>
 
     <div class="flex flex-wrap justify-center gap-3 mb-10">
-      <a href="https://outlook.office.com/mail/deeplink/compose?to=victorchowdhury1988@gmail.com&subject=Let%27s%20Connect" target="_blank" rel="noopener" class="px-6 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm">Email Me</a>
-      <a href="https://linkedin.com/in/victorchowdhury" target="_blank" rel="noopener" class="px-6 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm">LinkedIn</a>
-      <a href="Victor-Chowdhury.vcf" download class="px-6 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm">Save My Contact</a>
+      <a href="https://outlook.office.com/mail/deeplink/compose?to=victorchowdhury1988@gmail.com&subject=Let%27s%20Connect" target="_blank" rel="noopener"
+         class="tt px-6 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm"
+         data-tip="Opens a new email to Victor, ready to send">Email Me</a>
+      <a href="https://linkedin.com/in/victorchowdhury" target="_blank" rel="noopener"
+         class="tt px-6 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm"
+         data-tip="Opens Victor's LinkedIn profile in a new tab">LinkedIn</a>
+      <a href="Victor-Chowdhury.vcf" download
+         class="tt px-6 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm"
+         data-tip="Downloads a contact card (.vcf) you can save straight into your phone or email contacts">Save My Contact</a>
     </div>
     <div class="flex flex-wrap justify-center gap-4 text-xs text-gray-400 mb-8">
       
@@ -1872,8 +1916,10 @@
 <!-- ASK ABOUT MY WORK -- floating chat widget. Calls a Supabase Edge
      Function (ask-about-victor) backed by Gemini, grounded in this site's
      own content via a system prompt. -->
-<button id="chatLauncher" aria-label="Ask about my work" aria-expanded="false" aria-controls="chatPanel">
+<button id="chatLauncher" class="tt" aria-label="Ask about my work" aria-expanded="false" aria-controls="chatPanel"
+        data-tip="Ask a question and get an AI-generated answer grounded in this site's content">
   <span style="font-size:1.1rem">&#128172;</span> Ask about my work
+  <span style="font-size:0.62rem;opacity:0.75;margin-left:0.15rem;">&#10024; AI</span>
 </button>
 <div id="chatPanel" role="dialog" aria-label="Ask about Victor's work">
   <div style="background:#16233F;color:#fff;padding:1rem 1.1rem;display:flex;justify-content:space-between;align-items:center;">
