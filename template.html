@@ -442,8 +442,30 @@
   <div class="max-w-6xl mx-auto px-6 py-16 text-center">
     <h2 class="serif font-bold text-3xl mb-4">Let's talk data, AI, or product.</h2>
     <p class="text-gray-300 mb-8 max-w-xl mx-auto">Open to conversations on AI strategy, product analytics, and building teams that ship. Reach out any time.</p>
+
+    <!-- Inline contact form -- posts straight to Supabase, no page reload -->
+    <form id="contactForm" class="max-w-md mx-auto mb-10 text-left" novalidate>
+      <div class="mb-3">
+        <input type="text" id="cf-name" name="name" required placeholder="Your name *"
+               class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 placeholder-gray-400 text-white text-sm focus:outline-none focus:border-accent">
+      </div>
+      <div class="mb-3">
+        <input type="email" id="cf-email" name="email" placeholder="Your email (optional)"
+               class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 placeholder-gray-400 text-white text-sm focus:outline-none focus:border-accent">
+      </div>
+      <div class="mb-3">
+        <textarea id="cf-note" name="note" rows="3" placeholder="Leave a note (optional)"
+                  class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 placeholder-gray-400 text-white text-sm focus:outline-none focus:border-accent resize-none"></textarea>
+      </div>
+      <button type="submit" id="cf-submit"
+              class="w-full px-6 py-3 rounded-lg bg-accent hover:bg-[#0c665a] transition font-semibold text-sm disabled:opacity-50">
+        Send
+      </button>
+      <div id="cf-status" class="text-xs mt-2 text-center min-h-[1rem]"></div>
+    </form>
+
     <div class="flex flex-wrap justify-center gap-3 mb-10">
-      <a href="https://outlook.office.com/mail/deeplink/compose?to={{ profile.email }}&subject=Let%27s%20Connect" target="_blank" rel="noopener" class="px-6 py-3 rounded-lg bg-accent hover:bg-[#0c665a] transition font-semibold text-sm">Email Me</a>
+      <a href="https://outlook.office.com/mail/deeplink/compose?to={{ profile.email }}&subject=Let%27s%20Connect" target="_blank" rel="noopener" class="px-6 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm">Email Me</a>
       <a href="{{ profile.linkedin }}" target="_blank" rel="noopener" class="px-6 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm">LinkedIn</a>
       <a href="/static/Victor-Chowdhury.vcf" download class="px-6 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm">Save My Contact</a>
     </div>
@@ -453,8 +475,79 @@
       {% endfor %}
     </div>
     <div class="text-xs text-gray-500 border-t border-white/10 pt-6">{{ profile.name }} &middot; {{ profile.location }}</div>
+    <div class="text-[11px] text-gray-600 mt-2">This site logs basic visit analytics (approximate location from IP, browser type) for the owner's own reference.</div>
   </div>
 </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const supabaseClient = window.supabase.createClient(
+    'https://wownxeielqhubwfzqqor.supabase.co',
+    'sb_publishable_xoDSPFqfv-ISbkKtp8EoAA_ERGpiUP_'
+  );
+
+  // Contact form -- inserts straight into Supabase; a database trigger
+  // handles pushing a notification, so no server code is needed here.
+  (function initContactForm() {
+    const form = document.getElementById('contactForm');
+    if (!form) return;
+    const statusEl = document.getElementById('cf-status');
+    const submitBtn = document.getElementById('cf-submit');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('cf-name').value.trim();
+      const email = document.getElementById('cf-email').value.trim();
+      const note = document.getElementById('cf-note').value.trim();
+
+      if (!name) {
+        statusEl.textContent = 'Name is required.';
+        statusEl.className = 'text-xs mt-2 text-center text-red-300';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      statusEl.textContent = 'Sending...';
+      statusEl.className = 'text-xs mt-2 text-center text-gray-300';
+
+      const { error } = await supabaseClient.from('contact_submissions').insert({
+        name,
+        email: email || null,
+        note: note || null,
+      });
+
+      submitBtn.disabled = false;
+      if (error) {
+        statusEl.textContent = "Something went wrong -- try the Email Me button instead.";
+        statusEl.className = 'text-xs mt-2 text-center text-red-300';
+      } else {
+        form.reset();
+        statusEl.textContent = 'Thanks -- message sent!';
+        statusEl.className = 'text-xs mt-2 text-center text-green-300';
+      }
+    });
+  })();
+
+  // Visit logging -- best-effort, silently no-ops on any failure (ad
+  // blockers, offline, rate-limited IP lookup, etc.) so it never affects
+  // the page itself.
+  (function logVisit() {
+    fetch('https://ipapi.co/json/')
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(geo => {
+        return supabaseClient.from('site_visits').insert({
+          ip: geo.ip || null,
+          city: geo.city || null,
+          region: geo.region || null,
+          country: geo.country_name || null,
+          user_agent: navigator.userAgent,
+          referrer: document.referrer || null,
+          page_path: window.location.pathname,
+        });
+      })
+      .catch(() => { /* best-effort only */ });
+  })();
+</script>
 
 <script>
   function showBucket(id) {
