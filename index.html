@@ -74,7 +74,7 @@
     flex: 0 0 320px;
     transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
   }
-  .carousel-card.narrow { flex-basis: 260px; }
+  .carousel-card.fill { flex: 1 1 280px; max-width: 380px; }
   .carousel-card:hover,
   .carousel-card:focus-visible {
     transform: scale(1.06);
@@ -1245,68 +1245,113 @@
     <div class="carousel-viewport" id="testimonialsViewport">
       <div class="carousel-track" id="testimonialsTrack">
       
-<div class="carousel-card narrow bg-white border border-gray-200 rounded-xl p-6 flex flex-col">
-  <div class="flex items-center gap-2 mb-4">
-    <span class="w-6 h-6 rounded flex items-center justify-center text-white text-xs font-black" style="background:#0A66C2">in</span>
-    <span class="text-[10px] tracking-[0.1em] uppercase text-slate2 font-bold">LinkedIn Recommendation</span>
+<div class="carousel-card fill group bg-white border border-[#CFE0F5] hover:border-[#0A66C2] rounded-xl overflow-hidden flex flex-col">
+  <!-- LinkedIn-blue ribbon, same visual language as the Cornell University
+       banner on the certificate cards, just themed to the source instead. -->
+  <div class="bg-gradient-to-r from-[#0A66C2] to-[#0E76D0] px-4 py-2 flex items-center gap-2">
+    <span class="w-5 h-5 rounded bg-white flex items-center justify-center text-[#0A66C2] text-[11px] font-black flex-shrink-0">in</span>
+    <span class="text-white text-[10px] tracking-[0.15em] uppercase font-bold">LinkedIn Recommendation</span>
   </div>
-  <p class="text-sm text-[#2C3548] leading-relaxed italic mb-5 flex-1">&ldquo;If I could pick one person on the planet to work with to create insights through data, it would be Victor. With all sincerity! Happy to talk to anyone that wants more detail.&rdquo;</p>
-  <div class="border-t border-gray-100 pt-4">
-    <div class="font-bold text-navy text-sm">Maria Smith</div>
-    <div class="text-xs text-slate2 mb-1">Founder &amp; Owner, Lasang Pinoy · Former Senior Director II, Ethics &amp; Compliance at Sam&#39;s Club</div>
-    <div class="text-xs text-gray-400">Maria managed Victor directly &middot; Sep 2026</div>
-  </div>
-</div>
-
-<div class="carousel-card narrow bg-white border border-gray-200 rounded-xl p-6 flex flex-col">
-  <div class="flex items-center gap-2 mb-4">
-    <span class="w-6 h-6 rounded flex items-center justify-center text-white text-xs font-black" style="background:#0A66C2">in</span>
-    <span class="text-[10px] tracking-[0.1em] uppercase text-slate2 font-bold">LinkedIn Recommendation</span>
-  </div>
-  <p class="text-sm text-[#2C3548] leading-relaxed italic mb-5 flex-1">&ldquo;Victor was a pleasure to have on the team, dynamic, creative and hard working. He brought a thoughtful approach to developing our data strategy and layered on top creative analytics distribution. I wish him well in his current role.&rdquo;</p>
-  <div class="border-t border-gray-100 pt-4">
-    <div class="font-bold text-navy text-sm">Andrew Millest</div>
-    <div class="text-xs text-slate2 mb-1">VP, Global Real Estate &amp; Facilities at Boeing</div>
-    <div class="text-xs text-gray-400">Andrew managed Victor directly &middot; Mar 2023</div>
+  <div class="p-6 flex flex-col flex-1">
+    <div class="text-[#0A66C2]/25 text-5xl leading-none serif font-bold -mb-3">&ldquo;</div>
+    <p class="text-sm text-[#2C3548] leading-relaxed mb-5 flex-1">If I could pick one person on the planet to work with to create insights through data, it would be Victor. With all sincerity! Happy to talk to anyone that wants more detail.</p>
+    <div class="flex items-center gap-3 border-t border-[#EAF1FB] pt-4">
+      <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
+           style="background:linear-gradient(135deg,#0A66C2,#004182)">M</div>
+      <div class="min-w-0">
+        <div class="font-bold text-navy text-sm leading-tight">Maria Smith</div>
+        <div class="text-xs text-slate2 leading-snug">Founder &amp; Owner, Lasang Pinoy · Former Senior Director II, Ethics &amp; Compliance at Sam&#39;s Club</div>
+        <div class="text-[11px] text-[#0A66C2] font-semibold mt-0.5">Maria managed Victor directly &middot; Sep 2026</div>
+      </div>
+    </div>
   </div>
 </div>
 
-<div class="carousel-card narrow bg-white border border-gray-200 rounded-xl p-6 flex flex-col">
-  <div class="flex items-center gap-2 mb-4">
-    <span class="w-6 h-6 rounded flex items-center justify-center text-white text-xs font-black" style="background:#0A66C2">in</span>
-    <span class="text-[10px] tracking-[0.1em] uppercase text-slate2 font-bold">LinkedIn Recommendation</span>
+<div class="carousel-card fill group bg-white border border-[#CFE0F5] hover:border-[#0A66C2] rounded-xl overflow-hidden flex flex-col">
+  <!-- LinkedIn-blue ribbon, same visual language as the Cornell University
+       banner on the certificate cards, just themed to the source instead. -->
+  <div class="bg-gradient-to-r from-[#0A66C2] to-[#0E76D0] px-4 py-2 flex items-center gap-2">
+    <span class="w-5 h-5 rounded bg-white flex items-center justify-center text-[#0A66C2] text-[11px] font-black flex-shrink-0">in</span>
+    <span class="text-white text-[10px] tracking-[0.15em] uppercase font-bold">LinkedIn Recommendation</span>
   </div>
-  <p class="text-sm text-[#2C3548] leading-relaxed italic mb-5 flex-1">&ldquo;In his one year on my team, Victor created data analytic reporting that had never existed previously on various fronts, even though he had no prior Facilities Services experience. He has always displayed superb professionalism and genuine care for those around him — highly emotionally intelligent and able to navigate uncomfortable situations with grace. Any organization would be lucky to have Victor as a leader on their team.&rdquo;</p>
-  <div class="border-t border-gray-100 pt-4">
-    <div class="font-bold text-navy text-sm">Samantha Madrid</div>
-    <div class="text-xs text-slate2 mb-1">Director at Walmart</div>
-    <div class="text-xs text-gray-400">Samantha managed Victor directly &middot; Feb 2023</div>
-  </div>
-</div>
-
-<div class="carousel-card narrow bg-white border border-gray-200 rounded-xl p-6 flex flex-col">
-  <div class="flex items-center gap-2 mb-4">
-    <span class="w-6 h-6 rounded flex items-center justify-center text-white text-xs font-black" style="background:#0A66C2">in</span>
-    <span class="text-[10px] tracking-[0.1em] uppercase text-slate2 font-bold">LinkedIn Recommendation</span>
-  </div>
-  <p class="text-sm text-[#2C3548] leading-relaxed italic mb-5 flex-1">&ldquo;Victor has always impressed me with his authenticity, compassion and people-first approach to leading teams, and is always informed on the latest developing trends in the BI/Analytics space. Victor has challenged our group to think differently and empowered us with the tools and knowledge to be successful in the workplace.&rdquo;</p>
-  <div class="border-t border-gray-100 pt-4">
-    <div class="font-bold text-navy text-sm">Robert Hart</div>
-    <div class="text-xs text-slate2 mb-1">Technology | Strategy | Innovation</div>
-    <div class="text-xs text-gray-400">Robert reported to Victor directly &middot; Jan 2023</div>
+  <div class="p-6 flex flex-col flex-1">
+    <div class="text-[#0A66C2]/25 text-5xl leading-none serif font-bold -mb-3">&ldquo;</div>
+    <p class="text-sm text-[#2C3548] leading-relaxed mb-5 flex-1">Victor was a pleasure to have on the team, dynamic, creative and hard working. He brought a thoughtful approach to developing our data strategy and layered on top creative analytics distribution. I wish him well in his current role.</p>
+    <div class="flex items-center gap-3 border-t border-[#EAF1FB] pt-4">
+      <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
+           style="background:linear-gradient(135deg,#0A66C2,#004182)">A</div>
+      <div class="min-w-0">
+        <div class="font-bold text-navy text-sm leading-tight">Andrew Millest</div>
+        <div class="text-xs text-slate2 leading-snug">VP, Global Real Estate &amp; Facilities at Boeing</div>
+        <div class="text-[11px] text-[#0A66C2] font-semibold mt-0.5">Andrew managed Victor directly &middot; Mar 2023</div>
+      </div>
+    </div>
   </div>
 </div>
 
-<div class="carousel-card narrow bg-white border border-gray-200 rounded-xl p-6 flex flex-col">
-  <div class="flex items-center gap-2 mb-4">
-    <span class="w-6 h-6 rounded flex items-center justify-center text-white text-xs font-black" style="background:#0A66C2">in</span>
-    <span class="text-[10px] tracking-[0.1em] uppercase text-slate2 font-bold">LinkedIn Recommendation</span>
+<div class="carousel-card fill group bg-white border border-[#CFE0F5] hover:border-[#0A66C2] rounded-xl overflow-hidden flex flex-col">
+  <!-- LinkedIn-blue ribbon, same visual language as the Cornell University
+       banner on the certificate cards, just themed to the source instead. -->
+  <div class="bg-gradient-to-r from-[#0A66C2] to-[#0E76D0] px-4 py-2 flex items-center gap-2">
+    <span class="w-5 h-5 rounded bg-white flex items-center justify-center text-[#0A66C2] text-[11px] font-black flex-shrink-0">in</span>
+    <span class="text-white text-[10px] tracking-[0.15em] uppercase font-bold">LinkedIn Recommendation</span>
   </div>
-  <p class="text-sm text-[#2C3548] leading-relaxed italic mb-5 flex-1">&ldquo;If you&#39;re looking for someone with integrity and a strong work ethic, you&#39;ll find that in Victor. Enthusiastic, professional, innovative, and always looking forward and upward, Victor is one of the few people I know that can plow through ambiguity and tough situations with a can-do attitude. I miss having him on the team!&rdquo;</p>
-  <div class="border-t border-gray-100 pt-4">
-    <div class="font-bold text-navy text-sm">Blaise Kennings</div>
-    <div class="text-xs text-slate2 mb-1">Data-Driven</div>
-    <div class="text-xs text-gray-400">Blaise managed Victor directly &middot; May 2018</div>
+  <div class="p-6 flex flex-col flex-1">
+    <div class="text-[#0A66C2]/25 text-5xl leading-none serif font-bold -mb-3">&ldquo;</div>
+    <p class="text-sm text-[#2C3548] leading-relaxed mb-5 flex-1">In his one year on my team, Victor created data analytic reporting that had never existed previously on various fronts, even though he had no prior Facilities Services experience. He has always displayed superb professionalism and genuine care for those around him — highly emotionally intelligent and able to navigate uncomfortable situations with grace. Any organization would be lucky to have Victor as a leader on their team.</p>
+    <div class="flex items-center gap-3 border-t border-[#EAF1FB] pt-4">
+      <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
+           style="background:linear-gradient(135deg,#0A66C2,#004182)">S</div>
+      <div class="min-w-0">
+        <div class="font-bold text-navy text-sm leading-tight">Samantha Madrid</div>
+        <div class="text-xs text-slate2 leading-snug">Director at Walmart</div>
+        <div class="text-[11px] text-[#0A66C2] font-semibold mt-0.5">Samantha managed Victor directly &middot; Feb 2023</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="carousel-card fill group bg-white border border-[#CFE0F5] hover:border-[#0A66C2] rounded-xl overflow-hidden flex flex-col">
+  <!-- LinkedIn-blue ribbon, same visual language as the Cornell University
+       banner on the certificate cards, just themed to the source instead. -->
+  <div class="bg-gradient-to-r from-[#0A66C2] to-[#0E76D0] px-4 py-2 flex items-center gap-2">
+    <span class="w-5 h-5 rounded bg-white flex items-center justify-center text-[#0A66C2] text-[11px] font-black flex-shrink-0">in</span>
+    <span class="text-white text-[10px] tracking-[0.15em] uppercase font-bold">LinkedIn Recommendation</span>
+  </div>
+  <div class="p-6 flex flex-col flex-1">
+    <div class="text-[#0A66C2]/25 text-5xl leading-none serif font-bold -mb-3">&ldquo;</div>
+    <p class="text-sm text-[#2C3548] leading-relaxed mb-5 flex-1">Victor has always impressed me with his authenticity, compassion and people-first approach to leading teams, and is always informed on the latest developing trends in the BI/Analytics space. Victor has challenged our group to think differently and empowered us with the tools and knowledge to be successful in the workplace.</p>
+    <div class="flex items-center gap-3 border-t border-[#EAF1FB] pt-4">
+      <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
+           style="background:linear-gradient(135deg,#0A66C2,#004182)">R</div>
+      <div class="min-w-0">
+        <div class="font-bold text-navy text-sm leading-tight">Robert Hart</div>
+        <div class="text-xs text-slate2 leading-snug">Technology | Strategy | Innovation</div>
+        <div class="text-[11px] text-[#0A66C2] font-semibold mt-0.5">Robert reported to Victor directly &middot; Jan 2023</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="carousel-card fill group bg-white border border-[#CFE0F5] hover:border-[#0A66C2] rounded-xl overflow-hidden flex flex-col">
+  <!-- LinkedIn-blue ribbon, same visual language as the Cornell University
+       banner on the certificate cards, just themed to the source instead. -->
+  <div class="bg-gradient-to-r from-[#0A66C2] to-[#0E76D0] px-4 py-2 flex items-center gap-2">
+    <span class="w-5 h-5 rounded bg-white flex items-center justify-center text-[#0A66C2] text-[11px] font-black flex-shrink-0">in</span>
+    <span class="text-white text-[10px] tracking-[0.15em] uppercase font-bold">LinkedIn Recommendation</span>
+  </div>
+  <div class="p-6 flex flex-col flex-1">
+    <div class="text-[#0A66C2]/25 text-5xl leading-none serif font-bold -mb-3">&ldquo;</div>
+    <p class="text-sm text-[#2C3548] leading-relaxed mb-5 flex-1">If you&#39;re looking for someone with integrity and a strong work ethic, you&#39;ll find that in Victor. Enthusiastic, professional, innovative, and always looking forward and upward, Victor is one of the few people I know that can plow through ambiguity and tough situations with a can-do attitude. I miss having him on the team!</p>
+    <div class="flex items-center gap-3 border-t border-[#EAF1FB] pt-4">
+      <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
+           style="background:linear-gradient(135deg,#0A66C2,#004182)">B</div>
+      <div class="min-w-0">
+        <div class="font-bold text-navy text-sm leading-tight">Blaise Kennings</div>
+        <div class="text-xs text-slate2 leading-snug">Data-Driven</div>
+        <div class="text-[11px] text-[#0A66C2] font-semibold mt-0.5">Blaise managed Victor directly &middot; May 2018</div>
+      </div>
+    </div>
   </div>
 </div>
 
