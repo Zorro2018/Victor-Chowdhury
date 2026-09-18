@@ -575,6 +575,79 @@ ARTICLES = [
 ]
 
 # ---------------------------------------------------------------------------
+# Testimonials — sourced from LinkedIn recommendations (shown as received;
+# not editorialized beyond light trimming for card length on the longer ones)
+# ---------------------------------------------------------------------------
+TESTIMONIALS = [
+    {
+        "quote": (
+            "If I could pick one person on the planet to work with to create "
+            "insights through data, it would be Victor. With all sincerity! "
+            "Happy to talk to anyone that wants more detail."
+        ),
+        "name": "Maria Smith",
+        "title": "Founder & Owner, Lasang Pinoy \u00b7 Former Senior Director II, Ethics & Compliance at Sam's Club",
+        "relationship": "Maria managed Victor directly",
+        "date": "Sep 2026",
+    },
+    {
+        "quote": (
+            "Victor was a pleasure to have on the team, dynamic, creative and "
+            "hard working. He brought a thoughtful approach to developing our "
+            "data strategy and layered on top creative analytics distribution. "
+            "I wish him well in his current role."
+        ),
+        "name": "Andrew Millest",
+        "title": "VP, Global Real Estate & Facilities at Boeing",
+        "relationship": "Andrew managed Victor directly",
+        "date": "Mar 2023",
+    },
+    {
+        "quote": (
+            "In his one year on my team, Victor created data analytic "
+            "reporting that had never existed previously on various fronts, "
+            "even though he had no prior Facilities Services experience. He "
+            "has always displayed superb professionalism and genuine care "
+            "for those around him \u2014 highly emotionally intelligent and able "
+            "to navigate uncomfortable situations with grace. Any "
+            "organization would be lucky to have Victor as a leader on their team."
+        ),
+        "name": "Samantha Madrid",
+        "title": "Director at Walmart",
+        "relationship": "Samantha managed Victor directly",
+        "date": "Feb 2023",
+    },
+    {
+        "quote": (
+            "Victor has always impressed me with his authenticity, "
+            "compassion and people-first approach to leading teams, and is "
+            "always informed on the latest developing trends in the "
+            "BI/Analytics space. Victor has challenged our group to think "
+            "differently and empowered us with the tools and knowledge to be "
+            "successful in the workplace."
+        ),
+        "name": "Robert Hart",
+        "title": "Technology | Strategy | Innovation",
+        "relationship": "Robert reported to Victor directly",
+        "date": "Jan 2023",
+    },
+    {
+        "quote": (
+            "If you're looking for someone with integrity and a strong work "
+            "ethic, you'll find that in Victor. Enthusiastic, professional, "
+            "innovative, and always looking forward and upward, Victor is "
+            "one of the few people I know that can plow through ambiguity "
+            "and tough situations with a can-do attitude. I miss having him "
+            "on the team!"
+        ),
+        "name": "Blaise Kennings",
+        "title": "Data-Driven",
+        "relationship": "Blaise managed Victor directly",
+        "date": "May 2018",
+    },
+]
+
+# ---------------------------------------------------------------------------
 # Certificates — verified credentials, same card treatment
 # ---------------------------------------------------------------------------
 CERTIFICATES = [

@@ -67,6 +67,7 @@ def home(request: Request):
             "work_samples": content.WORK_SAMPLES,
             "articles": content.ARTICLES,
             "certificates": content.CERTIFICATES,
+            "testimonials": content.TESTIMONIALS,
         },
     )
 
