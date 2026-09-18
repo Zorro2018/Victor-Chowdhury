@@ -21,7 +21,7 @@ PROFILE = {
     "email": "victorchowdhury1988@gmail.com",
     "years_industry": 16,
     "years_walmart": "9+",
-    "current_role": "Director, Strategic Insights & AI \u2014 Customer Engagement Services, Walmart",
+    "current_role": "Director, Strategic Insights & AI \u2014 Walmart",
 }
 
 ABOUT = [
@@ -310,7 +310,7 @@ BUCKETS = [
 TIMELINE = [
     {
         "title": "Director, Strategic Insights & AI",
-        "org": "Customer Engagement Services, Walmart",
+        "org": "Walmart",
         "dates": "Jun 2025 \u2014 Present",
         "blurb": "Agentic AI, conversational AI, and service economics for a 25+ person, "
                  "four-pillar organization.",
