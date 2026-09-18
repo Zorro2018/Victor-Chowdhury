@@ -143,9 +143,6 @@
   @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
   @media (prefers-reduced-motion: reduce) { .gradient-text { animation: none; background-position: 0% 50%; } }
 
-  /* Bento-style Impact grid -- one featured tile spans 2x2, rest pack around it */
-  .bento-grid { display: grid; grid-auto-flow: dense; }
-
   /* "Ask about my work" chat widget */
   #chatLauncher {
     position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 50;
@@ -234,17 +231,15 @@
     <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">Signature Work</div>
     <h2 class="serif font-bold text-3xl text-navy">Impact, by the numbers</h2>
   </div>
-  <div class="bento-grid grid grid-cols-2 md:grid-cols-4 gap-4">
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
     {% for item in impact %}
-    {% set featured = (loop.index0 == 1) %}
-    <div class="group border hover:border-accent rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 flex flex-col
-                {{ 'col-span-2 md:col-span-2 md:row-span-2 bg-gradient-to-br from-[#EAF7F4] to-white border-accent/40' if featured else 'bg-white border-gray-200' }}">
-      <div class="{{ 'h-2' if featured else 'h-1.5' }} bg-gradient-to-r from-accent to-[#0c665a]"></div>
-      <div class="{{ 'p-6 md:p-8 flex-1 flex flex-col justify-center' if featured else 'p-5' }}">
-        <div class="impact-metric serif font-black leading-none mb-2 text-navy {{ 'text-4xl md:text-6xl' if featured else 'text-2xl md:text-3xl' }}">{{ item.metric }}</div>
-        <div class="font-semibold text-ink mb-1 {{ 'text-lg md:text-xl' if featured else 'text-sm' }}">{{ item.label }}</div>
-        <div class="tracking-[0.1em] uppercase text-accent font-bold mb-3 {{ 'text-xs' if featured else 'text-[10px]' }}">{{ item.tag }}</div>
-        <div class="text-slate2 leading-relaxed {{ 'text-sm max-w-sm' if featured else 'text-xs' }}">{{ item.detail }}</div>
+    <div class="group bg-white border border-gray-200 hover:border-accent rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+      <div class="h-1.5 bg-gradient-to-r from-accent to-[#0c665a]"></div>
+      <div class="p-5">
+        <div class="impact-metric serif font-black text-2xl md:text-3xl text-navy leading-none mb-2">{{ item.metric }}</div>
+        <div class="font-semibold text-sm text-ink mb-1">{{ item.label }}</div>
+        <div class="text-[10px] tracking-[0.1em] uppercase text-accent font-bold mb-3">{{ item.tag }}</div>
+        <div class="text-xs text-slate2 leading-relaxed">{{ item.detail }}</div>
       </div>
     </div>
     {% endfor %}
