@@ -188,6 +188,15 @@
   .chat-bubble.typing span:nth-child(3) { animation-delay: 0.3s; }
   @keyframes typingBounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.5; } 30% { transform: translateY(-4px); opacity: 1; } }
   /* "Talk to Victor" additions */
+  .wave-smiley { position: relative; display: inline-flex; flex-shrink: 0; width: 28px; height: 28px; margin-right: 0.35rem; }
+  .wave-hand { position: absolute; right: -12px; top: -5px; font-size: 1.05rem; line-height: 1; transform-origin: 70% 90%; animation: handWave 3s ease-in-out infinite; }
+  #chatLauncher:hover .wave-hand { animation-duration: 1s; }
+  @keyframes handWave {
+    0%, 50%, 100% { transform: rotate(0deg); }
+    58% { transform: rotate(22deg); } 66% { transform: rotate(-12deg); }
+    74% { transform: rotate(22deg); } 82% { transform: rotate(-8deg); } 90% { transform: rotate(10deg); }
+  }
+  @media (prefers-reduced-motion: reduce) { .wave-hand { animation: none; } }
   #chatPanel { width: min(380px, calc(100vw - 2rem)); max-height: min(600px, calc(100vh - 7.5rem)); }
   @media (max-width: 480px) { #chatPanel { right: 1rem; bottom: 5rem; } }
   .chat-bubble { white-space: pre-wrap; word-wrap: break-word; }
@@ -1090,7 +1099,18 @@
 </div>
 <button id="chatLauncher" class="tt" aria-label="Talk to Victor (AI)" aria-expanded="false" aria-controls="chatPanel"
         data-tip="Chat with an AI version of Victor, trained on his resume and how he talks about his work">
-  <span style="font-size:1.1rem">&#128172;</span> <span class="launcher-text">Talk to Victor</span>
+  <span class="wave-smiley" aria-hidden="true">
+    <svg width="28" height="28" viewBox="0 0 32 32">
+      <circle cx="16" cy="16" r="15" fill="#FFC220"/>
+      <ellipse cx="11" cy="13" rx="1.9" ry="2.5" fill="#16233F"/>
+      <ellipse cx="21" cy="13" rx="1.9" ry="2.5" fill="#16233F"/>
+      <path d="M9 19.5 Q16 26.5 23 19.5" stroke="#16233F" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      <circle cx="7.5" cy="18.5" r="2" fill="#F59E0B" opacity="0.5"/>
+      <circle cx="24.5" cy="18.5" r="2" fill="#F59E0B" opacity="0.5"/>
+    </svg>
+    <span class="wave-hand">&#128075;</span>
+  </span>
+  <span class="launcher-text">Talk to Victor</span>
   <span class="launcher-ai-tag" style="font-size:0.62rem;opacity:0.75;margin-left:0.15rem;">&#10024; AI</span>
 </button>
 <div id="chatPanel" role="dialog" aria-label="Talk to Victor (AI)">
