@@ -2055,7 +2055,7 @@
   <strong>Hi, I'm Victor's AI.</strong> Hiring? Ask me what you'd ask on a first call &mdash; or paste a job description.
 </div>
 <button id="chatLauncher" class="tt" aria-label="Talk to Victor (AI)" aria-expanded="false" aria-controls="chatPanel"
-        data-tip="Chat with an AI version of Victor, trained on his resume and how he talks about his work">
+        data-tip="Hi, I'm Victor's AI agent &#128075; Hiring? Let's talk!">
   <span class="wave-smiley" aria-hidden="true">
     <svg width="28" height="28" viewBox="0 0 32 32">
       <circle cx="16" cy="16" r="15" fill="#FFC220"/>
@@ -2168,7 +2168,7 @@
     if (!launcher || !panel || !form) return;
 
     const ENDPOINT = 'https://wownxeielqhubwfzqqor.supabase.co/functions/v1/talk-to-victor';
-    const GREETING = "Hi, I'm Victor — well, the AI version of me. I've been trained on my résumé, this portfolio and how I talk about my work, so ask me anything you'd ask on a first call: my background, the AI products I've built, how I lead, or how I'd fit a role you're hiring for. You can paste a job description too.\n\nThe real Victor reads these chats and follows up personally.";
+    const GREETING = "Hi, I'm Victor's AI agent \u{1F44B} Think of me as the first-call version of Victor. Ask me about the AI products I've built, how I lead teams, or the messiest problem I've solved \u2014 or paste a job description and I'll tell you how I'd fit.\n\nLike what you hear? Tap \"Pass my details to Victor\" and the real me will reach out.";
     const STARTERS = [
       'Give me the 60-second overview',
       "What's your biggest AI win?",
@@ -2267,6 +2267,21 @@
       launcher.setAttribute('aria-expanded', 'false');
     }
     launcher.addEventListener('click', () => panel.classList.contains('open') ? closePanel() : openPanel());
+
+    // Rotating hover greetings -- a new line each time someone hovers
+    const HOVER_LINES = [
+      "Hi, I'm Victor's AI agent \u{1F44B} Hiring? Let's talk!",
+      "Hey there! I'm Victor's AI agent. Ask me anything — I've got stories.",
+      "Grab a coffee ☕ I'm Victor's AI agent and I'm ready when you are.",
+      "Hiring for AI & data? I'm Victor's AI agent — let's chat.",
+      "Got a job description? Paste it in and I'll show you how I fit \u{1F3AF}",
+      "I'm Victor's AI agent. Skip the small talk — ask me about impact \u{1F4C8}",
+    ];
+    let hoverIdx = 0;
+    launcher.addEventListener('mouseenter', () => {
+      launcher.setAttribute('data-tip', HOVER_LINES[hoverIdx % HOVER_LINES.length]);
+      hoverIdx++;
+    });
     closeBtn.addEventListener('click', closePanel);
 
     // Proactive greeting: a small nudge bubble once per visit
