@@ -2191,7 +2191,24 @@
     function addBubble(text, cls) {
       const div = document.createElement('div');
       div.className = 'chat-bubble ' + cls;
-      div.textContent = text;
+      if (cls === 'bot' && text) {
+        // Build links as DOM nodes (never innerHTML) so replies stay XSS-safe
+        text.split(/(https:\/\/[^\s)\]]+)/g).forEach((part, i) => {
+          if (i % 2 === 1) {
+            const url = part.replace(/[.,;:!?'"]+$/, '');
+            const a = document.createElement('a');
+            a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+            a.textContent = url.replace(/^https:\/\//, '').replace(/\/$/, '');
+            a.style.cssText = 'color:#0F7B6C;font-weight:600;text-decoration:underline;word-break:break-all;';
+            div.appendChild(a);
+            if (url.length < part.length) div.appendChild(document.createTextNode(part.slice(url.length)));
+          } else if (part) {
+            div.appendChild(document.createTextNode(part));
+          }
+        });
+      } else {
+        div.textContent = text;
+      }
       messages.appendChild(div);
       messages.scrollTop = messages.scrollHeight;
       return div;
