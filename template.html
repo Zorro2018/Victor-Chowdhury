@@ -187,6 +187,27 @@
   .chat-bubble.typing span:nth-child(2) { animation-delay: 0.15s; }
   .chat-bubble.typing span:nth-child(3) { animation-delay: 0.3s; }
   @keyframes typingBounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.5; } 30% { transform: translateY(-4px); opacity: 1; } }
+  /* "Talk to Victor" additions */
+  #chatPanel { width: min(380px, calc(100vw - 2rem)); max-height: min(600px, calc(100vh - 7.5rem)); }
+  @media (max-width: 480px) { #chatPanel { right: 1rem; bottom: 5rem; } }
+  .chat-bubble { white-space: pre-wrap; word-wrap: break-word; }
+  .chat-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg,#FFC220,#F59E0B); color: #16233F; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.78rem; flex-shrink: 0; position: relative; }
+  .chat-avatar::after { content: ""; position: absolute; right: -1px; bottom: -1px; width: 10px; height: 10px; border-radius: 50%; background: #22C55E; border: 2px solid #16233F; }
+  #chatChips { display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0 1rem 0.6rem; }
+  #chatChips button { background: #fff; border: 1px solid #CBD5E1; color: #16233F; border-radius: 999px; padding: 0.35rem 0.7rem; font-size: 0.74rem; font-weight: 600; cursor: pointer; }
+  #chatChips button:hover { border-color: #16233F; background: #F3F6FB; }
+  #chatLeadBar { padding: 0 0.75rem 0.5rem; }
+  #chatLeadToggle { width: 100%; background: #FFF8E6; border: 1px dashed #F59E0B; color: #92400E; border-radius: 0.6rem; padding: 0.45rem; font-size: 0.76rem; font-weight: 700; cursor: pointer; }
+  #chatLeadForm { display: none; flex-direction: column; gap: 0.4rem; background: #F8FAFC; border: 1px solid #E4E7ED; border-radius: 0.7rem; padding: 0.65rem; margin-top: 0.4rem; }
+  #chatLeadForm.open { display: flex; }
+  #chatLeadForm input { padding: 0.45rem 0.6rem; border: 1px solid #E4E7ED; border-radius: 0.5rem; font-size: 0.8rem; outline: none; }
+  #chatLeadForm button[type=submit] { background: #16233F; color: #fff; border: none; border-radius: 0.5rem; padding: 0.5rem; font-weight: 700; font-size: 0.8rem; cursor: pointer; }
+  #chatInput { resize: none; font-family: inherit; line-height: 1.35; max-height: 110px; }
+  #chatNudge { position: fixed; right: 1.5rem; bottom: 5.4rem; z-index: 49; max-width: 260px; background: #fff; color: #1F2937; border: 1px solid #E4E7ED; border-radius: 0.9rem 0.9rem 0.2rem 0.9rem; padding: 0.7rem 2rem 0.7rem 0.9rem; font-size: 0.82rem; line-height: 1.4; box-shadow: 0 16px 40px -12px rgba(22,35,63,0.35); display: none; cursor: pointer; }
+  #chatNudge.show { display: block; animation: nudgeIn 0.35s ease; }
+  #chatNudge .x { position: absolute; top: 0.3rem; right: 0.5rem; background: none; border: none; font-size: 1rem; color: #94A3B8; cursor: pointer; }
+  @keyframes nudgeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { #chatNudge.show { animation: none; } }
 
   /* "Check My Fit" modal */
   #jobFitOverlay {
@@ -1058,29 +1079,51 @@
   })();
 </script>
 
-<!-- ASK ABOUT MY WORK -- floating chat widget. Calls a Supabase Edge
-     Function (ask-about-victor) backed by Gemini, grounded in this site's
-     own content via a system prompt. -->
-<button id="chatLauncher" class="tt" aria-label="Ask about my work" aria-expanded="false" aria-controls="chatPanel"
-        data-tip="Ask a question and get an AI-generated answer grounded in this site's content">
-  <span style="font-size:1.1rem">&#128172;</span> <span class="launcher-text">Ask about my work</span>
+<!-- TALK TO VICTOR -- floating recruiter chat. Multi-turn conversation with
+     an AI version of Victor via the talk-to-victor Supabase Edge Function
+     (Gemini, first-person persona grounded in his resume + interview stories).
+     Chats are logged for Victor; "Pass my details" drops a lead into
+     contact_submissions, which pushes an ntfy alert. -->
+<div id="chatNudge" role="status">
+  <button class="x" aria-label="Dismiss">&times;</button>
+  <strong>Hi, I'm Victor's AI.</strong> Hiring? Ask me what you'd ask on a first call &mdash; or paste a job description.
+</div>
+<button id="chatLauncher" class="tt" aria-label="Talk to Victor (AI)" aria-expanded="false" aria-controls="chatPanel"
+        data-tip="Chat with an AI version of Victor, trained on his resume and how he talks about his work">
+  <span style="font-size:1.1rem">&#128172;</span> <span class="launcher-text">Talk to Victor</span>
   <span class="launcher-ai-tag" style="font-size:0.62rem;opacity:0.75;margin-left:0.15rem;">&#10024; AI</span>
 </button>
-<div id="chatPanel" role="dialog" aria-label="Ask about Victor's work">
-  <div style="background:#16233F;color:#fff;padding:1rem 1.1rem;display:flex;justify-content:space-between;align-items:center;">
-    <div>
-      <div style="font-weight:800;font-size:0.9rem;">Ask about my work</div>
-      <div style="font-size:0.72rem;color:#9AA6C0;">AI-generated, grounded in this site's content</div>
+<div id="chatPanel" role="dialog" aria-label="Talk to Victor (AI)">
+  <div style="background:#16233F;color:#fff;padding:0.85rem 1rem;display:flex;justify-content:space-between;align-items:center;gap:0.7rem;">
+    <div style="display:flex;align-items:center;gap:0.65rem;">
+      <div class="chat-avatar" aria-hidden="true">VC</div>
+      <div>
+        <div style="font-weight:800;font-size:0.9rem;">Victor Chowdhury <span style="font-weight:600;font-size:0.68rem;background:rgba(255,194,32,0.18);color:#FFC220;border-radius:999px;padding:1px 7px;margin-left:2px;">AI</span></div>
+        <div style="font-size:0.7rem;color:#9AA6C0;">AI version of Victor &middot; the real Victor reads every chat</div>
+      </div>
     </div>
     <button id="chatClose" aria-label="Close chat" style="background:none;border:none;color:#fff;font-size:1.2rem;cursor:pointer;line-height:1;">&times;</button>
   </div>
-  <div id="chatMessages"></div>
-  <form id="chatForm" style="display:flex;gap:0.5rem;padding:0.75rem;border-top:1px solid #E4E7ED;">
-    <input id="chatInput" type="text" placeholder="e.g. What's his computer vision experience?"
-           autocomplete="off" maxlength="400"
-           style="flex:1;padding:0.55rem 0.8rem;border:1px solid #E4E7ED;border-radius:0.6rem;font-size:0.83rem;outline:none;">
-    <button type="submit" style="background:#0F7B6C;color:#fff;border:none;border-radius:0.6rem;padding:0.55rem 0.9rem;font-weight:700;font-size:0.83rem;cursor:pointer;">Ask</button>
+  <div id="chatMessages" aria-live="polite"></div>
+  <div id="chatChips"></div>
+  <div id="chatLeadBar">
+    <button id="chatLeadToggle" type="button">&#128203; Pass my details to Victor</button>
+    <form id="chatLeadForm" novalidate>
+      <input id="leadName" placeholder="Your name *" maxlength="120" autocomplete="name">
+      <input id="leadEmail" type="email" placeholder="Work email *" maxlength="200" autocomplete="email">
+      <input id="leadCompany" placeholder="Company" maxlength="150" autocomplete="organization">
+      <input id="leadRole" placeholder="Role you're hiring for" maxlength="200">
+      <button type="submit">Send to Victor</button>
+      <div id="leadStatus" style="font-size:0.74rem;color:#64748B;"></div>
+    </form>
+  </div>
+  <form id="chatForm" style="display:flex;gap:0.5rem;padding:0.6rem 0.75rem 0.4rem;border-top:1px solid #E4E7ED;align-items:flex-end;">
+    <textarea id="chatInput" rows="1" placeholder="Ask me anything, or paste a job description&hellip;"
+           autocomplete="off" maxlength="1500"
+           style="flex:1;padding:0.55rem 0.8rem;border:1px solid #E4E7ED;border-radius:0.6rem;font-size:0.83rem;outline:none;"></textarea>
+    <button type="submit" style="background:#0F7B6C;color:#fff;border:none;border-radius:0.6rem;padding:0.55rem 0.9rem;font-weight:700;font-size:0.83rem;cursor:pointer;">Send</button>
   </form>
+  <div style="font-size:0.66rem;color:#94A3B8;text-align:center;padding:0 0.75rem 0.55rem;">AI-generated answers can be imperfect. Chats are saved so Victor can follow up.</div>
 </div>
 
 <!-- CHECK MY FIT -- pastes a job link or job description, calls a Supabase
@@ -1129,11 +1172,10 @@
     hero.addEventListener('mouseleave', () => spotlight.classList.remove('active'));
   })();
 
-  // "Ask about my work" -- matches the question against a small topic list
-  // built from this site's own content (see FAQ below) and returns the best
-  // match. This is a local keyword matcher, not a live model call -- the
-  // panel says so up front so it's never mistaken for one.
-  (function initAskWidget() {
+  // "Talk to Victor" -- multi-turn chat with an AI version of Victor.
+  // History lives in memory (and sessionStorage when available) and is sent
+  // with each turn; the edge function is stateless apart from logging.
+  (function initTalkToVictor() {
     const launcher = document.getElementById('chatLauncher');
     const panel = document.getElementById('chatPanel');
     const closeBtn = document.getElementById('chatClose');
@@ -1141,22 +1183,33 @@
     const input = document.getElementById('chatInput');
     const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
     const messages = document.getElementById('chatMessages');
+    const chips = document.getElementById('chatChips');
+    const nudge = document.getElementById('chatNudge');
+    const leadToggle = document.getElementById('chatLeadToggle');
+    const leadForm = document.getElementById('chatLeadForm');
+    const leadStatus = document.getElementById('leadStatus');
     if (!launcher || !panel || !form) return;
 
-    const ASK_ENDPOINT = 'https://wownxeielqhubwfzqqor.supabase.co/functions/v1/ask-about-victor';
+    const ENDPOINT = 'https://wownxeielqhubwfzqqor.supabase.co/functions/v1/talk-to-victor';
+    const GREETING = "Hi, I'm Victor — well, the AI version of me. I've been trained on my résumé, this portfolio and how I talk about my work, so ask me anything you'd ask on a first call: my background, the AI products I've built, how I lead, or how I'd fit a role you're hiring for. You can paste a job description too.\n\nThe real Victor reads these chats and follows up personally.";
+    const STARTERS = [
+      'Give me the 60-second overview',
+      "What's your biggest AI win?",
+      'Tell me about a time you pushed back',
+      'Why are you looking for a new role?',
+    ];
 
-    async function askBackend(question) {
-      const resp = await fetch(ASK_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question }),
-      });
-      const data = await resp.json().catch(() => ({}));
-      if (!resp.ok) {
-        throw new Error(data.error || 'Something went wrong.');
-      }
-      return data.answer;
-    }
+    const store = {
+      get(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } },
+      set(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} },
+    };
+    const newId = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+      : 'xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx'.replace(/x/g, () => (Math.random() * 16 | 0).toString(16));
+    let sessionId = store.get('ttv_session') || newId();
+    store.set('ttv_session', sessionId);
+    let history = [];
+    try { history = JSON.parse(store.get('ttv_history') || '[]') || []; } catch (e) { history = []; }
+    const saveHistory = () => store.set('ttv_history', JSON.stringify(history.slice(-30)));
 
     function addBubble(text, cls) {
       const div = document.createElement('div');
@@ -1166,47 +1219,113 @@
       messages.scrollTop = messages.scrollHeight;
       return div;
     }
+    function renderChips() {
+      chips.innerHTML = '';
+      if (history.length) return;
+      STARTERS.forEach(q => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.textContent = q;
+        b.addEventListener('click', () => send(q));
+        chips.appendChild(b);
+      });
+    }
+    function renderAll() {
+      messages.innerHTML = '';
+      addBubble(GREETING, 'bot');
+      history.forEach(m => addBubble(m.content, m.role === 'user' ? 'user' : 'bot'));
+      renderChips();
+    }
 
+    async function send(text) {
+      const q = (text || '').trim();
+      if (!q || (submitBtn && submitBtn.disabled)) return;
+      history.push({ role: 'user', content: q.slice(0, 1500) });
+      saveHistory();
+      addBubble(q, 'user');
+      chips.innerHTML = '';
+      input.value = ''; autosize();
+      if (submitBtn) submitBtn.disabled = true;
+      const typing = addBubble('', 'bot typing');
+      typing.innerHTML = '<span></span><span></span><span></span>';
+      try {
+        const resp = await fetch(ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: history.slice(-20), session_id: sessionId }),
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) throw new Error(data.error || 'Something went wrong.');
+        if (data.session_id) { sessionId = data.session_id; store.set('ttv_session', sessionId); }
+        typing.remove();
+        history.push({ role: 'assistant', content: data.answer });
+        saveHistory();
+        addBubble(data.answer, 'bot');
+      } catch (err) {
+        typing.remove();
+        history.pop(); saveHistory();   // let them resend the same question
+        addBubble(err.message || 'Something went wrong — try the contact form below.', 'bot');
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+        input.focus();
+      }
+    }
+
+    function autosize() { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 110) + 'px'; }
+    input.addEventListener('input', autosize);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(input.value); }
+    });
+    form.addEventListener('submit', (e) => { e.preventDefault(); send(input.value); });
+
+    function hideNudge() { nudge.classList.remove('show'); store.set('ttv_nudged', '1'); }
     function openPanel() {
+      hideNudge();
       panel.classList.add('open');
       launcher.setAttribute('aria-expanded', 'true');
-      if (!messages.children.length) {
-        addBubble("Hi! Ask me anything about Victor's work \u2014 computer vision, AI products, leadership, certifications, career history, or how to get in touch. Answers are generated live by AI, grounded in this site's content.", 'bot');
-      }
+      if (!messages.children.length) renderAll();
       input.focus();
     }
     function closePanel() {
       panel.classList.remove('open');
       launcher.setAttribute('aria-expanded', 'false');
     }
-
-    launcher.addEventListener('click', () => {
-      panel.classList.contains('open') ? closePanel() : openPanel();
-    });
+    launcher.addEventListener('click', () => panel.classList.contains('open') ? closePanel() : openPanel());
     closeBtn.addEventListener('click', closePanel);
 
-    form.addEventListener('submit', async (e) => {
+    // Proactive greeting: a small nudge bubble once per visit
+    if (nudge && !store.get('ttv_nudged')) {
+      setTimeout(() => { if (!panel.classList.contains('open')) nudge.classList.add('show'); }, 5000);
+      nudge.addEventListener('click', (e) => {
+        if (e.target.classList.contains('x')) { hideNudge(); return; }
+        openPanel();
+      });
+    }
+
+    // "Pass my details to Victor"
+    leadToggle.addEventListener('click', () => {
+      leadForm.classList.toggle('open');
+      if (leadForm.classList.contains('open')) document.getElementById('leadName').focus();
+    });
+    leadForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const q = input.value.trim();
-      if (!q || (submitBtn && submitBtn.disabled)) return;
-      addBubble(q, 'user');
-      input.value = '';
-      if (submitBtn) submitBtn.disabled = true;
-
-      const typing = addBubble('', 'bot typing');
-      typing.innerHTML = '<span></span><span></span><span></span>';
-
-      try {
-        const answer = await askBackend(q);
-        typing.remove();
-        addBubble(answer, 'bot');
-      } catch (err) {
-        typing.remove();
-        addBubble(err.message || "Something went wrong \u2014 try the contact form below.", 'bot');
-      } finally {
-        if (submitBtn) submitBtn.disabled = false;
-        input.focus();
+      const v = id => document.getElementById(id).value.trim();
+      const payload = { action: 'lead', session_id: sessionId, name: v('leadName'), email: v('leadEmail'), company: v('leadCompany'), role: v('leadRole') };
+      if (!payload.name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) {
+        leadStatus.textContent = 'Please add your name and a valid email.'; return;
       }
+      const btn = leadForm.querySelector('button[type=submit]');
+      btn.disabled = true; leadStatus.textContent = 'Sending…';
+      try {
+        const resp = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) throw new Error(data.error || 'Could not send.');
+        leadForm.classList.remove('open');
+        leadToggle.textContent = '✓ Victor has your details';
+        leadToggle.disabled = true;
+        addBubble("Thanks, " + payload.name.split(' ')[0] + "! I've passed your details and our conversation to the real Victor — he'll be in touch soon.", 'bot');
+      } catch (err) {
+        leadStatus.textContent = err.message || 'Could not send — please use the contact form below.';
+      } finally { btn.disabled = false; }
     });
   })();
 
