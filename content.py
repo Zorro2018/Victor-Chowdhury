@@ -422,6 +422,13 @@ RESUMES = [
 # ---------------------------------------------------------------------------
 WORK_SAMPLES = [
     {
+        "title": "Smart Woffie: An AI Insights Agent That Doesn't Make Things Up",
+        "tag": "Agentic AI · Customer Engagement Services",
+        "description": "An AI analytics agent for Walmart's customer care org that writes SQL against billions of rows in BigQuery, builds executive-ready reports, and keeps its knowledge in a database instead of a prompt — so any analyst on any machine loads the same 'brain.' New findings are saved as drafts and only become trusted once a human validates them, and a two-layer anti-hallucination design (schema rules plus prompt rules) means it only states facts it can cite, with confidence scaled to how well it knows each domain.",
+        "thumbnail": "/static/smart-woffie.png",
+        "url": "https://zorro2018.github.io/SmartWoffie/",
+    },
+    {
         "title": "Promo & Appeasement Analysis Dashboard",
         "tag": "Interactive Data Product",
         "description": (
