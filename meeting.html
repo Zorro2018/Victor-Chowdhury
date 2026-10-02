@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Meeting request</title>
+<!-- Victor's private review page for meeting requests made through the
+     Talk to Victor chat. The link (with its secret token) only ever goes to
+     Victor's WhatsApp/ntfy and the HOLD event on his calendar. Opening the
+     page changes nothing -- only the buttons do, so link previews are safe. -->
+<style>
+  :root { --navy:#16233F; --teal:#0F7B6C; --gold:#FFC220; --ink:#1F2937; --mute:#64748B; --line:#E4E7ED; --bg:#F3F6FB; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; background: var(--bg); color: var(--ink); }
+  header { background: var(--navy); color:#fff; padding: 18px 16px; }
+  header .wrap { max-width: 560px; margin: 0 auto; display:flex; align-items:center; gap:12px; }
+  .badge { width:36px; height:36px; border-radius:50%; background: linear-gradient(135deg,var(--gold),#F59E0B); color: var(--navy); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px; }
+  header h1 { font-size: 17px; margin:0; }
+  header p { margin:2px 0 0; font-size:12px; color:#9AA6C0; }
+  main { max-width: 560px; margin: 0 auto; padding: 18px 16px 40px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius: 14px; padding: 18px; box-shadow: 0 10px 30px -18px rgba(22,35,63,.35); }
+  .when { font-size: 20px; font-weight: 800; color: var(--navy); margin: 0 0 4px; }
+  .sub { font-size: 13px; color: var(--mute); margin: 0 0 14px; }
+  dl { display:grid; grid-template-columns: 92px 1fr; gap: 8px 10px; margin: 0; font-size: 14px; }
+  dt { color: var(--mute); }
+  dd { margin:0; word-break: break-word; }
+  pre { white-space: pre-wrap; font-family: inherit; font-size: 13px; background: var(--bg); border-radius: 10px; padding: 10px 12px; margin: 14px 0 0; }
+  .status { display:inline-block; font-size:12px; font-weight:700; border-radius:999px; padding:3px 10px; margin-bottom:12px; }
+  .s-pending { background:#FFF8E6; color:#92400E; } .s-approved { background:#E6F4F1; color:var(--teal); }
+  .s-declined, .s-expired, .s-cancelled { background:#FEE2E2; color:#991B1B; }
+  .actions { display:flex; gap:10px; margin-top: 18px; }
+  button { flex:1; border:none; border-radius: 10px; padding: 13px; font-weight: 800; font-size: 15px; cursor:pointer; }
+  button:disabled { opacity:.6; cursor: default; }
+  .approve { background: var(--teal); color:#fff; }
+  .decline { background:#fff; color:#991B1B; border:1px solid #FCA5A5; }
+  textarea { width:100%; margin-top:12px; border:1px solid var(--line); border-radius:10px; padding:10px; font: inherit; font-size:14px; display:none; }
+  .msg { margin-top: 14px; font-size: 14px; }
+  a { color: var(--teal); font-weight: 700; }
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="badge">VC</div><div><h1>Meeting request</h1><p>From the Talk to Victor chat on victorbuildsai.com</p></div></div></header>
+<main><div class="card" id="card">Loading…</div></main>
+<script>
+(function () {
+  const ENDPOINT = 'https://wownxeielqhubwfzqqor.supabase.co/functions/v1/talk-to-victor';
+  const token = new URLSearchParams(location.search).get('t') || '';
+  const card = document.getElementById('card');
+  const call = (body) => fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ token }, body)) })
+    .then(async r => { const d = await r.json().catch(() => ({})); if (!r.ok) { const e = new Error(d.error || 'Something went wrong.'); e.data = d; throw e; } return d; });
+  const el = (tag, props, kids) => { const n = document.createElement(tag); Object.assign(n, props || {}); (kids || []).forEach(k => n.append(k)); return n; };
+
+  function render(d) {
+    card.innerHTML = '';
+    card.append(el('span', { className: 'status s-' + d.status, textContent: d.status === 'pending' && d.past ? 'expired' : d.status }));
+    card.append(el('p', { className: 'when', textContent: d.when }));
+    let sub = '30-minute call';
+    if (d.recruiter_tz && d.recruiter_tz !== 'America/Chicago') {
+      sub += ' · their time: ' + new Date(d.start).toLocaleString('en-US', { timeZone: d.recruiter_tz, weekday: 'short', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
+    }
+    card.append(el('p', { className: 'sub', textContent: sub }));
+    const dl = el('dl');
+    [['Name', d.name], ['Email', d.email], ['Company', d.company], ['Role', d.role], ['Topic', d.topic]].forEach(([k, v]) => {
+      if (v) { dl.append(el('dt', { textContent: k }), el('dd', { textContent: v })); }
+    });
+    card.append(dl);
+    if (d.asked) { card.append(el('pre', { textContent: 'They asked AI Victor:\n' + d.asked })); }
+
+    if (d.status === 'approved') {
+      card.append(el('p', { className: 'msg', textContent: 'Approved. The invite went to ' + d.email + '.' }));
+      if (d.meet_link) card.append(el('p', { className: 'msg' }, [el('a', { href: d.meet_link, textContent: 'Google Meet link', target: '_blank', rel: 'noopener' })]));
+      return;
+    }
+    if (d.status !== 'pending' || d.past) return;
+
+    const note = el('textarea', { rows: 3, placeholder: 'Optional note to them (otherwise a friendly default asks for other times)' });
+    const approve = el('button', { className: 'approve', textContent: 'Approve & send invite' });
+    const decline = el('button', { className: 'decline', textContent: 'Decline' });
+    const out = el('div', { className: 'msg' });
+    let declineArmed = false;
+    approve.onclick = async () => {
+      approve.disabled = decline.disabled = true; out.textContent = 'Sending the invite…';
+      try { const r = await call({ action: 'meeting_decide', decision: 'approve' }); d.status = 'approved'; d.meet_link = r.meet_link; render(d); }
+      catch (e) { out.textContent = e.message; approve.disabled = decline.disabled = false; }
+    };
+    decline.onclick = async () => {
+      if (!declineArmed) { declineArmed = true; note.style.display = 'block'; decline.textContent = 'Confirm decline'; return; }
+      approve.disabled = decline.disabled = true; out.textContent = 'Declining…';
+      try { await call({ action: 'meeting_decide', decision: 'decline', message: note.value }); d.status = 'declined'; render(d);
+        card.append(el('p', { className: 'msg', textContent: 'Declined. The hold is gone from your calendar and ' + d.name.split(' ')[0] + ' got a polite email.' })); }
+      catch (e) { out.textContent = e.message; approve.disabled = decline.disabled = false; }
+    };
+    card.append(el('div', { className: 'actions' }, [approve, decline]), note, out);
+  }
+
+  if (!/^[0-9a-f]{48}$/.test(token)) { card.textContent = 'This link is not valid.'; return; }
+  call({ action: 'meeting_view' }).then(render).catch(e => { card.textContent = e.message; });
+})();
+</script>
+</body>
+</html>

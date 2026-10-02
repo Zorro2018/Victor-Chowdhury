@@ -212,6 +212,24 @@
   #chatLeadForm.open { display: flex; }
   #chatLeadForm input { padding: 0.45rem 0.6rem; border: 1px solid #E4E7ED; border-radius: 0.5rem; font-size: 0.8rem; outline: none; }
   #chatLeadForm button[type=submit] { background: #16233F; color: #fff; border: none; border-radius: 0.5rem; padding: 0.5rem; font-weight: 700; font-size: 0.8rem; cursor: pointer; }
+  /* Book a call (live Google Calendar availability) */
+  #chatBookToggle { width: 100%; background: #0F7B6C; border: none; color: #fff; border-radius: 0.6rem; padding: 0.5rem; font-size: 0.78rem; font-weight: 700; cursor: pointer; margin-bottom: 0.4rem; display: none; }
+  #chatBookToggle.ready { display: block; }
+  #chatBookToggle:hover { background: #0B6357; }
+  #chatBookForm { display: none; flex-direction: column; gap: 0.45rem; background: #F8FAFC; border: 1px solid #E4E7ED; border-radius: 0.7rem; padding: 0.65rem; margin-bottom: 0.4rem; max-height: 260px; overflow-y: auto; }
+  #chatBookForm.open { display: flex; }
+  #chatBookForm > * { flex-shrink: 0; }
+  #chatBookForm .bk-hint { font-size: 0.72rem; color: #64748B; line-height: 1.35; }
+  #bookDays { display: flex; gap: 0.35rem; overflow-x: auto; padding-bottom: 2px; }
+  #bookDays button { flex-shrink: 0; background: #fff; border: 1px solid #CBD5E1; color: #16233F; border-radius: 0.5rem; padding: 0.3rem 0.55rem; font-size: 0.72rem; font-weight: 700; cursor: pointer; line-height: 1.2; }
+  #bookDays button.on { background: #16233F; border-color: #16233F; color: #fff; }
+  #bookTimes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.35rem; }
+  #bookTimes button { background: #fff; border: 1px solid #A7D7CF; color: #0F7B6C; border-radius: 0.45rem; padding: 0.35rem 0.2rem; font-size: 0.74rem; font-weight: 700; cursor: pointer; }
+  #bookTimes button.on { background: #0F7B6C; color: #fff; border-color: #0F7B6C; }
+  #bookTimes button small { display: block; font-weight: 500; font-size: 0.62rem; opacity: 0.8; }
+  #chatBookForm input, #chatBookForm textarea { padding: 0.45rem 0.6rem; border: 1px solid #E4E7ED; border-radius: 0.5rem; font-size: 0.8rem; outline: none; font-family: inherit; }
+  #chatBookForm button[type=submit] { background: #16233F; color: #fff; border: none; border-radius: 0.5rem; padding: 0.5rem; font-weight: 700; font-size: 0.8rem; cursor: pointer; }
+  #chatBookForm button[type=submit]:disabled { opacity: 0.6; cursor: default; }
   #chatInput { resize: none; font-family: inherit; line-height: 1.35; max-height: 110px; }
   #chatNudge { position: fixed; right: 1.5rem; bottom: 5.4rem; z-index: 49; max-width: 260px; background: #fff; color: #1F2937; border: 1px solid #E4E7ED; border-radius: 0.9rem 0.9rem 0.2rem 0.9rem; padding: 0.7rem 2rem 0.7rem 0.9rem; font-size: 0.82rem; line-height: 1.4; box-shadow: 0 16px 40px -12px rgba(22,35,63,0.35); display: none; cursor: pointer; }
   #chatNudge.show { display: block; animation: nudgeIn 0.35s ease; }
@@ -2114,6 +2132,19 @@
   <div id="chatMessages" aria-live="polite"></div>
   <div id="chatChips"></div>
   <div id="chatLeadBar">
+    <button id="chatBookToggle" type="button">&#128197; Book a call with Victor</button>
+    <form id="chatBookForm" novalidate>
+      <div class="bk-hint" id="bookTzNote">Open 30-minute slots from Victor's calendar. Victor confirms each request personally, then you'll get a calendar invite with a Google Meet link.</div>
+      <div id="bookDays" role="tablist" aria-label="Choose a day"></div>
+      <div id="bookTimes" aria-label="Choose a time"></div>
+      <input id="bookName" placeholder="Your name *" maxlength="120" autocomplete="name">
+      <input id="bookEmail" type="email" placeholder="Work email (for the invite) *" maxlength="200" autocomplete="email">
+      <input id="bookCompany" placeholder="Company" maxlength="150" autocomplete="organization">
+      <input id="bookRole" placeholder="Role you're hiring for" maxlength="200">
+      <textarea id="bookTopic" rows="2" placeholder="Anything Victor should know before the call?" maxlength="600"></textarea>
+      <button type="submit">Request this time</button>
+      <div id="bookStatus" style="font-size:0.74rem;color:#64748B;"></div>
+    </form>
     <button id="chatLeadToggle" type="button">&#128203; Pass my details to Victor</button>
     <form id="chatLeadForm" novalidate>
       <input id="leadName" placeholder="Your name *" maxlength="120" autocomplete="name">
@@ -2198,7 +2229,7 @@
     if (!launcher || !panel || !form) return;
 
     const ENDPOINT = 'https://wownxeielqhubwfzqqor.supabase.co/functions/v1/talk-to-victor';
-    const GREETING = "Hi, I'm Victor's AI agent \u{1F44B} Think of me as the first-call version of Victor. Ask me about the AI products I've built, how I lead teams, or the messiest problem I've solved \u2014 or paste a job description and I'll tell you how I'd fit.\n\nLike what you hear? Tap \"Pass my details to Victor\" and the real me will reach out.";
+    const GREETING = "Hi, I'm Victor's AI agent \u{1F44B} Think of me as the first-call version of Victor. Ask me about the AI products I've built, how I lead teams, or the messiest problem I've solved \u2014 or paste a job description and I'll tell you how I'd fit.\n\nLike what you hear? Book a call with me right here, or tap \"Pass my details to Victor\" and the real me will reach out.";
     const STARTERS = [
       'Give me the 60-second overview',
       "What's your biggest AI win?",
@@ -2284,6 +2315,7 @@
         history.push({ role: 'assistant', content: data.answer });
         saveHistory();
         addBubble(data.answer, 'bot');
+        if (data.show_booking) openBooking(true);
       } catch (err) {
         typing.remove();
         history.pop(); saveHistory();   // let them resend the same question
@@ -2307,6 +2339,7 @@
       panel.classList.add('open');
       launcher.setAttribute('aria-expanded', 'true');
       if (!messages.children.length) renderAll();
+      loadSlots();
       input.focus();
     }
     function closePanel() {
@@ -2339,6 +2372,103 @@
         openPanel();
       });
     }
+
+    // "Book a call with Victor" -- live open slots from Victor's Google
+    // Calendar (weekdays 8am-6pm Central). Times are shown in the visitor's
+    // own time zone with Central alongside. A request puts a tentative hold
+    // on Victor's calendar; he approves before any invite goes out.
+    const bookToggle = document.getElementById('chatBookToggle');
+    const bookForm = document.getElementById('chatBookForm');
+    const bookDays = document.getElementById('bookDays');
+    const bookTimes = document.getElementById('bookTimes');
+    const bookStatus = document.getElementById('bookStatus');
+    const bookTzNote = document.getElementById('bookTzNote');
+    const VICTOR_TZ = 'America/Chicago';
+    let viewerTz = VICTOR_TZ;
+    try { viewerTz = Intl.DateTimeFormat().resolvedOptions().timeZone || VICTOR_TZ; } catch (e) {}
+    const sameTz = new Date().toLocaleString('en-US', { timeZone: viewerTz }) === new Date().toLocaleString('en-US', { timeZone: VICTOR_TZ });
+    let slots = [], slotsLoadedAt = 0, chosenDay = null, chosenStart = null, booked = false;
+    const fmt = (iso, tz, o) => new Date(iso).toLocaleString('en-US', Object.assign({ timeZone: tz }, o));
+    const dayKey = iso => fmt(iso, viewerTz, { weekday: 'short', month: 'short', day: 'numeric' });
+
+    async function loadSlots(force) {
+      if (!force && Date.now() - slotsLoadedAt < 120000) return slots;
+      try {
+        const resp = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'slots' }) });
+        const data = await resp.json();
+        slots = data.connected ? (data.slots || []) : [];
+        slotsLoadedAt = Date.now();
+        bookToggle.classList.toggle('ready', !!data.connected && slots.length > 0 && !booked);
+      } catch (e) { /* booking button just stays hidden */ }
+      return slots;
+    }
+    function renderDays() {
+      const days = [...new Set(slots.map(s => dayKey(s.start)))];
+      if (!days.includes(chosenDay)) chosenDay = days[0] || null;
+      bookDays.innerHTML = '';
+      days.forEach(d => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.textContent = d; b.setAttribute('role', 'tab');
+        if (d === chosenDay) b.classList.add('on');
+        b.addEventListener('click', () => { chosenDay = d; chosenStart = null; renderDays(); });
+        bookDays.appendChild(b);
+      });
+      bookTimes.innerHTML = '';
+      slots.filter(s => dayKey(s.start) === chosenDay).forEach(s => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = fmt(s.start, viewerTz, { hour: 'numeric', minute: '2-digit' });
+        if (!sameTz) {
+          const sm = document.createElement('small');
+          sm.textContent = fmt(s.start, VICTOR_TZ, { hour: 'numeric', minute: '2-digit' }) + ' CT';
+          b.appendChild(sm);
+        }
+        if (s.start === chosenStart) b.classList.add('on');
+        b.addEventListener('click', () => { chosenStart = s.start; renderDays(); bookStatus.textContent = ''; });
+        bookTimes.appendChild(b);
+      });
+      if (!days.length) bookTimes.innerHTML = '<div class="bk-hint" style="grid-column:1/-1">No open slots in the next two weeks. Use "Pass my details to Victor" and he will find a time.</div>';
+    }
+    async function openBooking(fromAgent) {
+      await loadSlots();
+      if (!slots.length || booked) return;
+      bookTzNote.textContent = (sameTz ? 'Times are US Central (Victor\'s time zone). ' : 'Times are shown in your time zone (' + viewerTz.replace(/_/g, ' ') + '), with Central Time underneath. ')
+        + 'Victor confirms every request personally, then you\'ll get a calendar invite with a Google Meet link.';
+      renderDays();
+      bookForm.classList.add('open');
+      leadForm.classList.remove('open');
+      if (fromAgent) bookForm.scrollIntoView({ block: 'nearest' });
+    }
+    bookToggle.addEventListener('click', () => {
+      if (bookForm.classList.contains('open')) bookForm.classList.remove('open'); else openBooking(false);
+    });
+    bookForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const v = id => document.getElementById(id).value.trim();
+      const payload = { action: 'book', session_id: sessionId, start: chosenStart, timezone: viewerTz,
+        name: v('bookName'), email: v('bookEmail'), company: v('bookCompany'), role: v('bookRole'), topic: v('bookTopic') };
+      if (!chosenStart) { bookStatus.textContent = 'Pick a time first.'; return; }
+      if (!payload.name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) { bookStatus.textContent = 'Please add your name and a valid email.'; return; }
+      const btn = bookForm.querySelector('button[type=submit]');
+      btn.disabled = true; bookStatus.textContent = 'Sending your request…';
+      try {
+        const resp = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const data = await resp.json().catch(() => ({}));
+        if (resp.status === 409 && data.slots) { slots = data.slots; slotsLoadedAt = Date.now(); chosenStart = null; renderDays(); }
+        if (!resp.ok) throw new Error(data.error || 'Could not send that request.');
+        booked = true;
+        bookForm.classList.remove('open');
+        bookToggle.textContent = '✓ Call requested';
+        bookToggle.disabled = true;
+        const local = fmt(chosenStart, viewerTz, { weekday: 'long', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
+        const msg = "Thanks, " + payload.name.split(' ')[0] + "! I've asked the real Victor to confirm " + local
+          + (sameTz ? '' : ' (' + data.when + ')') + ". Once he does, you'll get a calendar invite with a Google Meet link at " + payload.email + '.';
+        history.push({ role: 'assistant', content: msg }); saveHistory();
+        addBubble(msg, 'bot');
+      } catch (err) {
+        bookStatus.textContent = err.message;
+      } finally { btn.disabled = false; }
+    });
 
     // "Pass my details to Victor"
     leadToggle.addEventListener('click', () => {
