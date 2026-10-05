@@ -422,6 +422,21 @@ RESUMES = [
 # ---------------------------------------------------------------------------
 WORK_SAMPLES = [
     {
+        "title": "Agent Performance Scorecard",
+        "tag": "Contact Center Analytics · Performance Management",
+        "description": (
+            "A month-by-month scorecard that grades every agent on a weighted composite of up to 10 KPIs "
+            "across quality, productivity and adherence: CSAT, contacts per hour, AHT, shift and break "
+            "conformance, shrinkage, call quality and transfer rate. Each KPI is scored against a "
+            "benchmark, with AHT personalized to the agent's channel mix, and an org-wide lens sits "
+            "beside a department-relative one. Growth-oriented tiers map to a coaching action, and "
+            "fairness gates keep low-volume, ramp-up and support months out of the grade. Demo runs "
+            "on fully synthetic data."
+        ),
+        "thumbnail": "/static/agent-performance.png",
+        "url": "https://zorro2018.github.io/Agent-Performance/",
+    },
+    {
         "title": "Smart Woffie: An AI Insights Agent That Doesn't Make Things Up",
         "tag": "Agentic AI · Customer Engagement Services",
         "description": "An AI analytics agent for Walmart's customer care org that writes SQL against billions of rows in BigQuery, builds executive-ready reports, and keeps its knowledge in a database instead of a prompt — so any analyst on any machine loads the same 'brain.' New findings are saved as drafts and only become trusted once a human validates them, and a two-layer anti-hallucination design (schema rules plus prompt rules) means it only states facts it can cite, with confidence scaled to how well it knows each domain.",
