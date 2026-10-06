@@ -2679,6 +2679,20 @@
         leadStatus.textContent = err.message || 'Could not send — please use the contact form below.';
       } finally { btn.disabled = false; }
     });
+
+    // Direct link: victorbuildsai.com/#chat (or ?chat, or the /chat/ shortcut
+    // page) lands with the chat already open, so it can be shared on its own.
+    // ?ask=Your+question pre-fills the first question too.
+    (function openFromLink() {
+      const params = new URLSearchParams(location.search);
+      const wantsChat = /^#(chat|talk)$/i.test(location.hash) || params.has('chat') || params.has('ask');
+      if (!wantsChat) return;
+      setTimeout(() => {
+        openPanel();
+        const ask = (params.get('ask') || '').trim();
+        if (ask) { input.value = ask.slice(0, 1500); autosize(); }
+      }, 400);
+    })();
   })();
 
   // "Check My Fit" -- posts to check-job-fit, which fetches a job link
