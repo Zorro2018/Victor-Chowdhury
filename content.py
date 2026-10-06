@@ -354,8 +354,8 @@ TIMELINE = [
         "title": "BI Consultant",
         "org": "Wipro \u2014 Nike Workforce Insights Network & Client Engagement",
         "dates": "Feb 2014 \u2014 Jan 2017",
-        "blurb": "HR analytics, client-facing discovery, and vendor partnerships (Alteryx, "
-                 "Domo) as part of the pre-sales team.",
+        "blurb": "Grew the Nike project team 4x in 18 months. HR analytics, client-facing "
+                 "discovery, and vendor partnerships (Alteryx, Domo) as part of the pre-sales team.",
     },
     {
         "title": "BI Developer",
