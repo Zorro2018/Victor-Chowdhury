@@ -595,26 +595,34 @@
 
 <!-- RECOGNITION -- photos of awards, certificates and trophies (content.AWARDS).
      Click a photo to open it full size in a lightbox. -->
-<section id="recognition" class="max-w-6xl mx-auto px-6 py-20">
-  <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">Recognition</div>
-  <h2 class="serif font-bold text-3xl text-navy mb-3">Awards &amp; appreciation</h2>
-  <p class="text-slate2 max-w-2xl mb-10">Recognition from Walmart, Sam's Club, Nike and Wipro, from clients as well as employers. Click any photo to see it full size.</p>
-  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    {% for a in awards %}
-    <figure class="group bg-white border border-gray-200 hover:border-accent rounded-xl overflow-hidden flex flex-col shadow-sm hover:shadow-md transition">
-      <button type="button" class="award-photo block w-full bg-[#F4F6FA] cursor-zoom-in" data-full="{{ a.image }}" data-caption="{{ a.title }} · {{ a.org }}{% if a.year %} · {{ a.year }}{% endif %}" aria-label="View larger: {{ a.title }}">
-        <img src="{{ a.image }}" alt="{{ a.alt }}" loading="lazy" class="w-full h-56 object-contain p-3 transition duration-300 group-hover:scale-[1.03]">
-      </button>
-      <figcaption class="p-5 flex flex-col flex-1 border-t border-gray-100">
-        <div class="flex items-center justify-between gap-3 mb-2">
-          <span class="text-[11px] tracking-[0.12em] uppercase font-bold text-accent">{{ a.org }}</span>
-          {% if a.year %}<span class="text-xs font-semibold text-slate2">{{ a.year }}</span>{% endif %}
-        </div>
-        <h3 class="serif font-bold text-lg text-navy mb-2 leading-snug">{{ a.title }}</h3>
-        <p class="text-sm text-[#3A4459] leading-relaxed">{{ a.description }}</p>
-      </figcaption>
-    </figure>
-    {% endfor %}
+<section id="recognition" class="border-b border-gray-200 overflow-hidden">
+  <div class="max-w-6xl mx-auto px-6 pt-20">
+    <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">Recognition</div>
+    <h2 class="serif font-bold text-3xl text-navy mb-3">Awards &amp; appreciation</h2>
+    <p class="text-slate2 max-w-2xl mb-4">Recognition from Walmart, Sam's Club, Nike and Wipro, from clients as well as employers. Click any photo to see it full size; hover a card to pause and take a closer look.</p>
+  </div>
+  <div class="carousel-wrap">
+    <button type="button" class="carousel-nav prev" id="awardsPrev" aria-label="Scroll awards left">&larr;</button>
+    <button type="button" class="carousel-nav next" id="awardsNext" aria-label="Scroll awards right">&rarr;</button>
+    <div class="carousel-viewport" id="awardsViewport">
+      <div class="carousel-track" id="awardsTrack">
+      {% for a in awards %}
+      <figure class="carousel-card group bg-white border border-gray-200 hover:border-accent rounded-xl overflow-hidden flex flex-col m-0">
+        <button type="button" class="award-photo block w-full bg-[#F4F6FA] cursor-zoom-in border-b border-gray-200" data-caption="{{ a.title }} · {{ a.org }}{% if a.year %} · {{ a.year }}{% endif %}" aria-label="View larger: {{ a.title }}">
+          <img src="{{ a.image }}" alt="{{ a.alt }}" loading="lazy" class="w-full aspect-[16/10] object-contain p-3 transition duration-300 group-hover:scale-105">
+        </button>
+        <figcaption class="p-5 flex flex-col flex-1">
+          <div class="flex items-center justify-between gap-3 mb-2">
+            <span class="text-[11px] tracking-[0.12em] uppercase font-bold text-accent">{{ a.org }}</span>
+            {% if a.year %}<span class="text-xs font-semibold text-slate2">{{ a.year }}</span>{% endif %}
+          </div>
+          <h3 class="serif font-bold text-lg text-navy mb-2 leading-snug">{{ a.title }}</h3>
+          <p class="text-sm text-[#3A4459] leading-relaxed">{{ a.description }}</p>
+        </figcaption>
+      </figure>
+      {% endfor %}
+      </div>
+    </div>
   </div>
 </section>
 <div id="awardLightbox" role="dialog" aria-modal="true" aria-label="Award photo" style="display:none;position:fixed;inset:0;z-index:80;background:rgba(10,16,32,0.88);align-items:center;justify-content:center;padding:1rem;">
@@ -1011,6 +1019,11 @@
     viewportId: 'certsViewport', trackId: 'certsTrack',
     prevId: 'certsPrev', nextId: 'certsNext',
     cardSelector: '.carousel-card', pxPerSecond: 24, loop: false, // no duplicated cards -- bounces instead of looping
+  });
+  initFilmstripCarousel({
+    viewportId: 'awardsViewport', trackId: 'awardsTrack',
+    prevId: 'awardsPrev', nextId: 'awardsNext',
+    cardSelector: '.carousel-card', pxPerSecond: 22, loop: false,
   });
   initFilmstripCarousel({
     viewportId: 'testimonialsViewport', trackId: 'testimonialsTrack',
