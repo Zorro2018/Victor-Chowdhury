@@ -783,3 +783,77 @@ CERTIFICATES = [
         "url": "https://www.coursera.org/learn/introduction-to-generative-ai-for-data-analysis",
     },
 ]
+
+# ---------------------------------------------------------------------------
+# Awards — photos of certificates and trophies, newest first
+# ---------------------------------------------------------------------------
+AWARDS = [
+    {
+        "title": "Agile Mindset Award",
+        "org": "Walmart · Fuel & Convenience",
+        "year": "2020",
+        "image": "/static/award-agile-mindset.jpg",
+        "alt": "Crystal trophy engraved '2020 Agile Mindset, presented to Victor Chowdhury, Walmart Fuel & Convenience'",
+        "description": (
+            "Recognized by Walmart Fuel & Convenience for an agile mindset in 2020, the year I built the "
+            "division's data strategy from the ground up and launched its first automated, self-alerting "
+            "competitive pricing tool."
+        ),
+    },
+    {
+        "title": "Certificate of Recognition: “Great Safety Dashboard”",
+        "org": "Sam's Club · Safety & Compliance",
+        "year": "",
+        "image": "/static/award-sams-safety.jpg",
+        "alt": "Sam's Club Certificate of Recognition presented to Victor Chowdhury for the Great Safety Dashboard",
+        "description": (
+            "Presented by Sam's Club Safety & Compliance leadership for the enterprise safety dashboard, a "
+            "solution that brought all the relevant safety data into one place so clubs could better manage "
+            "safety performance."
+        ),
+    },
+    {
+        "title": "Certificate of Appreciation",
+        "org": "Nike · HR Leadership Team",
+        "year": "2012",
+        "image": "/static/award-nike-appreciation.jpg",
+        "alt": "Nike Certificate of Appreciation presented to Victor Chowdhury for dedication and commitment, August 2012",
+        "description": (
+            "From Nike's HR leadership team for dedication and commitment on the global HR technology "
+            "program, thanking me for being an integral part of its worldwide go-live."
+        ),
+    },
+    {
+        "title": "“Thanks Victor, for all you're doing!”",
+        "org": "Nike · Client thank-you",
+        "year": "",
+        "image": "/static/award-nike-boots.jpg",
+        "alt": "Nike football boots on a shoebox hand-signed 'Thanks Victor! For all you're doing!!!'",
+        "description": (
+            "A pair of Nike boots with a hand-signed note from the Nike team I supported as a Wipro "
+            "consultant. One of my favorite reminders that client trust is built one delivery at a time."
+        ),
+    },
+    {
+        "title": "Thanks a Zillion Team Award",
+        "org": "Wipro · Nike account",
+        "year": "2012",
+        "image": "/static/award-wipro-thanks-a-zillion.jpg",
+        "alt": "Wipro Thanks a Zillion Team award certificate for Victor Chowdhury, July 2012",
+        "description": (
+            "Wipro team award crediting the success of Nike's SAP HR data warehouse project to my hard work "
+            "and intensity to win."
+        ),
+    },
+    {
+        "title": "Feather in My Cap Award",
+        "org": "Wipro · Nike account",
+        "year": "2012",
+        "image": "/static/award-wipro-feather.jpg",
+        "alt": "Wipro Feather in My Cap award certificate for Victor Chowdhury, July 2012",
+        "description": (
+            "Wipro recognition for the effort and commitment that made Nike's SAP HR go-live happen "
+            "successfully."
+        ),
+    },
+]
