@@ -789,6 +789,18 @@ CERTIFICATES = [
 # ---------------------------------------------------------------------------
 AWARDS = [
     {
+        "title": "Peak Captain, Peak '24",
+        "org": "Walmart Fulfillment Services",
+        "year": "2024",
+        "image": "/static/award-wfs-peak-captain.jpg",
+        "alt": "Wooden pallet coaster engraved 'WFS' and 'PEAK 24', a Walmart Fulfillment Services Peak Captain keepsake",
+        "description": (
+            "Named a Peak Captain for Walmart Fulfillment Services' 2024 holiday peak, when I ran weekly "
+            "sprint planning with the operations teams and kept analytics focused on what mattered most "
+            "during the busiest weeks of the year."
+        ),
+    },
+    {
         "title": "Agile Mindset Award",
         "org": "Walmart · Fuel & Convenience",
         "year": "2020",
