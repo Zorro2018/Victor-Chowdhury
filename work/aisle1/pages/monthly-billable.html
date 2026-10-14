@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monthly Billable Report - AISLE One Demo</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<div id="app-header"></div>
+<div id="filter-bar"></div>
+
+<div id="app-sidebar"></div>
+<div class="content">
+
+        <div class="section-card">
+            <h2>Monthly Total by Vertical</h2>
+            <div class="chart-wrap short"><canvas id="monthly-chart"></canvas></div>
+        </div>
+
+        <div class="section-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+                <h2 style="margin:0;">Monthly Billable Detail</h2>
+                <button class="btn" id="export-btn">Export CSV</button>
+            </div>
+            <div style="overflow-x:auto;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Vertical</th><th>Queue</th><th>Inbound</th><th>Outbound</th>
+                            <th>Email</th><th>Chat</th><th>Offline</th><th>Total w/ Outbound</th>
+                            <th>Total w/o Outbound</th><th>Avg AHT</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+<div id="app-footer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="../assets/data.js"></script>
+<script src="../assets/search.js"></script>
+<script src="../assets/nav.js"></script>
+<script>
+    CES_NAV.renderHeader({ activeHref: "pages/monthly-billable.html", title: "Monthly Billable Report", liveBadge: true });
+    CES_NAV.renderFooter();
+
+    const DEFAULT_FILTERS = { fy: "all", month: "all", vertical: "all", sublob: "all", dept: "all", vendor: "all" };
+    let filters = { ...DEFAULT_FILTERS };
+    let chart = null;
+
+    function opts(arr, allLabel) { return [{ value: "all", label: allLabel }, ...arr.map(v => ({ value: v, label: v }))]; }
+    function filterDefs() {
+        const f = CES.FILTER_OPTIONS;
+        return [
+            { id: "fy", label: "Fiscal Year", value: filters.fy, options: opts(f.fiscal_years, "All Years") },
+            { id: "month", label: "Month", value: filters.month, options: opts(f.months, "All Months") },
+            { id: "vertical", label: "Vertical", value: filters.vertical, options: opts(f.verticals, "All Verticals") },
+            { id: "sublob", label: "Sub-LOB", value: filters.sublob, options: opts(f.sublobs, "All Sub-LOBs") },
+            { id: "dept", label: "Department", value: filters.dept, options: opts(f.departments, "All Departments") },
+            { id: "vendor", label: "Sites", value: filters.vendor, options: opts(f.vendors, "All Sites") },
+        ];
+    }
+
+    function renderChart(rows) {
+        const ctx = document.getElementById("monthly-chart");
+        if (chart) chart.destroy();
+        chart = new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: rows.map(r => r.group),
+                datasets: [{
+                    label: "Total Contacts (w/ Outbound)",
+                    data: rows.map(r => r.total_with_outbound),
+                    backgroundColor: rows.map(r => CES.VERTICAL_COLORS[r.group] || "#999"),
+                }],
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } },
+        });
+    }
+
+    function renderTable(rows) {
+        document.getElementById("tbody").innerHTML = rows.map(r => `
+            <tr>
+                <td><span class="swatch" style="background:${CES.VERTICAL_COLORS[r.group] || "#999"}"></span>${r.group}</td>
+                <td>${r.queue}</td>
+                <td>${CES.fmt(r.inbound)}</td>
+                <td>${CES.fmt(r.outbound)}</td>
+                <td>${CES.fmt(r.email)}</td>
+                <td>${CES.fmt(r.chat)}</td>
+                <td>${CES.fmt(r.offline)}</td>
+                <td><strong>${CES.fmt(r.total_with_outbound)}</strong></td>
+                <td>${CES.fmt(r.total_without_outbound)}</td>
+                <td>${r.aht}s</td>
+            </tr>
+        `).join("");
+    }
+
+    function render() {
+        const { rows } = CES.getContacts(filters);
+        renderChart(rows);
+        renderTable(rows);
+    }
+
+    function wireFilterBar() {
+        CES_NAV.renderFilterBar(
+            document.getElementById("filter-bar"), filterDefs(),
+            (id, value) => { filters[id] = value; render(); },
+            () => { filters = { ...DEFAULT_FILTERS }; wireFilterBar(); render(); },
+            `<button class="btn btn-primary" id="refresh-btn">Refresh</button>`
+        );
+        document.getElementById("refresh-btn").addEventListener("click", render);
+    }
+
+    wireFilterBar();
+    render();
+
+    document.getElementById("export-btn").addEventListener("click", () => {
+        const { rows } = CES.getContacts(filters);
+        const headers = ["Vertical", "Queue", "Inbound", "Outbound", "Email", "Chat", "Offline", "Total w/ Outbound", "Total w/o Outbound", "AHT"];
+        const csv = [headers.join(",")].concat(rows.map(r =>
+            [r.group, r.queue, r.inbound, r.outbound, r.email, r.chat, r.offline, r.total_with_outbound, r.total_without_outbound, r.aht].join(",")
+        )).join("\n");
+        const blob = new Blob([csv], { type: "text/csv" });
+        const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: "monthly-billable-demo.csv" });
+        document.body.appendChild(a); a.click(); a.remove();
+    });
+</script>
+</body>
+</html>

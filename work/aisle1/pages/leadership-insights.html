@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leadership Insights - AISLE One Demo</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<div id="app-header"></div>
+
+<div class="tabs-shell">
+    <button class="tabs-trigger active" data-tab="volume">Volume Distribution</button>
+    <button class="tabs-trigger" data-tab="selfserve">Self-Serve</button>
+</div>
+
+<div id="filter-bar"></div>
+
+<div id="app-sidebar"></div>
+<div class="content">
+
+        <div class="tab-panel active" id="panel-volume">
+            <div class="section-card">
+                <h2>Contact Volume by Channel</h2>
+                <div class="chart-wrap"><canvas id="volume-chart"></canvas></div>
+            </div>
+        </div>
+
+        <div class="tab-panel" id="panel-selfserve">
+            <div class="kpi-grid" id="ss-kpi-grid"></div>
+            <div class="section-card">
+                <h2>Self-Serve Share of Total Volume</h2>
+                <div class="chart-wrap short"><canvas id="ss-chart"></canvas></div>
+            </div>
+        </div>
+
+    </div>
+
+<div id="app-footer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="../assets/data.js"></script>
+<script src="../assets/search.js"></script>
+<script src="../assets/nav.js"></script>
+<script>
+    CES_NAV.renderHeader({ activeHref: "pages/leadership-insights.html", title: "Leadership Insights", liveBadge: true });
+    CES_NAV.renderFooter();
+
+    const DEFAULT_FILTERS = { channel: "all", region: "all" };
+    let filters = { ...DEFAULT_FILTERS };
+    let volumeChart = null, ssChart = null;
+
+    function opts(arr, allLabel) { return [{ value: "all", label: allLabel }, ...arr.map(v => ({ value: v, label: v }))]; }
+    function filterDefs() {
+        return [
+            { id: "channel", label: "Channel", value: filters.channel, options: opts(CES.CHANNELS, "All Channels") },
+            { id: "region", label: "Region", value: filters.region, options: opts(CES.REGIONS, "All Regions") },
+        ];
+    }
+
+    function renderVolumeChart() {
+        const { months, series } = CES.getVolumeDistribution(filters.channel, filters.region);
+        const ctx = document.getElementById("volume-chart");
+        if (volumeChart) volumeChart.destroy();
+        volumeChart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: months,
+                datasets: series.map(s => ({
+                    label: s.channel, data: s.data, borderColor: s.color,
+                    backgroundColor: s.color + "33", tension: .3, fill: false, pointRadius: 3,
+                })),
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom" } } },
+        });
+    }
+
+    function renderSelfServe() {
+        const { series } = CES.getVolumeDistribution("all", filters.region);
+        const totalsByChannel = series.map(s => ({ channel: s.channel, total: s.data.reduce((a, b) => a + b, 0) }));
+        const grandTotal = totalsByChannel.reduce((a, b) => a + b.total, 0);
+        const ssTotal = totalsByChannel.find(t => t.channel === "Self-Serve")?.total || 0;
+        const containment = grandTotal ? Math.round((ssTotal / grandTotal) * 100) : 0;
+
+        document.getElementById("ss-kpi-grid").innerHTML = [
+            ["Self-Serve Volume", CES.fmt(ssTotal)],
+            ["Total Volume", CES.fmt(grandTotal)],
+            ["Containment Rate", containment + "%"],
+        ].map(([label, v]) => `<div class="kpi-card"><div class="kpi-label">${label}</div><div class="kpi-value">${v}</div></div>`).join("");
+
+        const ctx = document.getElementById("ss-chart");
+        if (ssChart) ssChart.destroy();
+        ssChart = new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: totalsByChannel.map(t => t.channel),
+                datasets: [{ label: "Total Contacts", data: totalsByChannel.map(t => t.total), backgroundColor: totalsByChannel.map(t => CES.CHANNEL_COLOR[t.channel]) }],
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } },
+        });
+    }
+
+    function render() { renderVolumeChart(); renderSelfServe(); }
+
+    function wireFilterBar() {
+        CES_NAV.renderFilterBar(
+            document.getElementById("filter-bar"), filterDefs(),
+            (id, value) => { filters[id] = value; render(); },
+            () => { filters = { ...DEFAULT_FILTERS }; wireFilterBar(); render(); },
+            `<button class="btn btn-primary" id="refresh-btn">Refresh</button>`
+        );
+        document.getElementById("refresh-btn").addEventListener("click", render);
+    }
+
+    document.querySelectorAll(".tabs-trigger").forEach(btn => {
+        btn.addEventListener("click", () => {
+            document.querySelectorAll(".tabs-trigger").forEach(b => b.classList.remove("active"));
+            document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+            btn.classList.add("active");
+            document.getElementById("panel-" + btn.dataset.tab).classList.add("active");
+        });
+    });
+
+    wireFilterBar();
+    render();
+</script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CES Innovation Portal - AISLE One Demo</title>
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+    .idea-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+    .idea-card { background: var(--surface); border: 1px solid var(--card-bd); border-radius: 12px; padding: 14px 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 8px; }
+    .idea-card h4 { margin: 0; font-size: .92rem; }
+    .idea-meta { font-size: .7rem; color: var(--muted); }
+    .vote-row { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+    .vote-btn { border: 1px solid var(--card-bd); background: transparent; border-radius: 8px; padding: 4px 10px; font-weight: 700; cursor: pointer; color: var(--brand-2); }
+</style>
+</head>
+<body>
+
+<div id="app-header"></div>
+<div id="filter-bar"></div>
+
+<div id="app-sidebar"></div>
+<div class="content">
+
+        <div class="section-card">
+            <h2>Submit a New Idea</h2>
+            <form id="idea-form" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;">
+                <div style="flex:2;min-width:200px;">
+                    <label style="display:block;font-size:.72rem;color:var(--muted);margin-bottom:4px;">Idea Title</label>
+                    <input type="text" id="idea-title" class="filter-select" style="width:100%;" required placeholder="e.g. Auto-tag duplicate tickets">
+                </div>
+                <div>
+                    <label style="display:block;font-size:.72rem;color:var(--muted);margin-bottom:4px;">Category</label>
+                    <select id="idea-category" class="filter-select"></select>
+                </div>
+                <button class="btn btn-primary" type="submit">Submit</button>
+            </form>
+        </div>
+
+        <div class="section-card">
+            <h2>Idea Pipeline</h2>
+            <div class="idea-grid" id="idea-grid"></div>
+        </div>
+
+    </div>
+
+<div id="app-footer"></div>
+
+<script src="../assets/data.js"></script>
+<script src="../assets/search.js"></script>
+<script src="../assets/nav.js"></script>
+<script>
+    CES_NAV.renderHeader({ activeHref: "pages/innovation-portal.html", title: "CES Innovation Portal", liveBadge: true });
+    CES_NAV.renderFooter();
+
+    let ideas = CES.getInnovationIdeas();
+    const DEFAULT_FILTERS = { status: "all", category: "all" };
+    let filters = { ...DEFAULT_FILTERS };
+
+    function opts(arr, allLabel) { return [{ value: "all", label: allLabel }, ...arr.map(v => ({ value: v, label: v }))]; }
+    function filterDefs() {
+        return [
+            { id: "status", label: "Status", value: filters.status, options: opts(CES.INNO_STATUSES, "All Statuses") },
+            { id: "category", label: "Category", value: filters.category, options: opts(CES.INNO_CATEGORIES, "All Categories") },
+        ];
+    }
+
+    const STATUS_PILL = {
+        Submitted: "yellow", "Under Review": "yellow", Approved: "green", "In Pilot": "green", Shipped: "green",
+    };
+
+    function render() {
+        const filtered = ideas.filter(i =>
+            (filters.status === "all" || i.status === filters.status) &&
+            (filters.category === "all" || i.category === filters.category)
+        ).sort((a, b) => b.votes - a.votes);
+
+        document.getElementById("idea-grid").innerHTML = filtered.map(idea => `
+            <div class="idea-card">
+                <span class="pill ${STATUS_PILL[idea.status] || "yellow"}" style="align-self:flex-start;">${idea.status}</span>
+                <h4>${idea.title}</h4>
+                <div class="idea-meta">${idea.category} - submitted by ${idea.submitted_by}</div>
+                <div class="vote-row">
+                    <span style="font-weight:800;color:var(--brand-2);">${idea.votes} votes</span>
+                    <button class="vote-btn" data-id="${idea.id}">Upvote</button>
+                </div>
+            </div>
+        `).join("") || `<p style="color:var(--muted);">No ideas match these filters.</p>`;
+
+        document.querySelectorAll(".vote-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const idea = ideas.find(i => i.id === Number(btn.dataset.id));
+                if (idea) { idea.votes += 1; render(); }
+            });
+        });
+    }
+
+    function wireFilterBar() {
+        CES_NAV.renderFilterBar(
+            document.getElementById("filter-bar"), filterDefs(),
+            (id, value) => { filters[id] = value; render(); },
+            () => { filters = { ...DEFAULT_FILTERS }; wireFilterBar(); render(); }
+        );
+    }
+
+    document.getElementById("idea-category").innerHTML = CES.INNO_CATEGORIES.map(c => `<option value="${c}">${c}</option>`).join("");
+    document.getElementById("idea-form").addEventListener("submit", e => {
+        e.preventDefault();
+        const title = document.getElementById("idea-title").value.trim();
+        if (!title) return;
+        ideas.unshift({
+            id: ideas.length + 1, title,
+            category: document.getElementById("idea-category").value,
+            status: "Submitted", votes: 1, submitted_by: "You",
+        });
+        document.getElementById("idea-title").value = "";
+        render();
+    });
+
+    wireFilterBar();
+    render();
+</script>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fixit Ops -- Portable Demo</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --brand: #001E60; --accent: #FFC220; --bg: #F7FAFF; --surface: #FFFFFF;
+  --text: #1F2937; --muted: #6B7280; --card-bd: rgba(0,0,0,.10); --bg-filter: #E8EAED;
+  --filter-label: #001E60; --pill-green: #1E8E3E; --pill-green-bg: rgba(30,142,62,.15);
+  --pill-red: #C5221F; --pill-red-bg: rgba(197,34,31,.15); --tab-active-bg: rgba(0,83,226,0.10);
+  --tab-active-text: #0053E2; --kpi-value: #001E60; --blue: #0071CE;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+.header { background: linear-gradient(135deg, #001E60 0%, #003087 55%, #001E60 100%); color: #fff; padding: 1.6rem 2rem 1.3rem; }
+.header-inner { max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; }
+.header h1 { margin: 0 0 0.3rem; font-size: 1.6rem; font-weight: 800; }
+.header p { margin: 0; color: rgba(255,255,255,.82); font-size: 0.9rem; }
+.demo-badge { background: var(--accent); color: #3d2e00; font-weight: 800; font-size: 0.72rem; padding: 0.35rem 0.7rem; border-radius: 999px; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; height: fit-content; }
+.tabs { max-width: 1280px; margin: 0 auto; padding: 0 2rem; display: flex; gap: 0.3rem; flex-wrap: wrap; border-bottom: 1px solid var(--card-bd); background: var(--surface); }
+.tab-btn { border: none; background: none; cursor: pointer; padding: 0.75rem 1rem; font-size: 0.85rem; font-weight: 700; color: var(--muted); border-radius: 8px 8px 0 0; }
+.tab-btn.active { color: var(--tab-active-text); background: var(--tab-active-bg); box-shadow: inset 0 -2px 0 #0053E2; }
+.content { max-width: 1280px; margin: 0 auto; padding: 1.5rem 2rem 3rem; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.9rem; margin-bottom: 1.4rem; }
+.kpi-card { background: var(--surface); border: 1px solid var(--card-bd); border-radius: 12px; padding: 0.95rem 1.1rem; }
+.kpi-label { font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.35rem; }
+.kpi-value { font-size: 1.4rem; font-weight: 800; color: var(--kpi-value); }
+.kpi-sub { font-size: 0.75rem; color: var(--muted); margin-top: 0.3rem; }
+.kpi-delta.good { color: var(--pill-green); }
+.kpi-delta.bad { color: var(--pill-red); }
+.card { background: var(--surface); border: 1px solid var(--card-bd); border-radius: 12px; padding: 1.1rem 1.2rem; margin-bottom: 1.2rem; }
+.card h3 { margin: 0 0 0.9rem; font-size: 0.95rem; font-weight: 700; color: var(--text); }
+.chart-box { position: relative; height: 300px; }
+.card-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+@media (max-width: 900px) { .card-grid-2 { grid-template-columns: 1fr; } }
+.legend-row { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.6rem; font-size: 0.75rem; color: var(--muted); }
+.legend-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; }
+.funnel { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+.funnel-step { flex: 1; min-width: 140px; background: var(--bg-filter); border-radius: 10px; padding: 0.9rem 1rem; text-align: center; }
+.funnel-step .n { font-size: 1.3rem; font-weight: 800; color: var(--kpi-value); }
+.funnel-step .l { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--muted); margin-top: 0.2rem; }
+.insights-card { background: linear-gradient(135deg, #fffdf5 0%, #fff 100%); border: 1px solid #ffc220; border-left: 4px solid #ffc220; border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 1.2rem; }
+.insights-card h3 { margin: 0 0 0.6rem; font-size: 0.85rem; font-weight: 800; color: var(--brand); text-transform: uppercase; letter-spacing: 0.03em; }
+.insights-list { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.45rem; }
+.insights-list li { font-size: 0.86rem; line-height: 1.55; color: var(--text); }
+.readout-strip { margin-top: 0.9rem; padding-top: 0.8rem; border-top: 1px dashed rgba(0,0,0,.12); }
+.readout-legend { font-size: 0.72rem; font-weight: 700; color: var(--muted); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.03em; }
+.readout-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.6rem; }
+.readout-cell { background: rgba(0,30,96,.03); border-radius: 8px; padding: 0.45rem 0.65rem; }
+.readout-label { font-size: 0.68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.15rem; }
+.readout-values { font-size: 0.88rem; font-weight: 700; font-family: 'SF Mono', Consolas, monospace; color: var(--blue); }
+.footer-note { max-width: 1280px; margin: 0 auto; padding: 1rem 2rem 2rem; color: var(--muted); font-size: 0.75rem; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div>
+      <h1>Fixit Ops</h1>
+      <p>Incident lifecycle, SLA performance, appeals, and survey handling for CES operations</p>
+    </div>
+    <span class="demo-badge">Demo data -- portable snapshot</span>
+  </div>
+</div>
+
+<div class="tabs" id="tabs">
+  <button class="tab-btn active" data-tab="overview">Overview</button>
+  <button class="tab-btn" data-tab="incidents">Incidents</button>
+  <button class="tab-btn" data-tab="appeals">Appeals &amp; Surveys</button>
+</div>
+
+<div class="content">
+  <div class="tab-panel active" id="panel-overview"></div>
+  <div class="tab-panel" id="panel-incidents"></div>
+  <div class="tab-panel" id="panel-appeals"></div>
+</div>
+
+<div class="footer-note">
+  Portable demo build. Status/source/priority category names mirror the app's own generic
+  taxonomy; all volumes, SLA percentages, and trend shapes are synthetic sample data generated
+  with a fixed seed, then scaled and jittered so nothing resembles real production numbers,
+  while the qualitative story (funnel drop-off shape, SLA trend direction, source mix) is
+  preserved for demo purposes only. Not connected to any live system.
+</div>
+
+<script>
+function mulberry32(a) { return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const rng = mulberry32(20260904);
+const jit = (base, pct = 0.07) => base * (1 + (rng() * 2 - 1) * pct);
+
+const WM = { blue: '#0053e2', spark: '#ffc220', warn: '#995213', red: '#ea1100', green: '#2a8703', orange: '#c25a00', gray: '#8a8a8a' };
+const STATUS_COLORS = { 'Closed': WM.green, 'Escalated': WM.orange, 'Open - Assigned': WM.blue, 'Open - Unassigned': WM.red, 'Non-CES': WM.gray };
+const SOURCE_COLORS = { 'LMD': WM.blue, 'CCA': WM.spark, 'Checkout Mini App': WM.warn, 'Fixit LMD': WM.green, 'GIF': WM.red };
+
+const WEEKS = Array.from({ length: 26 }, (_, i) => `Wk ${i + 1}`);
+const rngW = mulberry32(555);
+const CREATED = WEEKS.map((_, i) => Math.round(jit(2400 + Math.sin(i / 4) * 200, 0.06)));
+const CLOSED  = CREATED.map(c => Math.round(c * (0.94 + (rngW() * 2 - 1) * 0.04)));
+const ESCALATED_PCT = WEEKS.map((_, i) => Math.max(2, jit(9 - i * 0.08, 0.15)));
+const SLA_PCT = WEEKS.map((_, i) => Math.min(99, jit(88 + i * 0.15, 0.03)));
+
+const STATUS_MIX = [
+  { name: 'Closed', pct: 71 },
+  { name: 'Escalated', pct: 6 },
+  { name: 'Open - Assigned', pct: 14 },
+  { name: 'Open - Unassigned', pct: 5 },
+  { name: 'Non-CES', pct: 4 },
+];
+const SOURCE_MIX = [
+  { name: 'LMD', pct: 38 },
+  { name: 'CCA', pct: 27 },
+  { name: 'Checkout Mini App', pct: 16 },
+  { name: 'Fixit LMD', pct: 12 },
+  { name: 'GIF', pct: 7 },
+];
+
+const totalCreated = CREATED.reduce((a, b) => a + b, 0);
+const totalClosed = CLOSED.reduce((a, b) => a + b, 0);
+const funnel = {
+  created: totalCreated,
+  assigned: Math.round(totalCreated * 0.93),
+  escalated: Math.round(totalCreated * 0.065),
+  closed: totalClosed,
+};
+
+// Appeals & Surveys
+const APPEAL_VOL = WEEKS.map((_, i) => Math.round(jit(180 + i * 1.5, 0.12)));
+const OVERTURN_PCT = WEEKS.map((_, i) => jit(22 - i * 0.1, 0.1));
+const SURVEY_VOL = WEEKS.map((_, i) => Math.round(jit(950 + i * 4, 0.08)));
+const RESPONSE_PCT = WEEKS.map((_, i) => jit(31 + i * 0.05, 0.08));
+
+const tooltipBase = { backgroundColor: '#fff', titleColor: '#111827', bodyColor: '#111827', borderColor: '#e5e7eb', borderWidth: 1, padding: 10 };
+function kpiCard(label, value, sub, goodBad) {
+  const cls = goodBad === undefined ? '' : (goodBad ? 'good' : 'bad');
+  return `<div class="kpi-card"><div class="kpi-label">${label}</div><div class="kpi-value">${value}</div>${sub ? `<div class="kpi-sub kpi-delta ${cls}">${sub}</div>` : ''}</div>`;
+}
+function insightsCard(title, items) { return `<div class="insights-card"><h3>${title}</h3><ul class="insights-list">${items.map(i => `<li>${i}</li>`).join('')}</ul></div>`; }
+function readoutStrip(legend, cells) { return `<div class="readout-strip"><div class="readout-legend">${legend}</div><div class="readout-grid">${cells.map(c => `<div class="readout-cell"><div class="readout-label">${c.label}</div><div class="readout-values">${c.value}</div></div>`).join('')}</div></div>`; }
+const chartInstances = {};
+function chart(id, cfg) { if (chartInstances[id]) chartInstances[id].destroy(); chartInstances[id] = new Chart(document.getElementById(id), cfg); }
+
+function buildOverview() {
+  const lastSla = SLA_PCT[SLA_PCT.length - 1], firstSla = SLA_PCT[0];
+  const slaDelta = lastSla - firstSla;
+  const backlog = funnel.assigned - funnel.closed > 0 ? funnel.assigned - funnel.closed : Math.round(totalCreated * 0.08);
+
+  document.getElementById('panel-overview').innerHTML = `
+    <div class="kpi-grid">
+      ${kpiCard('Created (26 wks)', totalCreated.toLocaleString())}
+      ${kpiCard('Closed (26 wks)', totalClosed.toLocaleString())}
+      ${kpiCard('Current SLA Compliance', lastSla.toFixed(1) + '%', `${slaDelta >= 0 ? '▲' : '▼'} ${Math.abs(slaDelta).toFixed(1)} pts vs Wk 1`, slaDelta >= 0)}
+      ${kpiCard('Open Backlog (est.)', backlog.toLocaleString())}
+    </div>
+    ${insightsCard('Strategic Insights', [
+      `SLA compliance has moved from ${firstSla.toFixed(1)}% to ${lastSla.toFixed(1)}% over the last ${WEEKS.length} weeks -- a ${Math.abs(slaDelta).toFixed(1)}-point ${slaDelta >= 0 ? 'improvement' : 'decline'}, tracking well ahead of the typical 85% floor.`,
+      `Closed volume is running at ${((totalClosed / totalCreated) * 100).toFixed(1)}% of Created over the window -- backlog is ${(totalClosed / totalCreated) >= 0.97 ? 'essentially flat, a healthy sign' : 'growing slightly, worth a staffing check'}.`,
+      `The Created→Closed funnel below shows where volume falls off -- Escalated is the smallest bucket, meaning most tickets resolve without ever leaving first-line ownership.`,
+    ])}
+    <div class="card"><h3>Ticket Funnel (Created → Assigned → Escalated → Closed)</h3>
+      <div class="funnel">
+        <div class="funnel-step"><div class="n">${funnel.created.toLocaleString()}</div><div class="l">Created</div></div>
+        <div class="funnel-step"><div class="n">${funnel.assigned.toLocaleString()}</div><div class="l">Assigned</div></div>
+        <div class="funnel-step"><div class="n">${funnel.escalated.toLocaleString()}</div><div class="l">Escalated</div></div>
+        <div class="funnel-step"><div class="n">${funnel.closed.toLocaleString()}</div><div class="l">Closed</div></div>
+      </div>
+    </div>
+    <div class="card"><h3>Weekly Created vs Closed Volume</h3><div class="chart-box"><canvas id="volumeChart"></canvas></div></div>
+    ${readoutStrip('Latest week readout', [
+      { label: 'Created', value: CREATED[CREATED.length - 1].toLocaleString() },
+      { label: 'Closed', value: CLOSED[CLOSED.length - 1].toLocaleString() },
+      { label: 'SLA %', value: lastSla.toFixed(1) + '%' },
+      { label: 'Escalated %', value: ESCALATED_PCT[ESCALATED_PCT.length - 1].toFixed(1) + '%' },
+    ])}
+  `;
+  chart('volumeChart', {
+    type: 'bar',
+    data: { labels: WEEKS, datasets: [
+      { label: 'Created', data: CREATED, backgroundColor: WM.blue },
+      { label: 'Closed', data: CLOSED, backgroundColor: WM.green },
+    ] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top', align: 'end', labels: { font: { size: 11, weight: '600' } } }, tooltip: tooltipBase },
+      scales: { x: { ticks: { color: '#6b7280', font: { size: 9 }, maxTicksLimit: 13 }, grid: { display: false } }, y: { ticks: { color: '#6b7280' }, grid: { color: 'rgba(0,0,0,.06)' } } },
+    },
+  });
+}
+
+function buildIncidents() {
+  document.getElementById('panel-incidents').innerHTML = `
+    <div class="card-grid-2">
+      <div class="card"><h3>Status Mix</h3><div class="chart-box" style="height:260px"><canvas id="statusChart"></canvas></div></div>
+      <div class="card"><h3>Contact Source Mix</h3><div class="chart-box" style="height:260px"><canvas id="sourceChart"></canvas></div></div>
+    </div>
+    <div class="card"><h3>SLA Compliance % -- Weekly Trend</h3><div class="chart-box"><canvas id="slaChart"></canvas></div></div>
+    <div class="card"><h3>Escalation Rate % -- Weekly Trend</h3><div class="chart-box"><canvas id="escChart"></canvas></div></div>
+    ${insightsCard('Strategic Insights', [
+      `${STATUS_MIX[0].name} accounts for ${STATUS_MIX[0].pct}% of all tickets -- the fleet resolves the large majority of volume without needing escalation or long-lived open status.`,
+      `${SOURCE_MIX[0].name} is the leading contact source at ${SOURCE_MIX[0].pct}% -- any intake-quality investment there has the broadest reach across the whole incident pipeline.`,
+      `Escalation rate has ${ESCALATED_PCT[0] > ESCALATED_PCT[ESCALATED_PCT.length - 1] ? 'declined' : 'risen'} from ${ESCALATED_PCT[0].toFixed(1)}% to ${ESCALATED_PCT[ESCALATED_PCT.length - 1].toFixed(1)}% over the period -- moving in the ${ESCALATED_PCT[0] > ESCALATED_PCT[ESCALATED_PCT.length - 1] ? 'same' : 'opposite'} direction as SLA compliance, which is the expected relationship.`,
+    ])}
+  `;
+  chart('statusChart', {
+    type: 'doughnut',
+    data: { labels: STATUS_MIX.map(s => s.name), datasets: [{ data: STATUS_MIX.map(s => s.pct), backgroundColor: STATUS_MIX.map(s => STATUS_COLORS[s.name]) }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 10, weight: '600' }, boxWidth: 10 } }, tooltip: { ...tooltipBase, callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}%` } } } },
+  });
+  chart('sourceChart', {
+    type: 'doughnut',
+    data: { labels: SOURCE_MIX.map(s => s.name), datasets: [{ data: SOURCE_MIX.map(s => s.pct), backgroundColor: SOURCE_MIX.map(s => SOURCE_COLORS[s.name]) }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 10, weight: '600' }, boxWidth: 10 } }, tooltip: { ...tooltipBase, callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}%` } } } },
+  });
+  chart('slaChart', {
+    type: 'line',
+    data: { labels: WEEKS, datasets: [{ label: 'SLA Compliance %', data: SLA_PCT, borderColor: WM.blue, backgroundColor: WM.blue + '18', fill: true, borderWidth: 2.5, pointRadius: 2, tension: 0.3 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { ...tooltipBase, callbacks: { label: ctx => ` ${ctx.parsed.y.toFixed(1)}%` } } }, scales: { x: { ticks: { color: '#6b7280', font: { size: 9 }, maxTicksLimit: 13 }, grid: { display: false } }, y: { ticks: { color: '#6b7280', callback: v => `${v}%` }, grid: { color: 'rgba(0,0,0,.06)' } } } },
+  });
+  chart('escChart', {
+    type: 'line',
+    data: { labels: WEEKS, datasets: [{ label: 'Escalation Rate %', data: ESCALATED_PCT, borderColor: WM.orange, backgroundColor: WM.orange + '18', fill: true, borderWidth: 2.5, pointRadius: 2, tension: 0.3 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { ...tooltipBase, callbacks: { label: ctx => ` ${ctx.parsed.y.toFixed(1)}%` } } }, scales: { x: { ticks: { color: '#6b7280', font: { size: 9 }, maxTicksLimit: 13 }, grid: { display: false } }, y: { ticks: { color: '#6b7280', callback: v => `${v}%` }, grid: { color: 'rgba(0,0,0,.06)' } } } },
+  });
+}
+
+function buildAppeals() {
+  const overturnTrend = OVERTURN_PCT[0] - OVERTURN_PCT[OVERTURN_PCT.length - 1];
+  const responseTrend = RESPONSE_PCT[RESPONSE_PCT.length - 1] - RESPONSE_PCT[0];
+  document.getElementById('panel-appeals').innerHTML = `
+    <div class="kpi-grid">
+      ${kpiCard('Appeals (26 wks)', APPEAL_VOL.reduce((a,b)=>a+b,0).toLocaleString())}
+      ${kpiCard('Current Overturn Rate', OVERTURN_PCT[OVERTURN_PCT.length - 1].toFixed(1) + '%', `${overturnTrend >= 0 ? '▼' : '▲'} ${Math.abs(overturnTrend).toFixed(1)} pts vs Wk 1`, overturnTrend >= 0)}
+      ${kpiCard('Survey Responses (26 wks)', SURVEY_VOL.reduce((a,b)=>a+b,0).toLocaleString())}
+      ${kpiCard('Current Response Rate', RESPONSE_PCT[RESPONSE_PCT.length - 1].toFixed(1) + '%', `${responseTrend >= 0 ? '▲' : '▼'} ${Math.abs(responseTrend).toFixed(1)} pts vs Wk 1`, responseTrend >= 0)}
+    </div>
+    ${insightsCard('Strategic Insights', [
+      `Overturn rate has ${overturnTrend >= 0 ? 'declined' : 'risen'} from ${OVERTURN_PCT[0].toFixed(1)}% to ${OVERTURN_PCT[OVERTURN_PCT.length - 1].toFixed(1)}% -- ${overturnTrend >= 0 ? 'first-pass decision quality is improving, reducing rework' : 'worth auditing first-pass decisions before appeal volume grows further'}.`,
+      `Survey response rate is ${responseTrend >= 0 ? 'climbing' : 'slipping'} (${RESPONSE_PCT[0].toFixed(1)}% → ${RESPONSE_PCT[RESPONSE_PCT.length - 1].toFixed(1)}%) even as survey volume itself grows -- a rising rate on rising volume is a genuinely healthy signal, not just a smaller-denominator artifact.`,
+    ])}
+    <div class="card-grid-2">
+      <div class="card"><h3>Appeal Volume &amp; Overturn Rate</h3><div class="chart-box"><canvas id="appealChart"></canvas></div></div>
+      <div class="card"><h3>Survey Volume &amp; Response Rate</h3><div class="chart-box"><canvas id="surveyChart"></canvas></div></div>
+    </div>
+  `;
+  chart('appealChart', {
+    type: 'bar',
+    data: { labels: WEEKS, datasets: [
+      { label: 'Appeal Volume', data: APPEAL_VOL, backgroundColor: WM.blue, yAxisID: 'y' },
+      { label: 'Overturn %', data: OVERTURN_PCT, type: 'line', borderColor: WM.red, borderWidth: 2, pointRadius: 0, tension: 0.3, yAxisID: 'y1' },
+    ] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top', align: 'end', labels: { font: { size: 10, weight: '600' } } }, tooltip: tooltipBase },
+      scales: { x: { ticks: { color: '#6b7280', font: { size: 9 }, maxTicksLimit: 13 }, grid: { display: false } }, y: { position: 'left', ticks: { color: '#6b7280' }, grid: { color: 'rgba(0,0,0,.06)' } }, y1: { position: 'right', ticks: { color: '#6b7280', callback: v => `${v}%` }, grid: { display: false } } },
+    },
+  });
+  chart('surveyChart', {
+    type: 'bar',
+    data: { labels: WEEKS, datasets: [
+      { label: 'Survey Volume', data: SURVEY_VOL, backgroundColor: WM.spark, yAxisID: 'y' },
+      { label: 'Response %', data: RESPONSE_PCT, type: 'line', borderColor: WM.green, borderWidth: 2, pointRadius: 0, tension: 0.3, yAxisID: 'y1' },
+    ] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top', align: 'end', labels: { font: { size: 10, weight: '600' } } }, tooltip: tooltipBase },
+      scales: { x: { ticks: { color: '#6b7280', font: { size: 9 }, maxTicksLimit: 13 }, grid: { display: false } }, y: { position: 'left', ticks: { color: '#6b7280' }, grid: { color: 'rgba(0,0,0,.06)' } }, y1: { position: 'right', ticks: { color: '#6b7280', callback: v => `${v}%` }, grid: { display: false } } },
+    },
+  });
+}
+
+document.getElementById('tabs').addEventListener('click', e => {
+  const btn = e.target.closest('.tab-btn');
+  if (!btn) return;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+});
+
+buildOverview();
+buildIncidents();
+buildAppeals();
+</script>
+</body>
+</html>

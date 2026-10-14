@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AHT Savings -- Portable Demo</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+<style>
+:root {
+  --brand: #001E60; --accent: #FFC220; --bg: #F7FAFF; --surface: #FFFFFF; --kpi: #F5F7FB;
+  --text: #1F2937; --muted: #6B7280; --card-bd: rgba(0,0,0,.10); --bg-filter: #E8EAED;
+  --filter-label: #001E60; --pill-green: #1E8E3E; --pill-green-bg: rgba(30,142,62,.15);
+  --pill-red: #C5221F; --pill-red-bg: rgba(197,34,31,.15); --tab-active-bg: rgba(0,83,226,0.10);
+  --tab-active-text: #0053E2; --kpi-value: #001E60; --blue: #0071CE;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+.header { background: linear-gradient(135deg, #001E60 0%, #003087 55%, #001E60 100%); color: #fff; padding: 1.6rem 2rem 1.3rem; }
+.header-inner { max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; }
+.header h1 { margin: 0 0 0.3rem; font-size: 1.6rem; font-weight: 800; }
+.header p { margin: 0; color: rgba(255,255,255,.82); font-size: 0.9rem; }
+.demo-badge { background: var(--accent); color: #3d2e00; font-weight: 800; font-size: 0.72rem; padding: 0.35rem 0.7rem; border-radius: 999px; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; height: fit-content; }
+.tabs { max-width: 1280px; margin: 0 auto; padding: 0 2rem; display: flex; gap: 0.3rem; flex-wrap: wrap; border-bottom: 1px solid var(--card-bd); background: var(--surface); }
+.tab-btn { border: none; background: none; cursor: pointer; padding: 0.75rem 1rem; font-size: 0.85rem; font-weight: 700; color: var(--muted); border-radius: 8px 8px 0 0; }
+.tab-btn.active { color: var(--tab-active-text); background: var(--tab-active-bg); box-shadow: inset 0 -2px 0 #0053E2; }
+.content { max-width: 1280px; margin: 0 auto; padding: 1.5rem 2rem 3rem; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0.9rem; margin-bottom: 1.4rem; }
+.kpi-card { background: var(--surface); border: 1px solid var(--card-bd); border-radius: 12px; padding: 0.95rem 1.1rem; }
+.kpi-label { font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.35rem; }
+.kpi-value { font-size: 1.5rem; font-weight: 800; color: var(--kpi-value); }
+.kpi-sub { font-size: 0.75rem; color: var(--muted); margin-top: 0.3rem; }
+.kpi-delta.good { color: var(--pill-green); }
+.kpi-delta.bad { color: var(--pill-red); }
+.card { background: var(--surface); border: 1px solid var(--card-bd); border-radius: 12px; padding: 1.1rem 1.2rem; margin-bottom: 1.2rem; }
+.card h3 { margin: 0 0 0.9rem; font-size: 0.95rem; font-weight: 700; color: var(--text); }
+.chart-box { position: relative; height: 340px; }
+.chart-box.tall { height: 460px; }
+.filter-row { display: flex; gap: 0.6rem; margin-bottom: 1rem; flex-wrap: wrap; }
+.pill-btn { border: 1px solid var(--card-bd); background: var(--surface); padding: 0.4rem 0.9rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700; cursor: pointer; color: var(--muted); }
+.pill-btn.active { background: var(--tab-active-bg); color: var(--tab-active-text); border-color: var(--tab-active-text); }
+.insights-card { background: linear-gradient(135deg, #fffdf5 0%, #fff 100%); border: 1px solid #ffc220; border-left: 4px solid #ffc220; border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 1.2rem; }
+.insights-card h3 { margin: 0 0 0.6rem; font-size: 0.85rem; font-weight: 800; color: var(--brand); text-transform: uppercase; letter-spacing: 0.03em; }
+.insights-list { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.45rem; }
+.insights-list li { font-size: 0.86rem; line-height: 1.55; color: var(--text); }
+.readout-strip { margin-top: 0.9rem; padding-top: 0.8rem; border-top: 1px dashed rgba(0,0,0,.12); }
+.readout-legend { font-size: 0.72rem; font-weight: 700; color: var(--muted); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.03em; }
+.readout-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.6rem; }
+.readout-cell { background: rgba(0,30,96,.03); border-radius: 8px; padding: 0.45rem 0.65rem; }
+.readout-label { font-size: 0.68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.15rem; }
+.readout-values { font-size: 0.88rem; font-weight: 700; font-family: 'SF Mono', Consolas, monospace; color: var(--blue); }
+.footer-note { max-width: 1280px; margin: 0 auto; padding: 1rem 2rem 2rem; color: var(--muted); font-size: 0.75rem; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div>
+      <h1>AHT Savings</h1>
+      <p>Average Handle Time trend vs. prior year, scenario projections, and verification rollout tracking</p>
+    </div>
+    <span class="demo-badge">Demo data -- portable snapshot</span>
+  </div>
+</div>
+
+<div class="tabs" id="tabs">
+  <button class="tab-btn active" data-tab="trend">AHT Savings</button>
+  <button class="tab-btn" data-tab="verify">Verification Rollout Trend</button>
+  <button class="tab-btn" data-tab="tracking">AHT Tracking</button>
+</div>
+
+<div class="content">
+  <div class="tab-panel active" id="panel-trend"></div>
+  <div class="tab-panel" id="panel-verify"></div>
+  <div class="tab-panel" id="panel-tracking"></div>
+</div>
+
+<div class="footer-note">
+  Portable demo build. Every figure below is synthetic sample data generated with a fixed seed --
+  scenario curves, verification percentages, and milestone dates are re-shaped and jittered so
+  nothing matches real production numbers or a real initiative timeline, while the qualitative
+  story (year-over-year AHT improvement, projection bands, rollout impact) is preserved for demo
+  purposes only. Not connected to any live system.
+</div>
+
+<script>
+// ── Seeded PRNG (mulberry32) so every reload renders the same numbers ────────
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const rng = mulberry32(20260901);
+const jit = (base, pct = 0.05) => base * (1 + (rng() * 2 - 1) * pct);
+
+// ── Synthetic month/week AHT series (values re-derived, not real projections) ─
+const MONTHS = ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'];
+const PRIOR_YEAR_AHT = MONTHS.map((_, i) => Math.round(jit(560 - i * 3, 0.03)));
+const CONSERVATIVE   = MONTHS.map((_, i) => Math.round(jit(540 - i * 5, 0.03)));
+const BEST_SCENARIO  = MONTHS.map((_, i) => Math.round(jit(520 - i * 9, 0.04)));
+// Actuals only exist through month 6 (mid-year snapshot), tracking near the best-scenario band
+const ACTUAL_AHT = MONTHS.map((_, i) => i <= 6 ? Math.round(jit(BEST_SCENARIO[i] * 1.02, 0.03)) : null);
+
+const WEEKS = Array.from({ length: 52 }, (_, i) => i + 1);
+const PRIOR_YEAR_WEEKLY = WEEKS.map(w => Math.round(jit(560 - w * 0.75, 0.04)));
+const CONSERVATIVE_WEEKLY = WEEKS.map(w => Math.round(jit(540 - w * 1.1, 0.03)));
+const BEST_WEEKLY = WEEKS.map(w => Math.round(jit(520 - w * 1.9, 0.04)));
+const ACTUAL_WEEKLY = WEEKS.map(w => w <= 28 ? Math.round(jit(BEST_WEEKLY[w - 1] * 1.02, 0.03)) : null);
+
+const MILESTONES = [
+  { week: 5,  label: 'Guided Intent Rollout' },
+  { week: 14, label: 'Routing Optimization' },
+  { week: 20, label: 'Agent Education Refresh' },
+  { week: 26, label: 'Self-Service Expansion' },
+];
+
+// Daily verification % (90 days), with a step-up after a rollout date
+const DAYS = Array.from({ length: 90 }, (_, i) => {
+  const d = new Date(2026, 1, 1); d.setDate(d.getDate() + i);
+  return d.toISOString().slice(0, 10);
+});
+const ROLLOUT_IDX = 38;
+const DAILY_VERIFY = DAYS.map((_, i) => {
+  const base = i < ROLLOUT_IDX ? 62 : 94;
+  return Math.max(0, Math.min(100, jit(base, i < ROLLOUT_IDX ? 0.08 : 0.02)));
+});
+const ROLLING_AVG = DAILY_VERIFY.map((_, i) => {
+  const s = DAILY_VERIFY.slice(Math.max(0, i - 6), i + 1);
+  return s.reduce((a, b) => a + b, 0) / s.length;
+});
+
+// ── Formatters ────────────────────────────────────────────────────────────────
+function mmss(secs) { const s = Math.round(secs); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; }
+function fmtDelta(cur, prior) {
+  const d = prior - cur; // positive = AHT went down = improvement
+  const pct = (d / prior) * 100;
+  return { d, pct, good: d >= 0 };
+}
+
+// ── Chart theme ───────────────────────────────────────────────────────────────
+const COLORS = { text: '#374151', muted: '#6b7280', grid: 'rgba(0,0,0,.06)' };
+const tooltipBase = { backgroundColor: '#fff', titleColor: '#111827', bodyColor: '#111827', borderColor: '#e5e7eb', borderWidth: 1, padding: 10 };
+
+function lineDataset(label, data, color, dash) {
+  return { label, data, borderColor: color, borderWidth: dash ? 2 : 2.5, borderDash: dash || [], pointRadius: data.length > 30 ? 0 : 3, pointHoverRadius: 6, pointBackgroundColor: color, tension: 0.3, fill: false, spanGaps: dash ? true : false };
+}
+
+function renderSavingsChart(canvasId, labels, prior, cons, best, actual) {
+  new Chart(document.getElementById(canvasId), {
+    type: 'line',
+    data: { labels, datasets: [
+      lineDataset('Prior Year AHT', prior, '#9ca3af', [6, 3]),
+      lineDataset('This Year Actual AHT', actual, '#0053E2'),
+      lineDataset('Projected -- Conservative', cons, '#D31B07', [8, 4]),
+      lineDataset('Projected -- Best Scenario', best, '#2a8703', [8, 4]),
+    ] },
+    options: {
+      responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'top', align: 'end', labels: { font: { size: 11, weight: '600' }, boxWidth: 14, padding: 16 } },
+        tooltip: { ...tooltipBase, callbacks: { label: ctx => ctx.parsed.y == null ? null : ` ${ctx.dataset.label}: ${mmss(ctx.parsed.y)}` } },
+      },
+      scales: {
+        x: { ticks: { color: COLORS.muted, font: { size: 10 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 14 }, grid: { display: false } },
+        y: { ticks: { color: COLORS.muted, font: { size: 11 }, callback: v => mmss(v) }, grid: { color: COLORS.grid }, title: { display: true, text: 'AHT (m:ss)', color: COLORS.muted } },
+      },
+    },
+  });
+}
+
+function renderVerifyChart() {
+  const annotations = { rollout: {
+    type: 'line', xMin: ROLLOUT_IDX, xMax: ROLLOUT_IDX, borderColor: '#D31B07', borderWidth: 2, borderDash: [6, 4],
+    label: { display: true, content: 'Verification Rollout', position: 'start', backgroundColor: 'rgba(211,27,7,0.88)', color: '#fff', font: { size: 10, weight: 'bold' }, padding: { x: 6, y: 4 }, borderRadius: 4, yAdjust: -10 },
+  } };
+  new Chart(document.getElementById('verifyChart'), {
+    type: 'line',
+    data: { labels: DAYS, datasets: [
+      { label: 'Daily Verification %', data: DAILY_VERIFY, borderColor: '#0071CE', backgroundColor: 'rgba(0,113,206,0.10)', borderWidth: 2, fill: true, tension: 0.3, pointRadius: 0 },
+      { label: '7-Day Rolling Avg', data: ROLLING_AVG, borderColor: '#FFC220', borderWidth: 2, borderDash: [5, 5], fill: false, tension: 0.3, pointRadius: 0 },
+    ] },
+    options: {
+      responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'top', align: 'end', labels: { font: { size: 11, weight: '600' }, boxWidth: 14, padding: 16 } },
+        tooltip: { ...tooltipBase, callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%` } },
+        annotation: { annotations },
+      },
+      scales: {
+        x: { ticks: { color: COLORS.muted, font: { size: 10 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 15 }, grid: { display: false } },
+        y: { beginAtZero: true, ticks: { color: COLORS.muted, callback: v => `${v}%` }, grid: { color: COLORS.grid }, title: { display: true, text: 'Verification %', color: COLORS.muted } },
+      },
+    },
+  });
+}
+
+function renderTrackingChart() {
+  const annotations = {};
+  MILESTONES.forEach((m, i) => {
+    annotations[`m${i}`] = {
+      type: 'line', xMin: m.week - 1, xMax: m.week - 1, borderColor: 'rgba(90,90,90,0.55)', borderWidth: 1.5, borderDash: [5, 4],
+      label: { display: true, content: m.label, position: i % 2 === 0 ? '20%' : '75%', backgroundColor: 'rgba(30,30,30,0.78)', color: '#fff', font: { size: 9.5, weight: '600' }, padding: { x: 6, y: 4 }, borderRadius: 4 },
+    };
+  });
+  new Chart(document.getElementById('trackingChart'), {
+    type: 'line',
+    data: { labels: WEEKS.map(w => `Wk ${w}`), datasets: [
+      lineDataset('Prior Year AHT', PRIOR_YEAR_WEEKLY, '#9ca3af', [6, 3]),
+      lineDataset('Conservative (Projection)', CONSERVATIVE_WEEKLY, '#ea1100', [7, 4]),
+      lineDataset('Best Scenario (Projection)', BEST_WEEKLY, '#2a8703', [7, 4]),
+      lineDataset('Actual This Year AHT', ACTUAL_WEEKLY, '#0053e2'),
+    ] },
+    options: {
+      responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'top', align: 'end', labels: { font: { size: 11, weight: '600' }, boxWidth: 14, padding: 16 } },
+        tooltip: { ...tooltipBase, callbacks: { label: ctx => ctx.parsed.y == null ? null : ` ${ctx.dataset.label}: ${mmss(ctx.parsed.y)}` } },
+        annotation: { annotations },
+      },
+      scales: {
+        x: { ticks: { color: COLORS.muted, font: { size: 10 }, maxRotation: 45 }, grid: { display: false } },
+        y: { min: 420, max: 620, ticks: { color: COLORS.muted, callback: v => `${v}s` }, grid: { color: COLORS.grid }, title: { display: true, text: 'AHT (seconds)', color: COLORS.muted } },
+      },
+    },
+  });
+}
+
+// ── KPI + insight helpers ─────────────────────────────────────────────────────
+function kpiCard(label, value, sub, goodBad) {
+  const cls = goodBad === undefined ? '' : (goodBad ? 'good' : 'bad');
+  return `<div class="kpi-card"><div class="kpi-label">${label}</div><div class="kpi-value">${value}</div>${sub ? `<div class="kpi-sub kpi-delta ${cls}">${sub}</div>` : ''}</div>`;
+}
+function insightsCard(title, items) {
+  return `<div class="insights-card"><h3>${title}</h3><ul class="insights-list">${items.map(i => `<li>${i}</li>`).join('')}</ul></div>`;
+}
+function readoutStrip(legend, cells) {
+  return `<div class="readout-strip"><div class="readout-legend">${legend}</div><div class="readout-grid">${cells.map(c => `<div class="readout-cell"><div class="readout-label">${c.label}</div><div class="readout-values">${c.value}</div></div>`).join('')}</div></div>`;
+}
+
+// ── Build panels ──────────────────────────────────────────────────────────────
+function buildTrendPanel() {
+  const actualIdx = ACTUAL_AHT.filter(v => v != null).length - 1;
+  const priorSame = PRIOR_YEAR_AHT[actualIdx];
+  const actualNow = ACTUAL_AHT[actualIdx];
+  const delta = fmtDelta(actualNow, priorSame);
+  const el = document.getElementById('panel-trend');
+  el.innerHTML = `
+    <div class="kpi-grid">
+      ${kpiCard('Avg Conservative AHT', mmss(CONSERVATIVE.reduce((a,b)=>a+b,0)/CONSERVATIVE.length) + 's')}
+      ${kpiCard('Avg Best Scenario AHT', mmss(BEST_SCENARIO.reduce((a,b)=>a+b,0)/BEST_SCENARIO.length) + 's')}
+      ${kpiCard('Actual YTD AHT', mmss(actualNow) + 's', `${delta.good ? '▼' : '▲'} ${Math.abs(delta.pct).toFixed(1)}% vs prior year`, delta.good)}
+    </div>
+    ${insightsCard('Strategic Insights', [
+      `AHT has improved <strong>${Math.abs(delta.pct).toFixed(1)}%</strong> year-over-year through the observed period, tracking closer to the Best Scenario band than the Conservative one.`,
+      `The gap between Conservative and Best Scenario projections widens over the year (${Math.abs(CONSERVATIVE[11]-BEST_SCENARIO[11])}s by month 12) -- upside depends on sustained adoption of the initiatives below, not just the initial rollout.`,
+      `Actual AHT is running ahead of pace vs. the Conservative floor every month observed so far -- no month has regressed above the conservative line.`,
+    ])}
+    <div class="card"><h3>AHT: This Year vs Prior Year (Monthly, with Projection Bands)</h3><div class="chart-box"><canvas id="savingsChartMonthly"></canvas></div></div>
+    <div class="card"><h3>AHT: This Year vs Prior Year (Weekly, with Projection Bands)</h3><div class="chart-box"><canvas id="savingsChartWeekly"></canvas></div></div>
+    ${readoutStrip('Latest month readout', [
+      { label: 'Prior Year', value: mmss(priorSame) + 's' },
+      { label: 'This Year Actual', value: mmss(actualNow) + 's' },
+      { label: 'Conservative Target', value: mmss(CONSERVATIVE[actualIdx]) + 's' },
+      { label: 'Best Scenario Target', value: mmss(BEST_SCENARIO[actualIdx]) + 's' },
+    ])}
+  `;
+  renderSavingsChart('savingsChartMonthly', MONTHS, PRIOR_YEAR_AHT, CONSERVATIVE, BEST_SCENARIO, ACTUAL_AHT);
+  renderSavingsChart('savingsChartWeekly', WEEKS.map(w => `Wk ${w}`), PRIOR_YEAR_WEEKLY, CONSERVATIVE_WEEKLY, BEST_WEEKLY, ACTUAL_WEEKLY);
+}
+
+function buildVerifyPanel() {
+  const preAvg = DAILY_VERIFY.slice(0, ROLLOUT_IDX).reduce((a,b)=>a+b,0) / ROLLOUT_IDX;
+  const postAvg = DAILY_VERIFY.slice(ROLLOUT_IDX).reduce((a,b)=>a+b,0) / (DAILY_VERIFY.length - ROLLOUT_IDX);
+  const el = document.getElementById('panel-verify');
+  el.innerHTML = `
+    <div class="kpi-grid">
+      ${kpiCard('Pre-Rollout Avg', preAvg.toFixed(1) + '%')}
+      ${kpiCard('Post-Rollout Avg', postAvg.toFixed(1) + '%', `▲ +${(postAvg - preAvg).toFixed(1)} pts`, true)}
+      ${kpiCard('Latest 7-Day Avg', ROLLING_AVG[ROLLING_AVG.length - 1].toFixed(1) + '%')}
+    </div>
+    ${insightsCard('Strategic Insights', [
+      `Verification rate jumped from <strong>${preAvg.toFixed(1)}%</strong> pre-rollout to <strong>${postAvg.toFixed(1)}%</strong> post-rollout -- a ${(postAvg - preAvg).toFixed(1)}-point step change, not a gradual drift, consistent with a deliberate rollout rather than organic improvement.`,
+      `Day-to-day variance shrinks sharply after rollout (tighter band around the 7-day average), suggesting the new process is more consistent, not just higher on average.`,
+    ])}
+    <div class="card"><h3>Daily Verification % + 7-Day Rolling Average</h3><div class="chart-box"><canvas id="verifyChart"></canvas></div></div>
+    ${readoutStrip('Rollout impact', [
+      { label: 'Before', value: preAvg.toFixed(1) + '%' },
+      { label: 'After', value: postAvg.toFixed(1) + '%' },
+      { label: 'Lift', value: '+' + (postAvg - preAvg).toFixed(1) + ' pts' },
+    ])}
+  `;
+  renderVerifyChart();
+}
+
+function buildTrackingPanel() {
+  const el = document.getElementById('panel-tracking');
+  const lastActualIdx = WEEKS.filter((_, i) => ACTUAL_WEEKLY[i] != null).length - 1;
+  el.innerHTML = `
+    <div class="kpi-grid">
+      ${kpiCard('Milestones Tracked', MILESTONES.length)}
+      ${kpiCard('Weeks of Actuals', lastActualIdx + 1 + ' / 52')}
+      ${kpiCard('Current AHT vs Best Target', ((ACTUAL_WEEKLY[lastActualIdx] - BEST_WEEKLY[lastActualIdx]) >= 0 ? '+' : '') + Math.round(ACTUAL_WEEKLY[lastActualIdx] - BEST_WEEKLY[lastActualIdx]) + 's', undefined, (ACTUAL_WEEKLY[lastActualIdx] - BEST_WEEKLY[lastActualIdx]) <= 15)}
+    </div>
+    ${insightsCard('Strategic Insights', [
+      `Four process milestones have shipped so far this year -- each is annotated on the chart below so leadership can visually tie AHT inflection points back to specific initiatives.`,
+      `Actual AHT tracks inside the projection corridor (between Best Scenario and Conservative) for every week observed -- no milestone has caused a regression outside that band.`,
+      `The remaining gap to the Best Scenario target (${Math.round(ACTUAL_WEEKLY[lastActualIdx] - BEST_WEEKLY[lastActualIdx])}s) represents the addressable upside if adoption of the most recent initiative continues to ramp.`,
+    ])}
+    <div class="card"><h3>AHT Tracking -- Actuals vs Projections + Milestones</h3><div class="chart-box tall"><canvas id="trackingChart"></canvas></div></div>
+  `;
+  renderTrackingChart();
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+document.getElementById('tabs').addEventListener('click', e => {
+  const btn = e.target.closest('.tab-btn');
+  if (!btn) return;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+});
+
+buildTrendPanel();
+buildVerifyPanel();
+buildTrackingPanel();
+</script>
+</body>
+</html>

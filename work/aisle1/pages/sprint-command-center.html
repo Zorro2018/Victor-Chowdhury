@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sprint Command Center - AISLE One Demo</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<div id="app-header"></div>
+<div id="filter-bar"></div>
+
+<div id="app-sidebar"></div>
+<div class="content">
+
+        <div class="kpi-grid" id="kpi-grid"></div>
+
+        <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:18px;" id="two-col">
+            <div class="section-card">
+                <h2>Portfolio Health</h2>
+                <div class="chart-wrap short"><canvas id="health-chart"></canvas></div>
+            </div>
+            <div class="section-card">
+                <h2>Active Blockers</h2>
+                <div style="overflow-x:auto;">
+                    <table class="data-table">
+                        <thead><tr><th>ID</th><th>Title</th><th>Team</th><th>Age (days)</th><th>Severity</th></tr></thead>
+                        <tbody id="blockers-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+<div id="app-footer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="../assets/data.js"></script>
+<script src="../assets/search.js"></script>
+<script src="../assets/nav.js"></script>
+<script>
+    CES_NAV.renderHeader({ activeHref: "pages/sprint-command-center.html", title: "Sprint Command Center", liveBadge: true });
+    CES_NAV.renderFooter();
+
+    const DEFAULT_FILTERS = { team: "all", sprint: "all" };
+    let filters = { ...DEFAULT_FILTERS };
+    let chart = null;
+
+    function opts(arr, allLabel) { return [{ value: "all", label: allLabel }, ...arr.map(v => ({ value: v, label: v }))]; }
+    function filterDefs() {
+        return [
+            { id: "team", label: "Team", value: filters.team, options: opts(CES.TEAMS, "All Teams") },
+            { id: "sprint", label: "Sprint", value: filters.sprint, options: opts(CES.SPRINTS, "All Sprints") },
+        ];
+    }
+
+    function renderKpi() {
+        const m = CES.getSprintMetrics(filters.team, filters.sprint);
+        const rows = [
+            ["Committed", m.committed], ["Completed", m.completed], ["Completion %", m.completionPct + "%"],
+            ["Velocity", m.velocity], ["Blockers", m.blockers], ["Aged Issues", m.agedIssues],
+        ];
+        document.getElementById("kpi-grid").innerHTML = rows.map(([label, v]) => `
+            <div class="kpi-card"><div class="kpi-label">${label}</div><div class="kpi-value">${v}</div></div>
+        `).join("");
+    }
+
+    function renderHealthChart() {
+        const counts = CES.getPortfolioHealth(filters.team, filters.sprint);
+        const ctx = document.getElementById("health-chart");
+        if (chart) chart.destroy();
+        chart = new Chart(ctx, {
+            type: "doughnut",
+            data: {
+                labels: counts.map(c => c.status),
+                datasets: [{ data: counts.map(c => c.count), backgroundColor: counts.map(c => c.color) }],
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom" } } },
+        });
+    }
+
+    function severityPill(sev) {
+        const cls = sev === "High" ? "red" : sev === "Medium" ? "yellow" : "green";
+        return `<span class="pill ${cls}">${sev}</span>`;
+    }
+
+    function renderBlockers() {
+        const blockers = CES.getBlockers(filters.team, filters.sprint);
+        document.getElementById("blockers-tbody").innerHTML = blockers.map(b => `
+            <tr>
+                <td>${b.id}</td><td>${b.title}</td><td>${b.team}</td>
+                <td>${b.age_days}</td><td>${severityPill(b.severity)}</td>
+            </tr>
+        `).join("");
+    }
+
+    function render() { renderKpi(); renderHealthChart(); renderBlockers(); }
+
+    function wireFilterBar() {
+        CES_NAV.renderFilterBar(
+            document.getElementById("filter-bar"), filterDefs(),
+            (id, value) => { filters[id] = value; render(); },
+            () => { filters = { ...DEFAULT_FILTERS }; wireFilterBar(); render(); },
+            `<button class="btn btn-primary" id="refresh-btn">Refresh</button>`
+        );
+        document.getElementById("refresh-btn").addEventListener("click", render);
+    }
+
+    wireFilterBar();
+    render();
+</script>
+</body>
+</html>

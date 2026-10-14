@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SSR vs Complexity -- Portable Demo</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --brand: #001E60; --accent: #FFC220; --bg: #F7FAFF; --surface: #FFFFFF;
+  --text: #1F2937; --muted: #6B7280; --card-bd: rgba(0,0,0,.10); --bg-filter: #E8EAED;
+  --filter-label: #001E60; --pill-green: #1E8E3E; --pill-green-bg: rgba(30,142,62,.15);
+  --pill-red: #C5221F; --pill-red-bg: rgba(197,34,31,.15); --tab-active-bg: rgba(0,83,226,0.10);
+  --tab-active-text: #0053E2; --kpi-value: #001E60; --blue: #0071CE;
+  --low: #2a8703; --med: #c25a00; --high: #ea1100;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+.header { background: linear-gradient(135deg, #001E60 0%, #003087 55%, #001E60 100%); color: #fff; padding: 1.6rem 2rem 1.3rem; }
+.header-inner { max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; }
+.header h1 { margin: 0 0 0.3rem; font-size: 1.6rem; font-weight: 800; }
+.header p { margin: 0; color: rgba(255,255,255,.82); font-size: 0.9rem; max-width: 760px; }
+.demo-badge { background: var(--accent); color: #3d2e00; font-weight: 800; font-size: 0.72rem; padding: 0.35rem 0.7rem; border-radius: 999px; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; height: fit-content; }
+.tabs { max-width: 1280px; margin: 0 auto; padding: 0 2rem; display: flex; gap: 0.3rem; flex-wrap: wrap; border-bottom: 1px solid var(--card-bd); background: var(--surface); }
+.tab-btn { border: none; background: none; cursor: pointer; padding: 0.75rem 1rem; font-size: 0.85rem; font-weight: 700; color: var(--muted); border-radius: 8px 8px 0 0; }
+.tab-btn.active { color: var(--tab-active-text); background: var(--tab-active-bg); box-shadow: inset 0 -2px 0 #0053E2; }
+.content { max-width: 1280px; margin: 0 auto; padding: 1.5rem 2rem 3rem; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0.9rem; margin-bottom: 1.4rem; }
+.kpi-card { background: var(--surface); border: 1px solid var(--card-bd); border-radius: 12px; padding: 0.95rem 1.1rem; }
+.kpi-label { font-size: 0.72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.35rem; }
+.kpi-value { font-size: 1.5rem; font-weight: 800; color: var(--kpi-value); }
+.kpi-sub { font-size: 0.75rem; color: var(--muted); margin-top: 0.3rem; }
+.kpi-delta.good { color: var(--pill-green); }
+.kpi-delta.bad { color: var(--pill-red); }
+.card { background: var(--surface); border: 1px solid var(--card-bd); border-radius: 12px; padding: 1.1rem 1.2rem; margin-bottom: 1.2rem; }
+.card h3 { margin: 0 0 0.9rem; font-size: 0.95rem; font-weight: 700; color: var(--text); }
+.chart-box { position: relative; height: 340px; }
+.card-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+@media (max-width: 900px) { .card-grid-2 { grid-template-columns: 1fr; } }
+table.data-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+table.data-table th { text-align: right; padding: 0.5rem 0.7rem; background: var(--bg-filter); color: var(--filter-label); font-weight: 700; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; }
+table.data-table th:first-child, table.data-table td:first-child { text-align: left; }
+table.data-table td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--card-bd); text-align: right; white-space: nowrap; }
+table.data-table tr:nth-child(even) { background: rgba(0,30,96,.02); }
+.tier-pill { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .03em; }
+.tier-pill.low { color: var(--low); background: rgba(42,135,3,.12); }
+.tier-pill.medium { color: var(--med); background: rgba(194,90,0,.12); }
+.tier-pill.high { color: var(--high); background: rgba(234,17,0,.12); }
+.insights-card { background: linear-gradient(135deg, #fffdf5 0%, #fff 100%); border: 1px solid #ffc220; border-left: 4px solid #ffc220; border-radius: 12px; padding: 1rem 1.2rem; margin-bottom: 1.2rem; }
+.insights-card h3 { margin: 0 0 0.6rem; font-size: 0.85rem; font-weight: 800; color: var(--brand); text-transform: uppercase; letter-spacing: 0.03em; }
+.insights-list { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.45rem; }
+.insights-list li { font-size: 0.86rem; line-height: 1.55; color: var(--text); }
+.readout-strip { margin-top: 0.9rem; padding-top: 0.8rem; border-top: 1px dashed rgba(0,0,0,.12); }
+.readout-legend { font-size: 0.72rem; font-weight: 700; color: var(--muted); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.03em; }
+.readout-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.6rem; }
+.readout-cell { background: rgba(0,30,96,.03); border-radius: 8px; padding: 0.45rem 0.65rem; }
+.readout-label { font-size: 0.68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.15rem; }
+.readout-values { font-size: 0.88rem; font-weight: 700; font-family: 'SF Mono', Consolas, monospace; color: var(--blue); }
+.footer-note { max-width: 1280px; margin: 0 auto; padding: 1rem 2rem 2rem; color: var(--muted); font-size: 0.75rem; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div>
+      <h1>SSR vs Complexity</h1>
+      <p>Self-Serve Rate against Call Complexity, by workflow and over time -- where self-service is winning, and where the residual agent-handled mix is getting harder.</p>
+    </div>
+    <span class="demo-badge">Demo data -- portable snapshot</span>
+  </div>
+</div>
+
+<div class="tabs" id="tabs">
+  <button class="tab-btn active" data-tab="overview">Overview</button>
+  <button class="tab-btn" data-tab="trend">Trend</button>
+  <button class="tab-btn" data-tab="tier">By Complexity Tier</button>
+  <button class="tab-btn" data-tab="workflow">By Workflow</button>
+</div>
+
+<div class="content">
+  <div class="tab-panel active" id="panel-overview"></div>
+  <div class="tab-panel" id="panel-trend"></div>
+  <div class="tab-panel" id="panel-tier"></div>
+  <div class="tab-panel" id="panel-workflow"></div>
+</div>
+
+<div class="footer-note">
+  Portable demo build. This report's live source (an internal reporting platform)
+  is behind Walmart SSO and wasn't accessible for this build, so the structure here was inferred from the
+  report name plus two already-documented, related bodies of work: the Call Complexity Scorecard's
+  six-factor Low/Medium/High scoring model, and the Sierra Voice AI Self-Serve Rate metric. Every workflow
+  name, volume, complexity score, and SSR value below is synthetic (fixed-seed, generated in-browser) --
+  no real production numbers, and the exact chart set may not match the live report 1:1. Swap in a
+  screenshot or export of the real page any time and this gets tightened up to match.
+</div>
+
+<script>
+function mulberry32(a) { return function () { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const rng = mulberry32(20260911);
+const jit = (base, pct = 0.08) => base * (1 + (rng() * 2 - 1) * pct);
+
+// ── Fictional workflow taxonomy -- same tiering convention as the Call ──────
+// Complexity Scorecard demo (tier 1 = LOW, 2 = MEDIUM, 3 = HIGH), extended
+// with a Self-Serve Rate dimension: easier workflows deflect more.
+const WORKFLOWS = [
+  { name: "Order Status Inquiries",        tier: 1, volume: 29000, complexityBase: 14, ssrBase: 71 },
+  { name: "Password Reset",                tier: 1, volume: 21000, complexityBase: 11, ssrBase: 78 },
+  { name: "Product Questions",             tier: 1, volume: 17000, complexityBase: 18, ssrBase: 62 },
+  { name: "Loyalty Points Issues",         tier: 1, volume: 12000, complexityBase: 21, ssrBase: 58 },
+  { name: "Shipping Delays",               tier: 2, volume: 4000,  complexityBase: 33, ssrBase: 39 },
+  { name: "Returns & Refunds",             tier: 2, volume: 4000,  complexityBase: 36, ssrBase: 34 },
+  { name: "Payment Failures",              tier: 2, volume: 3000,  complexityBase: 34, ssrBase: 37 },
+  { name: "Technical Troubleshooting",     tier: 2, volume: 2000,  complexityBase: 38, ssrBase: 28 },
+  { name: "Membership Cancellations",      tier: 2, volume: 2000,  complexityBase: 35, ssrBase: 31 },
+  { name: "Billing Disputes",              tier: 3, volume: 2000,  complexityBase: 58, ssrBase: 14 },
+  { name: "Account Closure Requests",      tier: 3, volume: 1000,  complexityBase: 55, ssrBase: 17 },
+  { name: "Fraud & Identity Verification", tier: 3, volume: 1000,  complexityBase: 68, ssrBase: 7  },
+  { name: "Escalated Complaints",          tier: 3, volume: 1000,  complexityBase: 71, ssrBase: 5  },
+];
+const TIER_LABEL = { 1: "Low", 2: "Medium", 3: "High" };
+const TIER_CLASS = { 1: "low", 2: "medium", 3: "high" };
+const TIER_COLOR = { 1: "#2a8703", 2: "#c25a00", 3: "#ea1100" };
+
+WORKFLOWS.forEach((w, i) => {
+  const r = mulberry32(500 + i);
+  w.complexity = Math.round(jit.call(null, w.complexityBase, 0.12) * 10) / 10;
+  w.ssr = Math.max(2, Math.min(92, Math.round(jit.call(null, w.ssrBase, 0.10) * 10) / 10));
+  w.volume = Math.round(jit.call(null, w.volume, 0.10));
+});
+
+function pearson(xs, ys) {
+  const n = xs.length;
+  const mx = xs.reduce((a, b) => a + b, 0) / n;
+  const my = ys.reduce((a, b) => a + b, 0) / n;
+  let num = 0, dx2 = 0, dy2 = 0;
+  for (let i = 0; i < n; i++) {
+    const dx = xs[i] - mx, dy = ys[i] - my;
+    num += dx * dy; dx2 += dx * dx; dy2 += dy * dy;
+  }
+  return num / Math.sqrt(dx2 * dy2);
+}
+
+const totalVolume = WORKFLOWS.reduce((a, w) => a + w.volume, 0);
+const overallSSR = WORKFLOWS.reduce((a, w) => a + w.ssr * w.volume, 0) / totalVolume;
+const overallComplexity = WORKFLOWS.reduce((a, w) => a + w.complexity * w.volume, 0) / totalVolume;
+const highVolume = WORKFLOWS.filter(w => w.tier === 3).reduce((a, w) => a + w.volume, 0);
+const highShare = (highVolume / totalVolume) * 100;
+const corr = pearson(WORKFLOWS.map(w => w.complexity), WORKFLOWS.map(w => w.ssr));
+
+// ── 26-week trend: SSR rising as self-serve investment lands, while the ──────
+// average complexity of the residual (non-deflected, agent-handled) mix
+// also creeps up -- self-serve is skimming the easy calls off the top.
+const WEEKS = Array.from({ length: 26 }, (_, i) => `Wk ${i + 1}`);
+const rngT = mulberry32(909);
+const SSR_TREND = WEEKS.map((_, i) => Math.min(88, jit.call(null, overallSSR - 6 + i * 0.55, 0.03)));
+const AGENT_COMPLEXITY_TREND = WEEKS.map((_, i) => jit.call(null, overallComplexity + i * 0.45, 0.04));
+
+const tooltipBase = { backgroundColor: '#fff', titleColor: '#111827', bodyColor: '#111827', borderColor: '#e5e7eb', borderWidth: 1, padding: 10 };
+function kpiCard(label, value, sub, goodBad) {
+  const cls = goodBad === undefined ? '' : (goodBad ? 'good' : 'bad');
+  return `<div class="kpi-card"><div class="kpi-label">${label}</div><div class="kpi-value">${value}</div>${sub ? `<div class="kpi-sub kpi-delta ${cls}">${sub}</div>` : ''}</div>`;
+}
+function insightsCard(title, items) { return `<div class="insights-card"><h3>${title}</h3><ul class="insights-list">${items.map(i => `<li>${i}</li>`).join('')}</ul></div>`; }
+function readoutStrip(legend, cells) { return `<div class="readout-strip"><div class="readout-legend">${legend}</div><div class="readout-grid">${cells.map(c => `<div class="readout-cell"><div class="readout-label">${c.label}</div><div class="readout-values">${c.value}</div></div>`).join('')}</div></div>`; }
+const chartInstances = {};
+function chart(id, cfg) { if (chartInstances[id]) chartInstances[id].destroy(); chartInstances[id] = new Chart(document.getElementById(id), cfg); }
+
+function buildOverview() {
+  document.getElementById('panel-overview').innerHTML = `
+    <div class="kpi-grid">
+      ${kpiCard('Overall Self-Serve Rate', overallSSR.toFixed(1) + '%')}
+      ${kpiCard('Avg Complexity Score (agent-handled)', overallComplexity.toFixed(1) + ' / 100')}
+      ${kpiCard('High-Complexity Volume Share', highShare.toFixed(1) + '%')}
+      ${kpiCard('SSR &harr; Complexity Correlation', corr.toFixed(2), corr < 0 ? 'Negative -- harder calls self-serve less' : 'Positive -- unexpected, worth a data check', corr < 0)}
+    </div>
+    ${insightsCard('Strategic Insights', [
+      `Self-serve rate and complexity move in opposite directions across every workflow (r = ${corr.toFixed(2)}) -- the relationship is strong enough that complexity score alone is a decent proxy for "how self-serve-able is this workflow," without needing a separate deflection model.`,
+      `The four Low-complexity workflows carry ${(WORKFLOWS.filter(w=>w.tier===1).reduce((a,w)=>a+w.volume,0)/totalVolume*100).toFixed(0)}% of total volume and already self-serve at ${(WORKFLOWS.filter(w=>w.tier===1).reduce((a,w)=>a+w.ssr*w.volume,0)/WORKFLOWS.filter(w=>w.tier===1).reduce((a,w)=>a+w.volume,0)).toFixed(0)}% on average -- the remaining gap to ~90% is the single biggest lever available.`,
+      `High-complexity workflows (${highShare.toFixed(1)}% of volume) self-serve in the single digits, as expected -- these are Agent Assist / routing targets, not self-service targets. Trying to force self-serve here would likely just push customers into a repeat contact.`,
+    ])}
+    <div class="card"><h3>Self-Serve Rate vs Complexity Score, by Workflow (bubble size = volume)</h3><div class="chart-box"><canvas id="scatterChart"></canvas></div></div>
+    ${readoutStrip('Fleet-wide readout', [
+      { label: 'Overall SSR', value: overallSSR.toFixed(1) + '%' },
+      { label: 'Avg Complexity', value: overallComplexity.toFixed(1) },
+      { label: 'High-Complexity Share', value: highShare.toFixed(1) + '%' },
+      { label: 'Correlation (r)', value: corr.toFixed(2) },
+    ])}
+  `;
+  chart('scatterChart', {
+    type: 'bubble',
+    data: {
+      datasets: [1, 2, 3].map(tier => ({
+        label: TIER_LABEL[tier] + ' Complexity',
+        data: WORKFLOWS.filter(w => w.tier === tier).map(w => ({ x: w.complexity, y: w.ssr, r: Math.max(6, Math.sqrt(w.volume) / 12), _name: w.name, _vol: w.volume })),
+        backgroundColor: TIER_COLOR[tier] + '99',
+        borderColor: TIER_COLOR[tier],
+        borderWidth: 1.5,
+      })),
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top', align: 'end', labels: { font: { size: 11, weight: '600' } } },
+        tooltip: { ...tooltipBase, callbacks: { label: ctx => [`${ctx.raw._name}`, `Complexity: ${ctx.raw.x.toFixed(1)}, SSR: ${ctx.raw.y.toFixed(1)}%`, `Volume: ${ctx.raw._vol.toLocaleString()}`] } },
+      },
+      scales: {
+        x: { title: { display: true, text: 'Complexity Score (0-100)', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { color: 'rgba(0,0,0,.06)' } },
+        y: { title: { display: true, text: 'Self-Serve Rate %', color: '#6b7280' }, ticks: { color: '#6b7280', callback: v => v + '%' }, grid: { color: 'rgba(0,0,0,.06)' } },
+      },
+    },
+  });
+}
+
+function buildTrend() {
+  const first = SSR_TREND[0], last = SSR_TREND[SSR_TREND.length - 1];
+  const cFirst = AGENT_COMPLEXITY_TREND[0], cLast = AGENT_COMPLEXITY_TREND[AGENT_COMPLEXITY_TREND.length - 1];
+  document.getElementById('panel-trend').innerHTML = `
+    <div class="kpi-grid">
+      ${kpiCard('SSR, Wk 1 &rarr; Wk 26', `${first.toFixed(1)}% &rarr; ${last.toFixed(1)}%`, `▲ +${(last - first).toFixed(1)} pts`, true)}
+      ${kpiCard('Agent-Handled Complexity, Wk 1 &rarr; Wk 26', `${cFirst.toFixed(1)} &rarr; ${cLast.toFixed(1)}`, `▲ +${(cLast - cFirst).toFixed(1)} pts`, false)}
+    </div>
+    ${insightsCard('Strategic Insights', [
+      `SSR climbed ${(last - first).toFixed(1)} points over 26 weeks -- self-serve investment is clearly landing. But the average complexity of what's left for agents rose ${(cLast - cFirst).toFixed(1)} points over the same window, not by coincidence: self-serve is skimming the easiest contacts off the top, concentrating complexity in the residual queue.`,
+      `Read together, these two lines say the same story two ways: SSR alone is an incomplete success metric for the contact center -- agent-side AHT and staffing plans need to account for a harder residual mix, or gains in SSR will quietly get eaten by rising per-contact handle time.`,
+    ])}
+    <div class="card"><h3>Self-Serve Rate % vs Avg Agent-Handled Complexity -- 26-Week Trend</h3><div class="chart-box"><canvas id="trendChart"></canvas></div></div>
+    ${readoutStrip('Latest week readout', [
+      { label: 'SSR', value: last.toFixed(1) + '%' },
+      { label: 'Agent-Handled Complexity', value: cLast.toFixed(1) },
+    ])}
+  `;
+  chart('trendChart', {
+    type: 'line',
+    data: { labels: WEEKS, datasets: [
+      { label: 'Self-Serve Rate %', data: SSR_TREND, borderColor: '#0053E2', backgroundColor: '#0053E218', fill: true, borderWidth: 2.5, pointRadius: 2, tension: 0.3, yAxisID: 'y' },
+      { label: 'Avg Complexity (agent-handled)', data: AGENT_COMPLEXITY_TREND, borderColor: '#ea1100', borderWidth: 2.5, borderDash: [6, 3], pointRadius: 2, tension: 0.3, yAxisID: 'y1' },
+    ] },
+    options: {
+      responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { position: 'top', align: 'end', labels: { font: { size: 11, weight: '600' } } }, tooltip: tooltipBase },
+      scales: {
+        x: { ticks: { color: '#6b7280', font: { size: 10 }, maxTicksLimit: 13 }, grid: { display: false } },
+        y: { position: 'left', title: { display: true, text: 'SSR %', color: '#6b7280' }, ticks: { color: '#6b7280', callback: v => v + '%' }, grid: { color: 'rgba(0,0,0,.06)' } },
+        y1: { position: 'right', title: { display: true, text: 'Complexity Score', color: '#6b7280' }, ticks: { color: '#6b7280' }, grid: { display: false } },
+      },
+    },
+  });
+}
+
+function buildTier() {
+  const tierStats = [1, 2, 3].map(tier => {
+    const rows = WORKFLOWS.filter(w => w.tier === tier);
+    const vol = rows.reduce((a, w) => a + w.volume, 0);
+    const ssr = rows.reduce((a, w) => a + w.ssr * w.volume, 0) / vol;
+    return { tier, label: TIER_LABEL[tier], vol, ssr };
+  });
+  document.getElementById('panel-tier').innerHTML = `
+    <div class="card-grid-2">
+      <div class="card"><h3>Self-Serve Rate by Complexity Tier</h3><div class="chart-box"><canvas id="tierBarChart"></canvas></div></div>
+      <div class="card"><h3>Volume Share by Complexity Tier</h3><div class="chart-box"><canvas id="tierDoughnutChart"></canvas></div></div>
+    </div>
+    ${insightsCard('Strategic Insights', [
+      `SSR drops from ${tierStats[0].ssr.toFixed(1)}% (Low) to ${tierStats[1].ssr.toFixed(1)}% (Medium) to ${tierStats[2].ssr.toFixed(1)}% (High) -- a near-monotonic staircase, which is exactly the pattern you'd want to see if the complexity score is actually measuring "how hard is this to self-serve."`,
+      `Low-complexity contacts are ${(tierStats[0].vol/totalVolume*100).toFixed(0)}% of volume but still only self-serving at ${tierStats[0].ssr.toFixed(0)}%, well short of what a fully mature self-serve flow should hit -- that gap, not the High tier, is where the next SSR percentage point comes from.`,
+    ])}
+    ${readoutStrip('SSR by tier', tierStats.map(t => ({ label: t.label, value: t.ssr.toFixed(1) + '%' })))}
+  `;
+  chart('tierBarChart', {
+    type: 'bar',
+    data: { labels: tierStats.map(t => t.label), datasets: [{ label: 'SSR %', data: tierStats.map(t => t.ssr), backgroundColor: tierStats.map(t => TIER_COLOR[t.tier]) }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { ...tooltipBase, callbacks: { label: ctx => ` SSR: ${ctx.parsed.y.toFixed(1)}%` } } }, scales: { x: { ticks: { color: '#6b7280' }, grid: { display: false } }, y: { beginAtZero: true, ticks: { color: '#6b7280', callback: v => v + '%' }, grid: { color: 'rgba(0,0,0,.06)' } } } },
+  });
+  chart('tierDoughnutChart', {
+    type: 'doughnut',
+    data: { labels: tierStats.map(t => t.label), datasets: [{ data: tierStats.map(t => t.vol), backgroundColor: tierStats.map(t => TIER_COLOR[t.tier]) }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { font: { size: 11, weight: '600' } } }, tooltip: { ...tooltipBase, callbacks: { label: ctx => ` ${ctx.label}: ${((ctx.parsed/totalVolume)*100).toFixed(1)}%` } } } },
+  });
+}
+
+function buildWorkflow() {
+  const sorted = [...WORKFLOWS].sort((a, b) => a.ssr - b.ssr);
+  const bestOpportunity = [...WORKFLOWS].filter(w => w.tier === 1).sort((a, b) => a.ssr - b.ssr)[0];
+  document.getElementById('panel-workflow').innerHTML = `
+    <div class="card"><h3>Self-Serve Rate by Workflow (lowest to highest)</h3><div class="chart-box" style="height:420px"><canvas id="workflowBarChart"></canvas></div></div>
+    ${insightsCard('Strategic Insights', [
+      `<strong>${bestOpportunity.name}</strong> is the single best self-serve expansion target: it's Low complexity (score ${bestOpportunity.complexity.toFixed(1)}) but still only self-serves at ${bestOpportunity.ssr.toFixed(1)}%, well behind its Low-tier peers -- there's no complexity reason it should be lagging.`,
+      `The three lowest-SSR workflows overall are all High complexity, which is the expected and correct outcome -- the goal for those isn't higher self-serve, it's better agent routing and staffing (see the Fixit Ops / Agent Assist work this scorecard feeds into).`,
+    ])}
+    <div class="card"><h3>Workflow Detail</h3><table class="data-table">
+      <thead><tr><th>Workflow</th><th>Tier</th><th>Volume</th><th>Complexity</th><th>SSR</th></tr></thead>
+      <tbody>${sorted.map(w => `<tr><td>${w.name}</td><td><span class="tier-pill ${TIER_CLASS[w.tier]}">${TIER_LABEL[w.tier]}</span></td><td>${w.volume.toLocaleString()}</td><td>${w.complexity.toFixed(1)}</td><td>${w.ssr.toFixed(1)}%</td></tr>`).join('')}</tbody>
+    </table></div>
+  `;
+  chart('workflowBarChart', {
+    type: 'bar',
+    data: { labels: sorted.map(w => w.name), datasets: [{ label: 'SSR %', data: sorted.map(w => w.ssr), backgroundColor: sorted.map(w => TIER_COLOR[w.tier]) }] },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+      plugins: { legend: { display: false }, tooltip: { ...tooltipBase, callbacks: { label: ctx => ` SSR: ${ctx.parsed.x.toFixed(1)}%` } } },
+      scales: { x: { beginAtZero: true, ticks: { color: '#6b7280', callback: v => v + '%' }, grid: { color: 'rgba(0,0,0,.06)' } }, y: { ticks: { color: '#6b7280', font: { size: 10 } }, grid: { display: false } } },
+    },
+  });
+}
+
+document.getElementById('tabs').addEventListener('click', e => {
+  const btn = e.target.closest('.tab-btn');
+  if (!btn) return;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+});
+
+buildOverview();
+buildTrend();
+buildTier();
+buildWorkflow();
+</script>
+</body>
+</html>

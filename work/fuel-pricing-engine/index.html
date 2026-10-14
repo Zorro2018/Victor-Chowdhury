@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creative Solutions: The Smart Fuel Pricing Engine</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --navy: #001E60; --navy2: #16233F; --accent: #FFC220; --blue: #0053E2;
+    --bg: #F7F8FA; --card-bd: #E4E7ED; --text: #1F2937; --muted: #6B7280;
+    --good: #1E8E3E;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #fff; color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 1.5rem; }
+  h1, h2, h3 { color: var(--navy); font-weight: 800; }
+  a { color: var(--blue); }
+
+  /* Hero */
+  .hero { background: linear-gradient(135deg, #001E60 0%, #003087 55%, #001E60 100%); color: #fff; padding: 3.2rem 0 2.6rem; }
+  .hero .eyebrow { text-transform: uppercase; letter-spacing: .16em; font-size: .72rem; font-weight: 800; color: var(--accent); margin-bottom: .8rem; }
+  .hero h1 { color: #fff; font-size: 2.1rem; margin: 0 0 .7rem; }
+  .hero p { color: rgba(255,255,255,.85); max-width: 680px; margin: 0 0 1rem; font-size: 1rem; }
+  .hero .byline { font-size: .82rem; color: rgba(255,255,255,.65); }
+
+  section { padding: 2.6rem 0; border-bottom: 1px solid var(--card-bd); }
+  section:last-of-type { border-bottom: none; }
+  .kicker { text-transform: uppercase; letter-spacing: .14em; font-size: .7rem; font-weight: 800; color: var(--blue); margin-bottom: .5rem; }
+  .lede { font-size: 1.05rem; color: #374151; max-width: 760px; }
+  .callout { background: #FFFBEA; border-left: 4px solid var(--accent); border-radius: 8px; padding: 1rem 1.3rem; margin: 1.2rem 0; font-size: .96rem; }
+  .callout b { color: var(--navy); }
+  .quote { font-style: italic; color: var(--navy2); border-left: 3px solid var(--card-bd); padding-left: 1rem; margin: 1rem 0; }
+
+  /* Variable cards */
+  .var-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin: 1.2rem 0; }
+  @media (max-width: 700px) { .var-grid { grid-template-columns: 1fr; } }
+  .var-card { border: 1px solid var(--card-bd); border-radius: 10px; padding: 1.1rem 1.2rem; }
+  .var-card .x { font-size: 1.6rem; font-weight: 800; color: var(--blue); }
+  .var-card p { font-size: .88rem; color: var(--muted); margin: .4rem 0 0; }
+
+  /* Workflow diagram */
+  .flow { display: flex; flex-wrap: wrap; gap: 0; align-items: stretch; margin: 1.8rem 0 1rem; position: relative; }
+  .flow-step { flex: 1 1 150px; background: #fff; border: 1px solid var(--card-bd); border-radius: 12px; padding: 1rem .9rem; text-align: center; position: relative; margin: 0 .35rem .7rem; }
+  .flow-step .n { width: 30px; height: 30px; border-radius: 50%; background: var(--navy); color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 0 auto .5rem; font-size: .85rem; }
+  .flow-step .ic { font-size: 1.5rem; margin-bottom: .3rem; }
+  .flow-step h4 { margin: 0 0 .3rem; font-size: .82rem; font-weight: 800; color: var(--navy); text-transform: uppercase; letter-spacing: .04em; }
+  .flow-step p { font-size: .78rem; color: var(--muted); margin: 0; }
+  .flow-arrow { display: flex; align-items: center; justify-content: center; color: var(--card-bd); font-size: 1.3rem; flex: 0 0 20px; }
+  .flow-group { flex: 3 1 480px; display: flex; flex-wrap: wrap; border: 2px dashed var(--accent); border-radius: 14px; padding: 1.6rem .15rem .15rem; margin: 0 .35rem .7rem; position: relative; }
+  .flow-group-label { position: absolute; top: -12px; left: 14px; background: #fff; padding: 0 10px; font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--navy); }
+  .flow-group .flow-step { margin: 0 .35rem .5rem; }
+  .flow-track { position: relative; height: 3px; background: var(--card-bd); margin: -.3rem 8px 1.4rem; border-radius: 2px; overflow: hidden; }
+  .flow-track .pulse { position: absolute; top: -3.5px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px 2px rgba(255,194,32,.6); animation: travel 4s linear infinite; }
+  @keyframes travel { 0% { left: -2%; opacity: 0; } 8% { opacity: 1; } 92% { opacity: 1; } 100% { left: 100%; opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .flow-track .pulse { animation: none; left: 50%; } }
+  .timer-badge { display: inline-flex; align-items: center; gap: .4rem; background: var(--navy); color: #fff; font-weight: 800; font-size: .78rem; padding: .35rem .8rem; border-radius: 999px; margin-top: .4rem; }
+
+  /* Report mockup */
+  .disclaimer { background: #FEF2F2; border: 1px solid #FCA5A5; color: #7f1d1d; font-size: .82rem; padding: .7rem 1rem; border-radius: 8px; margin: 1rem 0 1.4rem; }
+  .mock { border: 1px solid var(--card-bd); border-radius: 14px; overflow: hidden; box-shadow: 0 10px 30px -18px rgba(0,0,0,.25); }
+  .mock-head { background: #fff; padding: 1rem 1.3rem; display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid var(--card-bd); flex-wrap: wrap; gap: 1rem; }
+  .mock-head h3 { margin: 0; font-size: 1.3rem; }
+  .mock-head .spark { color: var(--blue); }
+  .mock-badge { background: #F3F4F6; border: 1px solid var(--card-bd); border-radius: 8px; padding: .3rem 1rem; text-align: center; }
+  .mock-badge.breach { background: #FEF2F2; border-color: #FCA5A5; }
+  .mock-badge .lbl { font-size: .68rem; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .mock-badge .num { font-size: 1.4rem; font-weight: 800; color: var(--navy); }
+  .mock-badge.breach .num { color: #991B1B; }
+  .mock-strip { display: flex; flex-wrap: wrap; gap: 1.4rem; padding: .8rem 1.3rem; background: #FAFBFC; font-size: .8rem; border-bottom: 1px solid var(--card-bd); }
+  .mock-strip .f { text-align: center; }
+  .mock-strip .f .l { color: var(--muted); font-size: .68rem; text-transform: uppercase; font-weight: 700; }
+  .mock-strip .f .v { font-weight: 700; color: var(--text); }
+  .mock-body { padding: 1.2rem 1.3rem; }
+  .mock-grid5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: .8rem; margin-bottom: 1.2rem; text-align: center; }
+  @media (max-width: 700px) { .mock-grid5 { grid-template-columns: repeat(2, 1fr); } }
+  .stat-tile { border: 1px solid var(--card-bd); border-radius: 10px; padding: .7rem .5rem; }
+  .stat-tile.hot { background: #FEF2F2; border-color: #FCA5A5; }
+  .stat-tile .l { font-size: .68rem; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .stat-tile .v { font-size: 1.15rem; font-weight: 800; color: var(--navy); }
+  .stat-tile.hot .v { color: #991B1B; }
+  .mock-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 700px) { .mock-grid2 { grid-template-columns: 1fr; } }
+  .chart-card { border: 1px solid var(--card-bd); border-radius: 10px; padding: .9rem; }
+  .chart-card h4 { margin: 0 0 .6rem; font-size: .82rem; color: var(--navy2); }
+  .chart-box { position: relative; height: 210px; }
+
+  /* Comparison table */
+  table.compare { width: 100%; border-collapse: collapse; margin: 1.2rem 0; font-size: .88rem; }
+  table.compare th { text-align: left; padding: .6rem .8rem; background: var(--navy); color: #fff; font-size: .78rem; }
+  table.compare td { padding: .65rem .8rem; border-bottom: 1px solid var(--card-bd); }
+  table.compare td.bad { color: #991B1B; }
+  table.compare td.good { color: var(--good); font-weight: 700; }
+  table.compare tr:nth-child(even) td { background: #FAFBFC; }
+
+  .impact-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 1.2rem 0; }
+  @media (max-width: 800px) { .impact-grid { grid-template-columns: repeat(2, 1fr); } }
+  .impact-tile { border: 1px solid var(--card-bd); border-radius: 12px; padding: 1.1rem .9rem; text-align: center; }
+  .impact-tile .v { font-size: 1.5rem; font-weight: 800; color: var(--navy); }
+  .impact-tile .l { font-size: .76rem; color: var(--muted); margin-top: .3rem; }
+
+  footer { background: var(--navy2); color: rgba(255,255,255,.7); padding: 1.6rem 0; font-size: .78rem; }
+  footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .6rem; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Field-Tested Innovation &middot; Fuel &amp; Convenience</div>
+    <h1>Creative Solutions: The Smart Fuel Pricing Engine</h1>
+    <p>How a live crude-market feed, a third-party competitor pricing service, and two configurable variables replaced a manual, once- or twice-a-day price check with a system that watches, quantifies, and alerts &mdash; continuously.</p>
+    <div class="byline">Victor Chowdhury &middot; Designed &amp; built in 2020</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- PROBLEM -->
+  <section id="problem">
+    <div class="kicker">The Problem</div>
+    <h2>Competitive pricing was a manual, once-a-day guess</h2>
+    <p class="lede">Retail fuel margins move on small numbers &mdash; a few cents a gallon, multiplied across thousands of gallons a day, per site. Before this tool existed, the pricing team's read on the competitive landscape came from manually checking nearby stations, with no fixed definition of "nearby" and no consistent trigger for when a move was actually worth reacting to.</p>
+    <p>Nobody was doing this badly on purpose &mdash; there just wasn't a system watching continuously. A competitor could move their price at 6am, and the first anyone at Walmart Fuel &amp; Convenience found out was whenever someone next happened to look.</p>
+  </section>
+
+  <!-- CONSTRAINT -->
+  <section id="constraint">
+    <div class="kicker">The Constraint Nobody Was Naming</div>
+    <h2>A local price move means nothing without market context</h2>
+    <p class="lede">Reacting correctly to a competitor's price change required answering two questions at once, and the manual process could only ever answer one of them:</p>
+    <div class="callout">
+      <b>1. Is this a real competitive move, or just crude oil drifting?</b> A station's price can shift simply because the broader crude market moved that day &mdash; without a live WTI/Brent backdrop, every local signal had to be judged by feel.<br><br>
+      <b>2. Which stations even count as "nearby"?</b> Manual checks had no consistent radius &mdash; different people, different days, different definitions of the competitive set.<br><br>
+      <b>3. Is this move even worth reacting to today?</b> Without a dollar estimate attached, every alert looked equally urgent &mdash; or equally easy to postpone.
+    </div>
+    <p class="quote">The pricing team didn't need someone checking more often. It needed something that never stopped checking at all.</p>
+  </section>
+
+  <!-- SOLUTION -->
+  <section id="solution">
+    <div class="kicker">The Fix</div>
+    <h2>Two variables, a live feed, and an always-on engine</h2>
+    <p class="lede">The engine replaced the manual scan with two inputs the pricing team controlled directly, checked continuously against a live competitor feed, with a market backdrop and a dollar estimate attached to every alert.</p>
+
+    <div class="var-grid">
+      <div class="var-card"><div class="x">X &mdash; Radius</div><p>The competitive radius around a given site &mdash; defines which competitor stations count as "in the set" for that location.</p></div>
+      <div class="var-card"><div class="x">Y &mdash; Price Gap</div><p>The tolerance threshold, in cents (e.g. 8&cent;, 10&cent;, 12&cent;), a competitor's price had to move &mdash; relative to the site's current price &mdash; before it counted as a breach.</p></div>
+    </div>
+
+    <h3 style="margin-top:2rem;">How it works</h3>
+    <div class="flow">
+      <div class="flow-step"><div class="n">1</div><div class="ic">&#128225;</div><h4>Ingest</h4><p>WTI + Brent (macro context) and Kalibrate competitor prices (local layer), continuously</p></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step"><div class="n">2</div><div class="ic">&#128295;</div><h4>ETL</h4><p>Combines those feeds with Walmart's own fuel pricing, traffic &amp; gallons-sold data into one dataset</p></div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-group">
+        <div class="flow-group-label">BI Layer</div>
+        <div class="flow-step"><div class="n">3</div><div class="ic">&#128207;</div><h4>Evaluate</h4><p>For each site, check competitors within radius X against the site's current price</p></div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step"><div class="n">4</div><div class="ic">&#128276;</div><h4>Detect Breach</h4><p>Has any competitor's gap exceeded threshold Y since the last check?</p></div>
+        <div class="flow-arrow">&rarr;</div>
+        <div class="flow-step"><div class="n">5</div><div class="ic">&#128176;</div><h4>Quantify</h4><p>Estimate the $ cost of not repricing, using site traffic &amp; gallons sold</p></div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step"><div class="n">6</div><div class="ic">&#128241;</div><h4>Alert</h4><p>Power BI dashboard + mobile push, naming the competitor and the delta</p></div>
+    </div>
+    <div class="flow-track"><div class="pulse"></div></div>
+    <div style="text-align:center;">
+      <span class="timer-badge">&#9201; Running live: 24/7, not a periodic scan</span>
+    </div>
+    <p style="margin-top:1.4rem;">Every alert was self-explanatory: which competitor moved, by how much, in which direction, at which site, and roughly what leaving it unaddressed was costing per day &mdash; so the pricing team could act, and prioritize across sites, without first going to verify the situation themselves.</p>
+  </section>
+
+  <!-- EXAMPLE: MOCK ALERT -->
+  <section id="example">
+    <div class="kicker">Worked Example</div>
+    <h2>What an alert actually looked like</h2>
+    <p class="lede">Below is a recreation of the shape of a real alert, so the mechanism is concrete rather than just described.</p>
+    <div class="disclaimer">
+      <b>Note on the data shown below:</b> the layout and metric types reflect how the tool actually worked. The specific site number, prices, and volumes are illustrative, not real production figures.
+    </div>
+
+    <div class="mock">
+      <div class="mock-head">
+        <h3><span class="spark">Fuel &amp; Convenience</span> | Price Breach Alert</h3>
+        <div class="mock-badge breach"><div class="lbl">Site</div><div class="num">1214</div></div>
+      </div>
+      <div class="mock-strip">
+        <div class="f"><div class="l">Radius (X)</div><div class="v">3.0 mi</div></div>
+        <div class="f"><div class="l">Threshold (Y)</div><div class="v">10&cent;</div></div>
+        <div class="f"><div class="l">WTI</div><div class="v">$78.40</div></div>
+        <div class="f"><div class="l">Brent</div><div class="v">$82.15</div></div>
+        <div class="f"><div class="l">Competitor</div><div class="v">Regional Fuel Co.</div></div>
+      </div>
+      <div class="mock-body">
+        <div class="mock-grid5">
+          <div class="stat-tile"><div class="l">Our Price</div><div class="v">$2.99</div></div>
+          <div class="stat-tile"><div class="l">Competitor Price</div><div class="v">$2.87</div></div>
+          <div class="stat-tile hot"><div class="l">Gap (breach)</div><div class="v">12&cent;</div></div>
+          <div class="stat-tile"><div class="l">Est. Daily Gallons</div><div class="v">4,200</div></div>
+          <div class="stat-tile hot"><div class="l">Est. Daily Impact</div><div class="v">$504</div></div>
+        </div>
+
+        <div class="mock-grid2">
+          <div class="chart-card">
+            <h4>Price Tracking &mdash; Us vs. Nearest Competitor (14 days, illustrative)</h4>
+            <div class="chart-box"><canvas id="priceChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <h4>Open Alerts Ranked by Estimated Daily $ Impact (illustrative)</h4>
+            <div class="chart-box"><canvas id="impactChart"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARISON -->
+  <section id="comparison">
+    <div class="kicker">Why This Beat The Manual Process</div>
+    <h2>Same market, fundamentally different failure mode</h2>
+    <table class="compare">
+      <thead><tr><th></th><th>Manual competitor check</th><th>Smart Pricing Engine</th></tr></thead>
+      <tbody>
+        <tr><td>Monitoring frequency</td><td class="bad">A few times a day, whenever someone checked</td><td class="good">24/7, continuous</td></tr>
+        <tr><td>Definition of "nearby"</td><td class="bad">Inconsistent &mdash; varied by person and day</td><td class="good">Fixed, configurable radius (X)</td></tr>
+        <tr><td>Market context</td><td class="bad">Judged by feel</td><td class="good">Live WTI + Brent backdrop</td></tr>
+        <tr><td>Urgency of an alert</td><td class="bad">All moves looked equally worth reacting to (or not)</td><td class="good">Every breach comes with an estimated $ impact</td></tr>
+        <tr><td>Where the alert reaches you</td><td class="bad">Wherever you happened to be looking</td><td class="good">Power BI dashboard + mobile push</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- IMPACT -->
+  <section id="impact">
+    <div class="kicker">Impact</div>
+    <h2>What changed</h2>
+    <div class="impact-grid">
+      <div class="impact-tile"><div class="v">24/7</div><div class="l">Continuous monitoring, not a periodic manual scan</div></div>
+      <div class="impact-tile"><div class="v">2 + 1</div><div class="l">Live feeds combined: WTI, Brent &amp; Kalibrate competitor pricing</div></div>
+      <div class="impact-tile"><div class="v">$-Quantified</div><div class="l">Every alert came with an estimated cost of inaction, not just a raw price gap</div></div>
+      <div class="impact-tile"><div class="v">First-of-its-kind</div><div class="l">The first automated, self-alerting pricing tool in Walmart Fuel &amp; Convenience's history</div></div>
+    </div>
+    <p class="lede">The bigger shift wasn't just automation for its own sake &mdash; it was turning "a competitor changed their price" into "here's what that's costing us today, at this site, and here's how it ranks against every other open alert." That's what let a small pricing team stay ahead of a market that was never going to wait for a manual check.</p>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>Created by Victor Chowdhury &middot; Fuel &amp; Convenience</span>
+    <span>Illustrative example (Site 1214) &mdash; values fictionalized; WTI and Brent are public crude oil benchmarks, Kalibrate is a third-party competitive fuel pricing provider</span>
+  </div>
+</footer>
+
+<script>
+  const tooltipBase = { backgroundColor: '#fff', titleColor: '#111827', bodyColor: '#111827', borderColor: '#e5e7eb', borderWidth: 1, padding: 8 };
+
+  const days = ['D1','D2','D3','D4','D5','D6','D7','D8','D9','D10','D11','D12','D13','D14'];
+  new Chart(document.getElementById('priceChart'), {
+    type: 'line',
+    data: {
+      labels: days,
+      datasets: [
+        { label: 'Our Price', data: [2.95,2.95,2.96,2.96,2.97,2.97,2.98,2.98,2.98,2.99,2.99,2.99,2.99,2.99], borderColor: '#16233F', borderWidth: 2, pointRadius: 0, tension: .3 },
+        { label: 'Competitor', data: [2.96,2.94,2.95,2.93,2.94,2.92,2.93,2.91,2.90,2.89,2.88,2.87,2.87,2.87], borderColor: '#E4772E', borderWidth: 2, pointRadius: 0, tension: .3 },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 10 } }, tooltip: tooltipBase },
+      scales: { x: { ticks: { color: '#6b7280', font: { size: 9 } }, grid: { display: false } }, y: { ticks: { color: '#6b7280', callback: v => '$' + v.toFixed(2) }, grid: { color: 'rgba(0,0,0,.06)' } } },
+    },
+  });
+
+  new Chart(document.getElementById('impactChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Site 1214', 'Site 0892', 'Site 2207', 'Site 0451'],
+      datasets: [{ data: [504, 380, 265, 140], backgroundColor: '#0053E2', borderRadius: 4 }],
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...tooltipBase, callbacks: { label: c => ` $${c.parsed.x}/day estimated impact` } } },
+      scales: { x: { ticks: { color: '#6b7280', callback: v => '$' + v }, grid: { color: 'rgba(0,0,0,.06)' } }, y: { ticks: { color: '#6b7280' }, grid: { display: false } } },
+    },
+  });
+</script>
+</body>
+</html>

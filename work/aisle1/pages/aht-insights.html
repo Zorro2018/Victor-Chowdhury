@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AHT Insights - AISLE One Demo</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<div id="app-header"></div>
+<div id="filter-bar"></div>
+
+<div id="app-sidebar"></div>
+<div class="content">
+
+        <div class="hero-kpi" id="hero-kpi"></div>
+
+        <div class="section-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:4px;">
+                <h2 style="margin:0;">AHT Trend - Weekly</h2>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                    <div class="view-toggle" id="mode-toggle">
+                        <button class="btn btn-sm active" data-mode="channel">By Channel</button>
+                        <button class="btn btn-sm" data-mode="vertical">By Vertical</button>
+                    </div>
+                    <select class="filter-select" id="secondary-select"></select>
+                </div>
+            </div>
+
+            <div class="range-slider" id="range-slider">
+                <div class="range-slider__labels">
+                    <span id="rs-start-label"></span>
+                    <span class="rs-title">Time Range</span>
+                    <span id="rs-end-label"></span>
+                </div>
+                <div class="range-slider__track-wrap">
+                    <div class="range-slider__track" id="rs-track"></div>
+                    <input type="range" id="rs-start" min="0" value="0">
+                    <input type="range" id="rs-end" min="0" value="0">
+                </div>
+            </div>
+
+            <div class="chart-wrap"><canvas id="aht-chart"></canvas></div>
+        </div>
+
+    </div>
+
+<div id="app-footer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="../assets/data.js"></script>
+<script src="../assets/search.js"></script>
+<script src="../assets/nav.js"></script>
+<script>
+    CES_NAV.renderHeader({ activeHref: "pages/aht-insights.html", title: "AHT Insights", liveBadge: true });
+    CES_NAV.renderFooter();
+
+    const DEFAULT_FILTERS = { fy: "all", vertical: "all" };
+    let filters = { ...DEFAULT_FILTERS };
+    let chart = null;
+    let mode = "channel";
+    let secondary = "all";
+    let rangeStart = 0, rangeEnd = 0;
+
+    function opts(arr, allLabel) { return [{ value: "all", label: allLabel }, ...arr.map(v => ({ value: v, label: v }))]; }
+    function filterDefs() {
+        const f = CES.FILTER_OPTIONS;
+        return [
+            { id: "fy", label: "Fiscal Year", value: filters.fy, options: opts(f.fiscal_years, "All Years") },
+            { id: "vertical", label: "Vertical", value: filters.vertical, options: opts(f.verticals, "All Verticals") },
+        ];
+    }
+
+    function renderHeroKpi() {
+        const kpi = CES.getAhtKpi(filters);
+        document.getElementById("hero-kpi").innerHTML = `
+            <div class="hero-kpi__label">Avg AHT (Overall)</div>
+            <div class="hero-kpi__value">${kpi.overall}s</div>
+            <div class="hero-kpi__sub">Seconds - all channels combined</div>
+            <div class="hero-kpi__details">
+                <div class="hero-kpi__detail"><span class="hero-kpi__detail-label" style="color:#FFC220;">Chat</span><span class="hero-kpi__detail-value">${kpi.chat}s</span></div>
+                <div class="hero-kpi__detail"><span class="hero-kpi__detail-label" style="color:#16A34A;">Email</span><span class="hero-kpi__detail-value">${kpi.email}s</span></div>
+                <div class="hero-kpi__detail"><span class="hero-kpi__detail-label" style="color:#E06C00;">Offline</span><span class="hero-kpi__detail-value">${kpi.offline}s</span></div>
+            </div>
+        `;
+    }
+
+    function populateSecondarySelect() {
+        const sel = document.getElementById("secondary-select");
+        if (mode === "channel") {
+            sel.innerHTML = `<option value="all">All Verticals</option>` + CES.VERTICALS.map(v => `<option value="${v}">${v}</option>`).join("");
+            sel.setAttribute("aria-label", "Filter by vertical");
+        } else {
+            sel.innerHTML = `<option value="all">All Channels</option><option value="chat">Chat</option><option value="email">Email</option><option value="offline">Offline</option>`;
+            sel.setAttribute("aria-label", "Filter by channel");
+        }
+        secondary = "all";
+        sel.value = "all";
+    }
+
+    function currentSeries() {
+        return mode === "channel"
+            ? CES.getAhtWeeklySeries("channel", secondary, "all")
+            : CES.getAhtWeeklySeries("vertical", "all", secondary);
+    }
+
+    function weekToMonthLabel(w) { return w || ""; }
+
+    function renderRangeSlider(weeks) {
+        const max = weeks.length - 1;
+        document.getElementById("rs-start").max = max;
+        document.getElementById("rs-end").max = max;
+        if (rangeEnd === 0 || rangeEnd > max) rangeEnd = max;
+        document.getElementById("rs-start").value = rangeStart;
+        document.getElementById("rs-end").value = rangeEnd;
+        updateRangeVisuals(weeks);
+    }
+
+    function updateRangeVisuals(weeks) {
+        const max = Math.max(weeks.length - 1, 0);
+        const startPct = max > 0 ? (rangeStart / max) * 100 : 0;
+        const endPct = max > 0 ? (rangeEnd / max) * 100 : 100;
+        document.getElementById("rs-track").style.background =
+            `linear-gradient(to right, var(--card-bd) ${startPct}%, var(--brand-2) ${startPct}%, var(--brand-2) ${endPct}%, var(--card-bd) ${endPct}%)`;
+        document.getElementById("rs-start-label").textContent = weekToMonthLabel(weeks[rangeStart]);
+        document.getElementById("rs-end-label").textContent = weekToMonthLabel(weeks[rangeEnd]);
+    }
+
+    function renderChart() {
+        const { weeks, series } = currentSeries();
+        renderRangeSlider(weeks);
+        const slicedWeeks = weeks.slice(rangeStart, rangeEnd + 1);
+        const ctx = document.getElementById("aht-chart");
+        if (chart) chart.destroy();
+        chart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: slicedWeeks,
+                datasets: series.map(s => ({
+                    label: s.label, data: s.data.slice(rangeStart, rangeEnd + 1),
+                    borderColor: s.color, backgroundColor: s.color + "22",
+                    tension: .3, fill: false, pointRadius: 2, pointBackgroundColor: s.color,
+                })),
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: "bottom" } },
+                scales: { y: { ticks: { callback: v => `${v}s` } } },
+            },
+        });
+    }
+
+    function render() { renderHeroKpi(); renderChart(); }
+
+    function wireFilterBar() {
+        CES_NAV.renderFilterBar(
+            document.getElementById("filter-bar"), filterDefs(),
+            (id, value) => { filters[id] = value; render(); },
+            () => { filters = { ...DEFAULT_FILTERS }; wireFilterBar(); render(); },
+            `<button class="btn btn-primary" id="refresh-btn">Refresh</button>`
+        );
+        document.getElementById("refresh-btn").addEventListener("click", render);
+    }
+
+    document.getElementById("mode-toggle").addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-mode]");
+        if (!btn) return;
+        document.querySelectorAll("#mode-toggle [data-mode]").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        mode = btn.dataset.mode;
+        rangeStart = 0; rangeEnd = 0;
+        populateSecondarySelect();
+        renderChart();
+    });
+
+    document.getElementById("secondary-select").addEventListener("change", (e) => {
+        secondary = e.target.value;
+        renderChart();
+    });
+
+    document.getElementById("rs-start").addEventListener("input", (e) => {
+        rangeStart = Math.min(parseInt(e.target.value, 10), rangeEnd - 1);
+        document.getElementById("rs-start").value = rangeStart;
+        renderChart();
+    });
+    document.getElementById("rs-end").addEventListener("input", (e) => {
+        rangeEnd = Math.max(parseInt(e.target.value, 10), rangeStart + 1);
+        document.getElementById("rs-end").value = rangeEnd;
+        renderChart();
+    });
+
+    populateSecondarySelect();
+    wireFilterBar();
+    render();
+</script>
+</body>
+</html>

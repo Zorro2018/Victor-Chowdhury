@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intelligent Retail Lab: From Faster Checkout to Smarter Shrink</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --navy: #001E60; --navy2: #16233F; --accent: #FFC220; --blue: #0053E2;
+    --bg: #F7F8FA; --card-bd: #E4E7ED; --text: #1F2937; --muted: #6B7280; --good: #1E8E3E; --bad: #991B1B;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #fff; color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 0 1.5rem; }
+  h1, h2, h3 { color: var(--navy); font-weight: 800; }
+  section { padding: 2.6rem 0; border-bottom: 1px solid var(--card-bd); }
+  section:last-of-type { border-bottom: none; }
+  .kicker { text-transform: uppercase; letter-spacing: .14em; font-size: .7rem; font-weight: 800; color: var(--blue); margin-bottom: .5rem; }
+  .lede { font-size: 1.05rem; color: #374151; max-width: 760px; }
+  .disclaimer { background: #FEF2F2; border: 1px solid #FCA5A5; color: #7f1d1d; font-size: .82rem; padding: .7rem 1rem; border-radius: 8px; margin: 1rem 0 1.4rem; }
+  .exhibit-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 700; margin-bottom: .4rem; }
+
+  .hero { background: linear-gradient(135deg, #001E60 0%, #003087 55%, #001E60 100%); color: #fff; padding: 3.2rem 0 2.6rem; }
+  .hero .eyebrow { text-transform: uppercase; letter-spacing: .16em; font-size: .72rem; font-weight: 800; color: var(--accent); margin-bottom: .8rem; }
+  .hero h1 { color: #fff; font-size: 1.9rem; margin: 0 0 .7rem; }
+  .hero p { color: rgba(255,255,255,.85); max-width: 700px; margin: 0 0 1rem; font-size: 1rem; }
+  .hero .byline { font-size: .82rem; color: rgba(255,255,255,.65); }
+
+  .project-tag { display: inline-block; background: var(--navy); color: #fff; font-size: .68rem; font-weight: 800; padding: .25rem .7rem; border-radius: 999px; text-transform: uppercase; letter-spacing: .04em; margin-bottom: .6rem; }
+  .project-tag.ap { background: #7C2D12; }
+
+
+  .macro-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin: 1.2rem 0; }
+  @media (max-width: 700px) { .macro-grid { grid-template-columns: 1fr; } }
+  .macro-card { border: 1px solid var(--card-bd); border-radius: 10px; padding: .9rem 1rem; }
+  .macro-card .cat { font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--blue); margin-bottom: .35rem; }
+  .macro-card p { margin: 0; font-size: .86rem; color: #374151; }
+
+  .chart-card { border: 1px solid var(--card-bd); border-radius: 10px; padding: 1rem; margin: 1.2rem 0; }
+  .chart-card h4 { margin: 0 0 .6rem; font-size: .85rem; color: var(--navy2); }
+  .chart-box { position: relative; height: 280px; }
+  .chart-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 800px) { .chart-row { grid-template-columns: 1fr; } }
+
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 1.2rem 0; }
+  @media (max-width: 800px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+  .kpi-tile { border: 1px solid var(--card-bd); border-radius: 12px; padding: 1rem .9rem; text-align: center; }
+  .kpi-tile .v { font-size: 1.35rem; font-weight: 800; color: var(--navy); }
+  .kpi-tile .l { font-size: .72rem; color: var(--muted); margin-top: .3rem; }
+
+  table.stat-table { width: 100%; border-collapse: collapse; font-size: .84rem; margin: 1rem 0; }
+  table.stat-table th { text-align: left; padding: .5rem .7rem; background: var(--navy2); color: #fff; font-size: .74rem; text-transform: uppercase; letter-spacing: .03em; }
+  table.stat-table td { padding: .55rem .7rem; border-bottom: 1px solid var(--card-bd); }
+  table.stat-table tr:nth-child(even) td { background: #FAFBFC; }
+
+  footer { background: var(--navy2); color: rgba(255,255,255,.7); padding: 1.6rem 0; font-size: .78rem; }
+  footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .6rem; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Intelligent Retail Lab (IRL) &middot; Computer Vision in Production Stores</div>
+    <h1>From Faster Checkout to Smarter Shrink</h1>
+    <p>The Intelligent Retail Lab wires a store with overhead cameras and shelf sensors to see, in real time, what's actually happening on the sales floor. My work sat at the intersection of two very different questions the same camera network could answer: how do we make self-checkout faster, and how do we catch loss without slowing anyone down?</p>
+    <div class="byline">Created by Victor Chowdhury &middot; illustrative example, all figures altered for this demo</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="disclaimer" style="margin-top:1.6rem;">
+    <b>Note on this write-up:</b> every dollar figure, percentage, store count, and location reference below has been altered from the real program data. The two product photos are generic, non-confidential concept renders of self-checkout hardware &mdash; no real customer footage, store camera imagery, or store-identifying detail appears anywhere on this page.
+  </div>
+
+  <!-- PROJECT GULFSTREAM -->
+  <section id="gulfstream">
+    <span class="project-tag">Project 1</span>
+    <h2>Project Gulfstream: Designing the Next-Gen Self-Checkout</h2>
+    <p class="lede">Self-checkout is supposed to be the fast lane. Too often it isn't. Gulfstream set out to figure out exactly where the seconds were going &mdash; not by guessing, but by reviewing thousands of real transactions frame by frame &mdash; and to use that behavioral evidence to decide what technology actually belongs in the next-generation unit: Digimarc digital watermarking, multi-signal computer vision item recognition, or RFID.</p>
+
+    <h3>The method: watch, time, and quantify</h3>
+    <p>Rather than relying on anecdote, the team reviewed CCTV footage across multiple stores &mdash; scan-by-scan, tender-by-tender &mdash; and timed every phase of a self-checkout transaction: item scanning, cart placement, bagging, and payment. Roughly 1,600 individual item scans were reviewed in detail, averaging just under 20 seconds each end to end, with wide variance depending on the technology and the customer's behavior.</p>
+
+    <div class="chart-card">
+      <h4>Per-Item Scan Time by Checkout Technology (illustrative, values altered)</h4>
+      <div class="chart-box"><canvas id="scanSpeedChart"></canvas></div>
+    </div>
+    <p>The pattern was consistent across every test basket: technologies that don't require a customer to find and align a barcode &mdash; digital watermarking and multi-signal computer vision &mdash; cut per-item scan time substantially versus a legacy UPC-only scanner, and virtually eliminated the "hunting for the barcode" behavior that dominated the slow-scan clips.</p>
+
+    <h3>What's actually slowing scanning down</h3>
+    <p>Timing 1,600+ item scans only tells you <i>that</i> something is slow. Tagging every scan with a specific behavior is what tells you what to fix. Bagging mechanics, not the scanner itself, turned out to be the single biggest driver of slow scans.</p>
+    <div class="chart-row">
+      <div class="chart-card">
+        <h4>Top Causes of Slow Item Scans (illustrative, values altered)</h4>
+        <div class="chart-box"><canvas id="scanIssueChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h4>Item Scan Time Distribution, ~1,600 Scans Reviewed (illustrative, values altered)</h4>
+        <div class="chart-box"><canvas id="scanDistChart"></canvas></div>
+      </div>
+    </div>
+
+    <h3>Tender time: where the seconds actually go</h3>
+    <p>This is where the deepest data lived. Every debit and credit tender was broken into its individual micro-phases &mdash; button press, card insert, PIN or cash-back prompt, receipt selection, receipt print &mdash; timed independently, so the question shifted from "why is tender slow" to "which specific phase of tender is slow, and for which payment path."</p>
+
+    <div class="chart-card">
+      <h4>Tender Time by Micro-Phase: Debit (No PIN) vs. Debit (PIN) vs. Credit (illustrative, values altered)</h4>
+      <div class="chart-box"><canvas id="tenderPhaseChart"></canvas></div>
+    </div>
+    <p>Credit and PIN-required debit both run noticeably longer than PIN-free debit &mdash; but not because customers are slower with those cards. Each path simply has one extra prompt phase baked into the flow, and one single phase (the card-reader response window) is consistently the largest single contributor to total tender time, regardless of card type.</p>
+
+    <div class="chart-row">
+      <div class="chart-card">
+        <h4>How Customers Activate Tender (illustrative, values altered)</h4>
+        <div class="chart-box"><canvas id="tenderMethodChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h4>Top Behaviors Behind Tender Times &gt;60s (illustrative, values altered)</h4>
+        <div class="chart-box"><canvas id="tenderDelayChart"></canvas></div>
+      </div>
+    </div>
+    <p>Three of every four tender events start the same way &mdash; touching "pay" on screen &mdash; so that's the path any redesign has to optimize first. But among the transactions that ran long, the story flips almost entirely to customer behavior: going through a wallet or purse, and attempting multiple payment methods, together account for roughly two-thirds of every tender event that crossed 60 seconds.</p>
+
+    <div class="exhibit-label">Compounding Friction: Mode, PIN, Tender Count & Cash Back (illustrative, values altered)</div>
+    <table class="stat-table">
+      <thead><tr><th>Mode</th><th>PIN Prompt</th><th>Tender Count</th><th>Cash Back</th><th>Avg. Tender Time</th></tr></thead>
+      <tbody>
+        <tr><td>Card Only</td><td>Not Required</td><td>Single</td><td>No</td><td>30.5s</td></tr>
+        <tr><td>Card Only</td><td>Not Required</td><td>Multiple</td><td>Yes</td><td>47.2s</td></tr>
+        <tr><td>Normal</td><td>Required</td><td>Single</td><td>No</td><td>44.8s</td></tr>
+        <tr><td>Normal</td><td>Required</td><td>Multiple</td><td>Yes</td><td>69.7s</td></tr>
+      </tbody>
+    </table>
+    <p>Each friction factor stacks on top of the last: requiring a PIN, allowing a second tender, and prompting for cash back each add real seconds independently, and the worst-case combination runs more than twice as long as the best case &mdash; which is exactly the kind of finding that turns into a concrete design recommendation (e.g., which prompts to suppress, and under what transaction conditions) rather than a vague "payment is slow."</p>
+
+    <h3>Where the rest of the time actually went</h3>
+    <div class="macro-grid">
+      <div class="macro-card"><div class="cat">Bagging &amp; Carry Method</div><p>Stores that removed bags saw a large increase in customers carrying items by hand and a meaningful drop in cart usage during scanning &mdash; changing how much staging-area space a next-gen unit actually needs.</p></div>
+      <div class="macro-card"><div class="cat">Host Assistance</div><p>Self-checkout hosts spent roughly a third of their time actively helping customers outside of system-triggered interventions &mdash; a signal that some "friction" is really a staffing and layout question, not a scanner problem.</p></div>
+    </div>
+
+    <p>The output wasn't a slide of anecdotes &mdash; it was a phase-by-phase, technology-by-technology map of exactly where every second in a self-checkout transaction goes, and a prioritized list of which frictions a next-gen unit's hardware and software could actually fix versus which ones no interface change was going to touch.</p>
+  </section>
+
+  <!-- ASSET PROTECTION -->
+  <section id="shrink">
+    <span class="project-tag ap">Project 2</span>
+    <h2>Asset Protection: Forecasting Shrink Savings from Computer Vision</h2>
+    <p class="lede">The same camera network that studies checkout speed also watches for loss &mdash; items that never get scanned, tickets swapped for a cheaper item's barcode, and repeat patterns of intentional theft. My work here was building the forecasting model: how much shrink is the program actually capturing, how does that compare to stores without it, and what should next year's target realistically be.</p>
+
+    <div class="chart-card">
+      <h4>Monthly Shrink Capture: Actual vs. Target, Two-Year View (illustrative, values altered)</h4>
+      <div class="chart-box"><canvas id="shrinkTrendChart"></canvas></div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-tile"><div class="v">$52M</div><div class="l">Year 1 actual shrink captured</div></div>
+      <div class="kpi-tile"><div class="v">$81M+</div><div class="l">Year 2 forecasted capture</div></div>
+      <div class="kpi-tile"><div class="v">~450</div><div class="l">Stores instrumented, Year 1</div></div>
+      <div class="kpi-tile"><div class="v">~$105K</div><div class="l">Avg. savings per instrumented store</div></div>
+    </div>
+
+    <h3>Isolating the program's real effect</h3>
+    <p>Instrumented stores aren't a random sample &mdash; they tend to already run at a higher risk profile and higher self-checkout mix than the fleet average. Adjusting for that before comparing to non-instrumented stores was the difference between an honest read and an inflated one. After that adjustment, instrumented stores still showed a modest but real improvement in shrink rate year-over-year, translating to a meaningful savings figure per store once scaled across the program.</p>
+
+    <div class="chart-row">
+      <div class="chart-card">
+        <h4>Where SCO Shrink Comes From (illustrative, values altered)</h4>
+        <div class="chart-box"><canvas id="shrinkPatternChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h4>Flagged Repeat-Loss Profiles by Region (illustrative, anonymized)</h4>
+        <div class="chart-box"><canvas id="regionChart"></canvas></div>
+      </div>
+    </div>
+
+    <p>A meaningful share of self-checkout shrink was found to be intentional rather than accidental &mdash; concentrated in a small number of repeat-pattern customer profiles rather than spread evenly across shoppers. Those profiles get flagged for store Asset Protection review, and a smaller subset escalate to a formal review process. That skew is exactly why a small, well-targeted deterrence program can capture an outsized share of total shrink without slowing down the other 99% of honest transactions.</p>
+
+    <h3>The forecast</h3>
+    <table class="stat-table">
+      <thead><tr><th>Fiscal Year</th><th>Capture Type</th><th>Amount</th><th>Stores</th></tr></thead>
+      <tbody>
+        <tr><td>Year 1</td><td>Actual</td><td>$52.4M</td><td>~450</td></tr>
+        <tr><td>Year 2</td><td>Forecast (base solution)</td><td>$81.6M</td><td>~1,050</td></tr>
+        <tr><td>Year 2</td><td>Forecast (redesigned solution, incremental)</td><td>+$9.2M</td><td>~230 (upgrade cohort)</td></tr>
+      </tbody>
+    </table>
+    <p>The forecast wasn't a single number &mdash; it broke out the base program's expected growth from store additions separately from the incremental lift expected from a solution redesign, so leadership could see which lever was driving next year's number and fund accordingly.</p>
+  </section>
+
+  <!-- IMPACT -->
+  <section id="impact">
+    <div class="kicker">Why This Mattered</div>
+    <h2>Two very different questions, one shared foundation</h2>
+    <p class="lede">Gulfstream and the shrink forecasting work look unrelated on the surface &mdash; one is a UX and hardware decision, the other is a finance and loss-prevention model &mdash; but both depended on the same discipline: turning raw computer-vision and video-review data into a number leadership could actually act on, with the assumptions and adjustments shown, not hidden.</p>
+    <div class="kpi-grid">
+      <div class="kpi-tile"><div class="v">1,600+</div><div class="l">Item scans reviewed frame-by-frame</div></div>
+      <div class="kpi-tile"><div class="v">3</div><div class="l">Checkout technologies evaluated head-to-head</div></div>
+      <div class="kpi-tile"><div class="v">2 yrs</div><div class="l">Of shrink capture actuals feeding the forecast</div></div>
+      <div class="kpi-tile"><div class="v">Risk-adjusted</div><div class="l">IRL vs. non-IRL comparison, not a raw average</div></div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>Created by Victor Chowdhury &middot; Intelligent Retail Lab</span>
+    <span>Illustrative example &mdash; all figures, locations, and store counts altered for this write-up</span>
+  </div>
+</footer>
+
+<script>
+  const tooltipBase = { backgroundColor: '#fff', titleColor: '#111827', bodyColor: '#111827', borderColor: '#e5e7eb', borderWidth: 1, padding: 8 };
+
+  new Chart(document.getElementById('scanSpeedChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Legacy Self-Checkout\n(UPC only)', 'Digimarc &\nUPC', 'Multi-Signal\nComputer Vision'],
+      datasets: [{ label: 'Seconds per item', data: [7.1, 3.9, 2.7], backgroundColor: ['#991B1B', '#0071CE', '#1E8E3E'], borderRadius: 4 }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...tooltipBase, callbacks: { label: c => ` ${c.parsed.y}s per item` } } },
+      scales: { x: { ticks: { color: '#6b7280', font: { size: 10 } }, grid: { display: false } }, y: { title: { display: true, text: 'Seconds per item' }, ticks: { color: '#6b7280' }, grid: { color: 'rgba(0,0,0,.06)' } } },
+    },
+  });
+
+  new Chart(document.getElementById('scanIssueChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Clearing/removing bags', 'Bagging scanned items', 'Sorting/prepping cart', "Can't find/scan UPC", 'Double bagging', 'Prepping Walmart bags', 'Slow scanning (kids/etc.)', 'Bulk item hand-scan'],
+      datasets: [{ label: '% of slow-scan occurrences', data: [23, 22, 12, 6, 5, 4, 3, 3], backgroundColor: '#0071CE', borderRadius: 4 }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+      plugins: { legend: { display: false }, tooltip: { ...tooltipBase, callbacks: { label: c => ` ${c.parsed.x}% of slow-scan occurrences` } } },
+      scales: { x: { ticks: { color: '#6b7280' }, grid: { color: 'rgba(0,0,0,.06)' } }, y: { ticks: { color: '#6b7280', font: { size: 10 } }, grid: { display: false } } },
+    },
+  });
+
+  new Chart(document.getElementById('scanDistChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['10s\u201315s per item', '15s\u201330s per item', '30s+ per item'],
+      datasets: [{ data: [45, 43, 12], backgroundColor: ['#1E8E3E', '#FFC220', '#991B1B'] }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 10 } }, tooltip: { ...tooltipBase, callbacks: { label: c => ` ${c.label}: ${c.parsed}%` } } },
+    },
+  });
+
+  new Chart(document.getElementById('tenderPhaseChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Debit (No PIN)', 'Debit (PIN Required)', 'Credit'],
+      datasets: [
+        { label: 'Press "Pay" \u2192 Insert/Swipe', data: [6.3, 5.1, 6.6], backgroundColor: '#16233F' },
+        { label: 'Insert/Swipe \u2192 Card Reader Prompt', data: [6.1, 4.8, 11.5], backgroundColor: '#0071CE' },
+        { label: 'Cash-Back/PIN Prompt \u2192 Next Prompt', data: [7.6, 4.0, null], backgroundColor: '#7CB9E8' },
+        { label: 'PIN Prompt \u2192 Receipt Prompt', data: [null, 10.5, 3.4], backgroundColor: '#FFC220' },
+        { label: 'Receipt Selection \u2192 Print', data: [9.8, 9.4, 11.1], backgroundColor: '#9CA3AF' },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 9 }, boxWidth: 10 } }, tooltip: { ...tooltipBase, callbacks: { label: c => c.parsed.y ? ` ${c.dataset.label}: ${c.parsed.y}s` : null } } },
+      scales: { x: { stacked: true, ticks: { color: '#6b7280' }, grid: { display: false } }, y: { stacked: true, title: { display: true, text: 'Seconds' }, ticks: { color: '#6b7280' }, grid: { color: 'rgba(0,0,0,.06)' } } },
+    },
+  });
+
+  new Chart(document.getElementById('tenderMethodChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Touch Checkout\nOn Screen', 'Insert Card\n(No Screen Touch)', 'Walmart Pay\n(w/ Screen)', 'Walmart Pay\n(No Screen)', 'Swipe Card\n(No Screen Touch)'],
+      datasets: [{ label: 'Avg. tender time (s)', data: [41.0, 33.1, 38.4, 30.6, 28.9], backgroundColor: '#0071CE', borderRadius: 4 }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...tooltipBase, callbacks: { label: c => ` ${c.parsed.y}s avg. tender time` } } },
+      scales: { x: { ticks: { color: '#6b7280', font: { size: 9 } }, grid: { display: false } }, y: { title: { display: true, text: 'Seconds' }, ticks: { color: '#6b7280' }, grid: { color: 'rgba(0,0,0,.06)' } } },
+    },
+  });
+
+  new Chart(document.getElementById('tenderDelayChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Going through wallet/purse', 'Multiple payment methods', 'Distraction (phone/family)', 'Card/cash technical issues', 'Payment confusion', 'Walmart Pay confusion'],
+      datasets: [{ label: '% of transactions >60s', data: [47, 36, 24, 15, 11, 8], backgroundColor: '#991B1B', borderRadius: 4 }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+      plugins: { legend: { display: false }, tooltip: { ...tooltipBase, callbacks: { label: c => ` ${c.parsed.x}% of transactions >60s` } } },
+      scales: { x: { ticks: { color: '#6b7280' }, grid: { color: 'rgba(0,0,0,.06)' } }, y: { ticks: { color: '#6b7280', font: { size: 10 } }, grid: { display: false } } },
+    },
+  });
+
+  const months = ['Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan'];
+  const y1 = [3.8,4.0,3.9,4.1,4.6,5.1,4.4,4.2,4.9,2.3,4.7,4.6];
+  const y2 = [3.9,4.3,4.5,4.7,4.6,5.5,6.5,7.1,8.4,8.6,10.2,9.1];
+  const shrinkData = y1.concat(y2);
+  const target = new Array(24).fill(null); target[23] = 78;
+  new Chart(document.getElementById('shrinkTrendChart'), {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [
+        { type: 'bar', label: 'Monthly $ Captured (M)', data: shrinkData, backgroundColor: months.map((_, i) => i < 12 ? '#16233F' : '#7CB9E8') },
+        { type: 'line', label: 'Year 2 Target ($81.6M)', data: target, borderColor: '#FFC220', pointRadius: 6, pointBackgroundColor: '#FFC220', showLine: false },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 10 } }, tooltip: { ...tooltipBase, callbacks: { label: c => c.dataset.type === 'line' ? ` ${c.dataset.label}` : ` $${c.parsed.y}M captured` } } },
+      scales: { x: { ticks: { color: '#6b7280', font: { size: 8 } }, grid: { display: false } }, y: { title: { display: true, text: '$ Millions' }, ticks: { color: '#6b7280' }, grid: { color: 'rgba(0,0,0,.06)' } } },
+    },
+  });
+
+  new Chart(document.getElementById('shrinkPatternChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Intentional non-scan', 'Ticket switching', 'Accidental miss', 'Other'],
+      datasets: [{ data: [52, 20, 21, 7], backgroundColor: ['#991B1B', '#C2410C', '#0071CE', '#9CA3AF'] }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 10 } }, tooltip: { ...tooltipBase, callbacks: { label: c => ` ${c.label}: ${c.parsed}%` } } },
+    },
+  });
+
+  new Chart(document.getElementById('regionChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Region A', 'Region B', 'Region C', 'Region D', 'Region E'],
+      datasets: [{ label: 'Flagged profiles', data: [64, 51, 47, 38, 29], backgroundColor: '#7C2D12', borderRadius: 4 }],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+      plugins: { legend: { display: false }, tooltip: tooltipBase },
+      scales: { x: { ticks: { color: '#6b7280' }, grid: { color: 'rgba(0,0,0,.06)' } }, y: { ticks: { color: '#6b7280' }, grid: { display: false } } },
+    },
+  });
+</script>
+</body>
+</html>

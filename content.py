@@ -442,14 +442,14 @@ WORK_SAMPLES = [
             "on fully synthetic data."
         ),
         "thumbnail": "/static/agent-performance.png",
-        "url": "https://zorro2018.github.io/Agent-Performance/",
+        "url": "https://www.victorbuildsai.com/work/agent-performance/",
     },
     {
         "title": "Smart Woffie: An AI Insights Agent That Doesn't Make Things Up",
         "tag": "Agentic AI · Customer Engagement Services",
         "description": "An AI analytics agent for Walmart's customer care org that writes SQL against billions of rows in BigQuery, builds executive-ready reports, and keeps its knowledge in a database instead of a prompt — so any analyst on any machine loads the same 'brain.' New findings are saved as drafts and only become trusted once a human validates them, and a two-layer anti-hallucination design (schema rules plus prompt rules) means it only states facts it can cite, with confidence scaled to how well it knows each domain.",
         "thumbnail": "/static/smart-woffie.png",
-        "url": "https://zorro2018.github.io/SmartWoffie/",
+        "url": "https://www.victorbuildsai.com/work/smart-woffie/",
     },
     {
         "title": "Promo & Appeasement Analysis Dashboard",
@@ -461,7 +461,7 @@ WORK_SAMPLES = [
             "73.5%."
         ),
         "thumbnail": "/static/appeasement-analysis.png",
-        "url": "https://zorro2018.github.io/Appeasement-Analysis/",
+        "url": "https://www.victorbuildsai.com/work/appeasement-analysis/",
     },
     {
         "title": "CES Weekly Update — Searchable, Not Just Skimmable",
@@ -474,7 +474,7 @@ WORK_SAMPLES = [
             "actually engages with."
         ),
         "thumbnail": "/static/weekly-update.png",
-        "url": "https://zorro2018.github.io/Weekly-Update/",
+        "url": "https://www.victorbuildsai.com/work/weekly-update/",
     },
     {
         "title": "Call Complexity Scorecard",
@@ -487,7 +487,7 @@ WORK_SAMPLES = [
             "auditable score leadership can route, coach, and staff against."
         ),
         "thumbnail": "/static/call-complexity.png",
-        "url": "https://zorro2018.github.io/Call-Complexity/",
+        "url": "https://www.victorbuildsai.com/work/call-complexity/",
     },
     {
         "title": "Call Complexity vs. Self-Serve Rate",
@@ -500,7 +500,7 @@ WORK_SAMPLES = [
             "AHT problem."
         ),
         "thumbnail": "/static/call-complexity-vs-ssr.png",
-        "url": "https://zorro2018.github.io/call-complexity-vs-SSR/",
+        "url": "https://www.victorbuildsai.com/work/complexity-vs-self-serve/",
     },
     {
         "title": "AISLEONE CRM Portable Dashboard Demos",
@@ -513,7 +513,7 @@ WORK_SAMPLES = [
             "order) can be shared and explored without exposing production data."
         ),
         "thumbnail": "/static/product-analytics.png",
-        "url": "https://zorro2018.github.io/Product-Analytics/",
+        "url": "https://www.victorbuildsai.com/work/product-analytics/",
     },
     {
         "title": "Creative Solutions: The Store Summary",
@@ -527,7 +527,7 @@ WORK_SAMPLES = [
             "120 seconds, readable offline before they ever walk in the door."
         ),
         "thumbnail": "/static/store-summary.png",
-        "url": "https://zorro2018.github.io/Store-Summary/",
+        "url": "https://www.victorbuildsai.com/work/store-summary/",
     },
     {
         "title": "From Data to Story: The Weekly Narrative",
@@ -541,7 +541,7 @@ WORK_SAMPLES = [
             "specific or market-wide."
         ),
         "thumbnail": "/static/data-to-story.png",
-        "url": "https://zorro2018.github.io/Data-to-Story/",
+        "url": "https://www.victorbuildsai.com/work/data-to-story/",
     },
     {
         "title": "Intelligent Retail Lab: From Faster Checkout to Smarter Shrink",
@@ -555,7 +555,7 @@ WORK_SAMPLES = [
             "defensible savings and forecast number for leadership."
         ),
         "thumbnail": "/static/frictionless-checkout.png",
-        "url": "https://zorro2018.github.io/frictionless-checkout-solutions/",
+        "url": "https://www.victorbuildsai.com/work/checkout-and-shrink/",
     },
     {
         "title": "Creative Solutions: The Smart Fuel Pricing Engine",
@@ -569,7 +569,7 @@ WORK_SAMPLES = [
             "cost of not repricing \u2014 delivered via Power BI and mobile alerts."
         ),
         "thumbnail": "/static/fuel-and-convenience.png",
-        "url": "https://zorro2018.github.io/Fuel-and-Convenience/",
+        "url": "https://www.victorbuildsai.com/work/fuel-pricing-engine/",
     },
 ]
 
@@ -588,7 +588,7 @@ ARTICLES = [
             "scale on completely different axes — viewers versus reasoning work."
         ),
         "thumbnail": "/static/ai-vs-bi.png",
-        "url": "https://zorro2018.github.io/AIvsBI/",
+        "url": "https://www.victorbuildsai.com/articles/ai-vs-bi/",
     },
     {
         "title": "Stop Being Overwhelmed. Start Delivering What Matters.",
@@ -600,7 +600,7 @@ ARTICLES = [
             "instead of whoever-asks-loudest."
         ),
         "thumbnail": "/static/prioritization-framework.png",
-        "url": "https://zorro2018.github.io/Prioritization_Framework/",
+        "url": "https://www.victorbuildsai.com/articles/prioritization-playbook/",
     },
 ]
 

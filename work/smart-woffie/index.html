@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Smart Woffie — Agent Summary</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+  .chart-box { position: relative; height: 220px; }
+  @media print {
+    .no-print { display: none; }
+    section { break-inside: avoid; }
+  }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-800">
+
+<div class="max-w-6xl mx-auto px-6 py-8">
+
+  <!-- HEADER -->
+  <header class="bg-[#004C91] text-white rounded-2xl p-8 mb-6 shadow-lg">
+    <div class="flex items-center justify-between flex-wrap gap-4">
+      <div>
+        <h1 class="text-4xl font-extrabold tracking-tight">Smart Woffie</h1>
+        <p class="text-lg text-blue-100 mt-1">AI Strategic Insights Agent — Walmart Customer Engagement Services (CES)</p>
+      </div>
+      <div class="flex flex-wrap gap-2 text-xs font-semibold">
+        <span class="bg-[#FFC220] text-[#2E2F32] px-3 py-1 rounded-full">v4.0 Data-Native</span>
+        <span class="bg-white/15 px-3 py-1 rounded-full">Database-First Architecture</span>
+        <span class="bg-white/15 px-3 py-1 rounded-full">BigQuery-Backed</span>
+        <span class="bg-[#76C043] text-[#2E2F32] px-3 py-1 rounded-full">Self-Contributing</span>
+      </div>
+    </div>
+    <p class="text-sm text-blue-200 mt-4">Owner: Victor Chowdhury &nbsp;|&nbsp; Published to an internal AI agent marketplace &nbsp;|&nbsp; Knowledge base: a dedicated BigQuery dataset</p>
+  </header>
+
+  <!-- TOP METRIC STRIP -->
+  <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+    <div class="bg-white rounded-xl p-4 text-center shadow"><div class="text-2xl font-bold text-[#0071DC]">47</div><div class="text-xs text-slate-500">Knowledge Domains</div></div>
+    <div class="bg-white rounded-xl p-4 text-center shadow"><div class="text-2xl font-bold text-[#0071DC]">236</div><div class="text-xs text-slate-500">Validated KB Entries</div></div>
+    <div class="bg-white rounded-xl p-4 text-center shadow"><div class="text-2xl font-bold text-[#0071DC]">3</div><div class="text-xs text-slate-500">Core Unified Tables</div></div>
+    <div class="bg-white rounded-xl p-4 text-center shadow"><div class="text-2xl font-bold text-[#0071DC]">8</div><div class="text-xs text-slate-500">Core CES Metrics Mapped</div></div>
+    <div class="bg-white rounded-xl p-4 text-center shadow"><div class="text-2xl font-bold text-[#0071DC]">4B+</div><div class="text-xs text-slate-500">Total Rows Covered</div></div>
+  </div>
+
+  <!-- PURPOSE -->
+  <section class="bg-white rounded-2xl p-6 mb-6 shadow">
+    <h2 class="text-xl font-bold text-[#004C91] mb-2">Purpose — What Is Smart Woffie?</h2>
+    <p class="text-sm leading-relaxed mb-3">Smart Woffie is an AI analytics agent built for Walmart's CES organization. It analyzes BigQuery data, builds HTML executive reports, discovers insights, and maintains a centralized knowledge base that <strong>grows with every analysis session</strong>. Unlike a typical AI assistant whose "knowledge" lives in a single chat or a static prompt, Woffie's knowledge is <strong>persistent, machine-independent, validated, and queryable</strong> — stored in BigQuery, not on any one laptop.</p>
+    <div class="grid md:grid-cols-2 gap-4 mt-4">
+      <div class="bg-red-50 border border-red-100 rounded-xl p-4">
+        <h3 class="font-semibold text-red-700 text-sm mb-1">The Problem It Solves</h3>
+        <ul class="text-sm list-disc list-inside space-y-1 text-slate-700">
+          <li>CES metric knowledge (formulas, caveats, data quirks) lived in people's heads or scattered decks</li>
+          <li>Every new analyst/agent re-derived the same formulas, re-discovered the same data quality traps</li>
+          <li>AI assistants risk <strong>hallucinating</strong> numbers, formulas, or benchmarks with total confidence</li>
+          <li>Knowledge was machine/session-bound — didn't survive a laptop swap or a new teammate</li>
+        </ul>
+      </div>
+      <div class="bg-green-50 border border-green-100 rounded-xl p-4">
+        <h3 class="font-semibold text-green-700 text-sm mb-1">Key Capabilities</h3>
+        <ul class="text-sm list-disc list-inside space-y-1 text-slate-700">
+          <li>Writes optimized SQL against CES BigQuery tables to discover and quantify patterns</li>
+          <li>Builds branded, executive-ready HTML reports with charts, takeaways, action items</li>
+          <li>Self-loads its entire "brain" from BigQuery at session start — works on any machine</li>
+          <li>Self-contributes new findings back to the KB (drafts → human validates → permanent)</li>
+          <li>Built-in anti-hallucination framework: only asserts validated facts with cited evidence</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARCHITECTURE -->
+  <section class="bg-white rounded-2xl p-6 mb-6 shadow">
+    <h2 class="text-xl font-bold text-[#004C91] mb-3">Architecture — Database-First, Not Prompt-First</h2>
+    <p class="text-sm mb-4">Woffie's knowledge lives in a dedicated BigQuery dataset, not hard-coded in a system prompt. This makes it machine-independent and team-scalable — any user, on any machine with GCP access, loads the identical brain.</p>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <div>
+        <h3 class="font-semibold text-sm mb-2 text-slate-600">Knowledge Base Tables</h3>
+        <table class="w-full text-xs border-collapse">
+          <thead><tr class="bg-slate-50 text-left"><th class="p-2 border">Table</th><th class="p-2 border">Rows</th><th class="p-2 border">Role</th></tr></thead>
+          <tbody>
+            <tr><td class="p-2 border">Knowledge index</td><td class="p-2 border">34</td><td class="p-2 border">Master index — domain, category, maturity level</td></tr>
+            <tr><td class="p-2 border">Knowledge entries</td><td class="p-2 border">171</td><td class="p-2 border">Every fact, formula, benchmark, finding (9 context types)</td></tr>
+            <tr><td class="p-2 border">Workflow benchmarks</td><td class="p-2 border">10</td><td class="p-2 border">Quick-access top L1 workflow hold metrics</td></tr>
+            <tr><td class="p-2 border">Tenure benchmarks</td><td class="p-2 border">4</td><td class="p-2 border">Quick-access tenure-band performance metrics</td></tr>
+          </tbody>
+        </table>
+
+        <h3 class="font-semibold text-sm mt-4 mb-2 text-slate-600">Unified Data Layer (v4.0)</h3>
+        <p class="text-xs text-slate-600 mb-2">Default routing — 3 canonical tables now power all 8 core CES metrics, no legacy table juggling:</p>
+        <ul class="text-xs space-y-1">
+          <li><strong>Weekly metrics summary</strong> — pre-aggregated weekly summary, fast exec trend queries</li>
+          <li><strong>Contact segments</strong> — ~2B rows, segment grain (AHT, transfers, SLA)</li>
+          <li><strong>Care interactions</strong> — ~2B rows, incident grain (CPO, RCR, CSAT, NPS, appeasements)</li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="font-semibold text-sm mb-2 text-slate-600">Session Lifecycle</h3>
+        <ol class="text-xs space-y-2">
+          <li class="flex gap-2"><span class="font-bold text-[#0071DC]">1. LOAD</span> — Self-load query reads all validated/active entries from BigQuery at session start</li>
+          <li class="flex gap-2"><span class="font-bold text-[#0071DC]">2. ANALYZE</span> — Writes SQL, queries CES tables, discovers patterns, builds HTML reports</li>
+          <li class="flex gap-2"><span class="font-bold text-[#0071DC]">3. CONTRIBUTE</span> — Drafts new findings into the knowledge entries with <code class="bg-slate-100 px-1 rounded">validated=FALSE</code></li>
+          <li class="flex gap-2"><span class="font-bold text-[#0071DC]">4. VALIDATE</span> — Human reviews & flips to <code class="bg-slate-100 px-1 rounded">validated=TRUE</code> → now permanent/trusted</li>
+          <li class="flex gap-2"><span class="font-bold text-[#0071DC]">5. NEXT SESSION</span> — Any user, any machine, loads the same growing brain ↻</li>
+        </ol>
+        <h3 class="font-semibold text-sm mt-4 mb-2 text-slate-600">RBAC / Access Model</h3>
+        <ul class="text-xs space-y-1">
+          <li><strong>Woffie (Agent):</strong> read all + INSERT drafts (unvalidated)</li>
+          <li><strong>Analyst:</strong> above + validate/deactivate entries, add domains</li>
+          <li><strong>Admin:</strong> schema changes, dataset permissions</li>
+          <li><strong>Viewer:</strong> read-only query access</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI EVALS / ANTI-HALLUCINATION -->
+  <section class="bg-white rounded-2xl p-6 mb-6 shadow">
+    <h2 class="text-xl font-bold text-[#004C91] mb-3">AI Evals &amp; Anti-Hallucination Framework</h2>
+    <p class="text-sm mb-4">Evaluation here isn't a one-off benchmark run — it's a <strong>structural, always-on guardrail</strong> baked into the schema itself, plus a behavioral framework in the system prompt. Dual-layer: database enforces it, prompt reinforces it.</p>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      <div>
+        <h3 class="font-semibold text-sm mb-2 text-slate-600">6 Schema-Level Safeguards</h3>
+        <table class="w-full text-xs border-collapse">
+          <tbody>
+            <tr class="border-b"><td class="p-2 font-semibold w-28">Validated Flag</td><td class="p-2">Only <code>validated=TRUE</code> entries are used for assertions; drafts stay quarantined until human review</td></tr>
+            <tr class="border-b"><td class="p-2 font-semibold">Confidence</td><td class="p-2">high / medium / low gates how definitively Woffie speaks</td></tr>
+            <tr class="border-b"><td class="p-2 font-semibold">Source Evidence</td><td class="p-2">Every benchmark cites <code>source_table</code> + <code>source_evidence</code></td></tr>
+            <tr class="border-b"><td class="p-2 font-semibold">Numerator/Denom</td><td class="p-2">Raw calc inputs stored so any value is independently verifiable</td></tr>
+            <tr class="border-b"><td class="p-2 font-semibold">Maturity Gating</td><td class="p-2">L1–L5 scale controls confidence per domain (below)</td></tr>
+            <tr><td class="p-2 font-semibold">Version Control</td><td class="p-2">Old entries deactivated + <code>superseded_by</code>, never deleted — full audit trail</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h3 class="font-semibold text-sm mb-2 text-slate-600">Maturity-Gated Response Examples</h3>
+        <div class="space-y-2 text-xs">
+          <div class="bg-green-50 border-l-4 border-green-400 p-2"><strong>L5 (Hands-On):</strong> "Hold time accounts for 12.7% of total AHT (528K of 4.18M hrs). Source: hold-time table, 28.4M calls." — full confidence, cited.</div>
+          <div class="bg-yellow-50 border-l-4 border-yellow-400 p-2"><strong>L3 (Definition-Ready):</strong> "I know the CSAT formula but haven't analyzed the data yet — I need the customer survey table." — caveated.</div>
+          <div class="bg-red-50 border-l-4 border-red-400 p-2"><strong>L1 (Awareness):</strong> "I know AG escalations are tracked, but I lack definitions, formulas, or data for this metric." — explicit uncertainty.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4 bg-slate-50 rounded-xl p-4">
+      <h3 class="font-semibold text-sm mb-2 text-slate-600">Data Quality Rules (Always Applied — Eval-Adjacent Guardrails)</h3>
+      <ul class="text-xs list-disc list-inside space-y-1">
+        <li><strong>Hold-count outlier cap:</strong> <code>LEAST(COALESCE(val,0),50)</code> — uncapped, hold ratio inflates ~1,983x (true value: 0.53)</li>
+        <li><strong>Active talk-time NULL handling:</strong> compute dead air only where non-null (20.7% of rows are NULL) — mishandled, dead air falsely inflates to 59s avg vs true 0.18s</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- CHARTS ROW -->
+  <section class="grid md:grid-cols-2 gap-6 mb-6">
+    <div class="bg-white rounded-2xl p-6 shadow">
+      <h2 class="text-lg font-bold text-[#004C91] mb-2">Maturity Scorecard</h2>
+      <p class="text-xs text-slate-500 mb-2">How confidently Woffie can speak, by category (1=Awareness → 5=Hands-On)</p>
+      <div class="chart-box"><canvas id="maturityChart"></canvas></div>
+    </div>
+    <div class="bg-white rounded-2xl p-6 shadow">
+      <h2 class="text-lg font-bold text-[#004C91] mb-2">Knowledge Base Content Mix</h2>
+      <p class="text-xs text-slate-500 mb-2">236 entries across 9 context types (definitions, formulas, benchmarks, findings, rules...)</p>
+      <div class="chart-box"><canvas id="contextTypeChart"></canvas></div>
+    </div>
+  </section>
+
+  <!-- FINDINGS & IMPACT -->
+  <section class="bg-white rounded-2xl p-6 mb-6 shadow">
+    <h2 class="text-xl font-bold text-[#004C91] mb-3">Sample Findings &amp; Strategic Impact</h2>
+    <p class="text-sm mb-1">From Hold Time Analysis v4 (~26M calls, Feb 2025–Jan 2026) — 12 validated findings, 6 strategic action items generated and persisted to the KB.</p>
+    <p class="text-xs italic text-slate-400 mb-3">Note: figures in this section altered for presentation.</p>
+    <div class="grid md:grid-cols-2 gap-4">
+      <ul class="text-xs space-y-2">
+        <li><strong>29.4% of calls involve hold</strong> — structural, not exceptional (median hold = 165s)</li>
+        <li><strong>Hold = 14.8% of all handle time</strong>; without it, blended AHT drops 503s → 412s (−18.1%)</li>
+        <li><strong>20–50% hold zone</strong> = 20.6% of calls but <strong>52.3% of hold hours</strong> — best intervention target</li>
+        <li><strong>Walmart+ Cancel Membership</strong>: 69.8% hold, +581s AHT delta — most broken workflow in CES</li>
+        <li>Tenure dividend: AHT penalty improves 24.3% from new hires to 12+ month agents</li>
+      </ul>
+      <table class="w-full text-xs border-collapse h-fit">
+        <thead><tr class="bg-slate-50"><th class="p-2 border text-left">Priority</th><th class="p-2 border text-left">Action</th><th class="p-2 border text-left">Impact</th></tr></thead>
+        <tbody>
+          <tr><td class="p-2 border text-red-600 font-semibold">Critical</td><td class="p-2 border">Redesign Walmart+ Cancel workflow</td><td class="p-2 border">~11.2K hold hrs saved</td></tr>
+          <tr><td class="p-2 border text-red-600 font-semibold">Critical</td><td class="p-2 border">Target 20–50% hold-of-AHT zone</td><td class="p-2 border">Up to 87K hold hrs reduced</td></tr>
+          <tr><td class="p-2 border text-amber-600 font-semibold">High</td><td class="p-2 border">0–90 day agent enablement</td><td class="p-2 border">61s AHT reduction potential</td></tr>
+          <tr><td class="p-2 border text-amber-600 font-semibold">High</td><td class="p-2 border">Automate WISMO hold drivers</td><td class="p-2 border">~24K hold hrs saved</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- DEV LIFECYCLE / VERSION HISTORY -->
+  <section class="bg-white rounded-2xl p-6 mb-6 shadow">
+    <h2 class="text-xl font-bold text-[#004C91] mb-3">Design &amp; Development Evolution</h2>
+    <p class="text-sm mb-4">Every layer of the stack — storage, loading, hallucination control, versioning — matured across 3 shipped releases to an internal AI agent marketplace.</p>
+    <div class="grid md:grid-cols-3 gap-4 text-xs">
+      <div class="border rounded-xl p-4 border-slate-200">
+        <div class="font-bold text-slate-500 mb-1">v1.0 — Feb 27, 2026 <span class="text-[10px] bg-slate-100 px-1 rounded">SUPERSEDED</span></div>
+        <ul class="list-disc list-inside space-y-1">
+          <li>Knowledge hard-coded in system prompt (~3K chars)</li>
+          <li>File-dependent context loading (local .txt file)</li>
+          <li>7 fragmented prototype BigQuery tables</li>
+          <li>No self-contributing, no anti-hallucination framework</li>
+        </ul>
+      </div>
+      <div class="border rounded-xl p-4 border-slate-200">
+        <div class="font-bold text-slate-500 mb-1">v2.0 — Mar 7, 2026 <span class="text-[10px] bg-slate-100 px-1 rounded">SUPERSEDED</span></div>
+        <ul class="list-disc list-inside space-y-1">
+          <li><strong>Database-first</strong>: knowledge moves to BigQuery (2 normalized tables)</li>
+          <li>Self-loading via one SQL query — machine-independent</li>
+          <li>Self-contributing drafts + human validation loop introduced</li>
+          <li>6 schema-level anti-hallucination safeguards added</li>
+          <li>Consolidated 7 tables → 4 clean normalized tables</li>
+        </ul>
+      </div>
+      <div class="border-2 rounded-xl p-4 border-[#0071DC] bg-blue-50">
+        <div class="font-bold text-[#004C91] mb-1">v3.0 — Mar 10, 2026 <span class="text-[10px] bg-[#FFC220] px-1 rounded">CURRENT</span></div>
+        <ul class="list-disc list-inside space-y-1">
+          <li>Dynamic agent ID — no hardcoded IDs, prevents spoofing</li>
+          <li>Full KB awareness — verifies tables exist before querying</li>
+          <li>6-rule <strong>behavioral</strong> anti-hallucination layer (prompt) + schema layer = dual protection</li>
+          <li>Explicit brand color-contrast accessibility rules for generated reports</li>
+          <li>System prompt: 132 → 215 lines (+63% richer guardrails)</li>
+        </ul>
+      </div>
+    </div>
+    <p class="text-xs text-slate-500 mt-3">Since v4.0: Unified Data Layer consolidates routing to 3 canonical tables (weekly metrics summary, contact segments, care interactions) covering 8 core metrics end-to-end, 4B+ rows — reducing legacy table sprawl further.</p>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="text-center text-xs text-slate-400 pt-4 pb-8">
+    Created by Victor Chowdhury
+  </footer>
+
+</div>
+
+<script>
+new Chart(document.getElementById('maturityChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['L5 Hands-On','L4 Formula-Ready','L3 Definition-Ready','L2 Conceptual','L1 Awareness'],
+    datasets: [{
+      data: [3,2,5,10,9],
+      backgroundColor: ['#0071DC','#76C043','#FFC220','#A6A6A6','#2E2F32']
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
+});
+
+new Chart(document.getElementById('contextTypeChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Note','Schema','Benchmark','Definition','Formula','Finding','DQ Rule','Threshold','Action Item'],
+    datasets: [{
+      label: 'Entries',
+      data: [60,30,28,25,12,12,8,8,6],
+      backgroundColor: '#0071DC'
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: { x: { ticks: { font: { size: 9 } } }, y: { beginAtZero: true } }
+  }
+});
+</script>
+
+</body>
+</html>

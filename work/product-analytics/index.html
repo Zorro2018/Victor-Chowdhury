@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AISLEONE CRM -- Portable Dashboard Demos</title>
+<style>
+:root { --brand:#001E60; --accent:#FFC220; --bg:#F7FAFF; --surface:#fff; --text:#1F2937; --muted:#6B7280; --card-bd:rgba(0,0,0,.10); }
+* { box-sizing: border-box; }
+body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; }
+.header { background: linear-gradient(135deg, #001E60 0%, #003087 55%, #001E60 100%); color:#fff; padding: 2rem; }
+.header h1 { margin: 0 0 0.4rem; font-size: 1.8rem; font-weight: 800; }
+.header p { margin: 0; color: rgba(255,255,255,.82); max-width: 760px; line-height: 1.5; }
+.grid { max-width: 1100px; margin: 2rem auto; padding: 0 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.2rem; }
+.card { background: var(--surface); border: 1px solid var(--card-bd); border-radius: 14px; padding: 1.3rem 1.4rem; text-decoration: none; color: inherit; display: block; transition: box-shadow .15s, transform .15s; }
+.card:hover { box-shadow: 0 8px 24px rgba(0,30,96,.12); transform: translateY(-2px); }
+.card h2 { margin: 0 0 0.4rem; font-size: 1.05rem; font-weight: 800; color: var(--brand); }
+.card p { margin: 0; font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
+.badge { display:inline-block; margin-top: 0.7rem; font-size: 0.7rem; font-weight: 800; color: #3d2e00; background: var(--accent); padding: 0.25rem 0.6rem; border-radius: 999px; text-transform: uppercase; letter-spacing: .03em; }
+.footer-note { max-width: 1100px; margin: 0 auto 2rem; padding: 0 2rem; color: var(--muted); font-size: 0.78rem; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>AISLEONE CRM -- Portable Dashboard Demos</h1>
+  <p>Standalone, sanitized snapshots of the AISLEONE-CRM reporting suite. Zero backend, zero auth,
+  zero live data connection -- every chart renders from synthetic sample data embedded directly
+  in the HTML. Safe to share, email, or open via <code>file://</code> (Chart.js loads from a CDN,
+  so an internet connection is needed for that one library).</p>
+</div>
+
+<div class="grid">
+  <a class="card" href="../agent-assist-demo/agent-assist-scorecard-demo.html">
+    <h2>Agent Assist</h2>
+    <p>AA vs Non-AA performance -- AHT, FCR, RCR, CSAT, NPS, Acceptance Rate, endpoint &amp; agent tenure breakdowns.</p>
+    <span class="badge">7 tabs</span>
+  </a>
+  <a class="card" href="aht-savings-demo.html">
+    <h2>AHT Savings</h2>
+    <p>AHT trend vs. prior year with Conservative/Best-scenario projection bands, verification rollout impact, and milestone tracking.</p>
+    <span class="badge">3 tabs</span>
+  </a>
+  <a class="card" href="aht-deepdive-demo.html">
+    <h2>AHT Deepdive</h2>
+    <p>Fiscal-week AHT trend plus line-of-business, channel, and partner/site breakdowns.</p>
+    <span class="badge">3 tabs</span>
+  </a>
+  <a class="card" href="fixit-ops-demo.html">
+    <h2>Fixit Ops</h2>
+    <p>Incident funnel (Created → Assigned → Escalated → Closed), SLA compliance trend, status/source mix, appeals, and survey response tracking.</p>
+    <span class="badge">3 tabs</span>
+  </a>
+  <a class="card" href="qsr-dashboard-demo.html">
+    <h2>QSR Dashboard</h2>
+    <p>Billable Contacts, AHT, Transfer Rate, CSAT, CPO, RCR, and Appeasements for Spark &amp; Digital QSR orders, daily/weekly toggle.</p>
+    <span class="badge">2 tabs</span>
+  </a>
+  <a class="card" href="spark-dashboard-demo.html">
+    <h2>Spark Dashboard</h2>
+    <p>Order volume, Force Complete rate, Cost Per Order, contact rate, and contact-reason mix for Spark orders.</p>
+    <span class="badge">2 tabs</span>
+  </a>
+</div>
+
+<div class="footer-note">
+  See <code>README.md</code> in this folder for data provenance and sanitization details.
+  Every number in every demo is synthetic, seeded, and re-scaled from any real value -- these
+  files contain no production or confidential data.
+</div>
+
+</body>
+</html>

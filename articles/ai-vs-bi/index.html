@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Claude vs. Power BI / Tableau — Deep-Dive &amp; Executive Narrative</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#131B24;
+    --ink-soft:#3C4652;
+    --paper:#F4F5F1;
+    --panel:#FFFFFF;
+    --line:#DBDDD4;
+    --claude:#2F7A78;
+    --claude-soft:#E4F0EF;
+    --bi:#9A6B2E;
+    --bi-soft:#F3EADA;
+    --gold:#C9A24B;
+    --red-flag:#A6432F;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans',sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:0 28px 80px;}
+  h1,h2,h3{font-family:'Source Serif 4',serif;font-weight:700;color:var(--ink);margin:0;}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin:0 0 10px;
+  }
+  .eyebrow.claude{color:var(--claude);}
+  .eyebrow.bi{color:var(--bi);}
+
+  /* HERO */
+  header.hero{
+    background:var(--ink);
+    color:#EFEFEA;
+    padding:64px 28px 46px;
+    margin-bottom:6px;
+  }
+  header.hero .wrap{padding:0;}
+  header.hero .eyebrow{color:#9FB6B4;}
+  header.hero h1{
+    font-size:40px;
+    line-height:1.15;
+    max-width:760px;
+    color:#F7F6F1;
+  }
+  header.hero p.dek{
+    font-size:17px;
+    color:#C4C9C2;
+    max-width:640px;
+    margin-top:16px;
+  }
+  .stat-row{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:1px;
+    background:rgba(255,255,255,.14);
+    margin-top:40px;
+    border-top:1px solid rgba(255,255,255,.14);
+  }
+  .stat{padding:20px 18px 4px;}
+  .stat .num{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:28px;
+    color:var(--gold);
+    font-weight:600;
+  }
+  .stat .lbl{font-size:12.5px;color:#B7BDB4;margin-top:4px;max-width:220px;}
+
+  section{padding:46px 0;border-bottom:1px solid var(--line);}
+  section:last-of-type{border-bottom:none;}
+  h2{font-size:24px;margin-bottom:14px;}
+  p{margin:0 0 14px;color:var(--ink-soft);font-size:15.5px;}
+  p.lede{font-size:16.5px;color:var(--ink);}
+
+  /* architecture diagram */
+  .arch{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:22px;
+    margin:22px 0 6px;
+  }
+  .arch-col{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:18px 18px 20px;
+  }
+  .arch-col.claude{border-top:3px solid var(--claude);}
+  .arch-col.bi{border-top:3px solid var(--bi);}
+  .arch-col h3{font-size:15px;font-family:'IBM Plex Mono',monospace;font-weight:600;margin-bottom:14px;letter-spacing:.02em;}
+  .arch-col.claude h3{color:var(--claude);}
+  .arch-col.bi h3{color:var(--bi);}
+  .node{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:9px 12px;
+    font-size:13px;
+    margin-bottom:0;
+  }
+  .arrow{
+    text-align:center;
+    color:var(--line);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    padding:4px 0;
+  }
+  .arch-col.claude .arrow{color:var(--claude);}
+  .arch-col.bi .arrow{color:var(--bi);}
+  .node.gate{background:var(--bi-soft);border-color:var(--bi);font-weight:500;}
+  .node.open{background:var(--claude-soft);border-color:var(--claude);font-weight:500;}
+
+  /* comparison table */
+  table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14.5px;}
+  th{
+    text-align:left;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    padding:8px 12px;
+    border-bottom:2px solid var(--ink);
+  }
+  td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-soft);}
+  tr td:first-child{color:var(--ink);font-weight:500;width:26%;}
+  th.claude-col{color:var(--claude);}
+  th.bi-col{color:var(--bi);}
+
+  /* cost ledger */
+  .ledger{
+    background:var(--panel);
+    border:1px solid var(--line);
+    padding:4px 22px;
+    margin:18px 0;
+  }
+  .ledger-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    padding:11px 0;
+    border-bottom:1px solid var(--line);
+    font-size:14.5px;
+    gap:16px;
+  }
+  .ledger-row:last-child{border-bottom:none;}
+  .ledger-row .desc{color:var(--ink-soft);flex:1;}
+  .ledger-row .amt{
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:600;
+    color:var(--ink);
+    white-space:nowrap;
+  }
+  .ledger-row.total{border-top:2px solid var(--ink);border-bottom:none;padding-top:14px;margin-top:2px;}
+  .ledger-row.total .desc{color:var(--ink);font-weight:600;}
+  .ledger-row.total .amt{font-size:17px;}
+  .ledger-title{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    padding-top:14px;
+    color:var(--ink-soft);
+  }
+  .ledger-block{border:1px solid var(--line);border-top:3px solid var(--ink-soft);}
+  .ledger-block.claude{border-top-color:var(--claude);}
+  .ledger-block.bi-a{border-top-color:var(--bi);}
+  .ledger-block.bi-b{border-top-color:var(--bi);}
+  .ledger-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin:18px 0;}
+  .ledger-grid h4{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    padding:14px 18px 0;
+    margin:0;
+  }
+  .ledger-grid .ledger{margin-top:8px;padding:0 18px;}
+
+  /* bar comparison */
+  .bars{margin:22px 0 6px;}
+  .bar-row{margin-bottom:16px;}
+  .bar-row .bar-label{
+    display:flex;justify-content:space-between;
+    font-size:13.5px;margin-bottom:5px;
+  }
+  .bar-row .bar-label .name{font-weight:600;color:var(--ink);}
+  .bar-row .bar-label .val{font-family:'IBM Plex Mono',monospace;color:var(--ink-soft);}
+  .bar-track{background:#E7E8E1;height:14px;border-radius:1px;overflow:hidden;}
+  .bar-fill{height:100%;}
+  .bar-fill.claude{background:var(--claude);}
+  .bar-fill.bi{background:var(--bi);}
+
+  .callout{
+    background:var(--claude-soft);
+    border-left:3px solid var(--claude);
+    padding:14px 18px;
+    font-size:14.5px;
+    color:#1E4B49;
+    margin:18px 0;
+  }
+  .flag{
+    background:#FBEBE6;
+    border-left:3px solid var(--red-flag);
+    padding:14px 18px;
+    font-size:14.5px;
+    color:#7A2F1F;
+    margin:18px 0;
+  }
+
+  /* stack diagram */
+  .stack{
+    background:var(--panel);
+    border:1px solid var(--line);
+    margin:22px 0 6px;
+    padding:22px;
+  }
+  .stack-layer{
+    display:grid;
+    grid-template-columns:150px 1fr;
+    gap:16px;
+    align-items:stretch;
+    margin-bottom:2px;
+  }
+  .stack-tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:#8A8F84;
+    padding-top:12px;
+  }
+  .stack-boxes{
+    display:grid;
+    grid-auto-flow:column;
+    grid-auto-columns:1fr;
+    gap:10px;
+  }
+  .stack-box{
+    border:1px solid var(--line);
+    background:var(--paper);
+    border-radius:2px;
+    padding:10px 12px;
+    font-size:13px;
+  }
+  .stack-box .t{font-weight:600;color:var(--ink);display:block;margin-bottom:2px;}
+  .stack-box .d{color:var(--ink-soft);font-size:12px;}
+  .stack-box.claude-box{border-color:var(--claude);background:var(--claude-soft);}
+  .stack-box.aux{border-style:dashed;}
+  .stack-connector{
+    text-align:center;
+    font-family:'IBM Plex Mono',monospace;
+    color:#B7BDB4;
+    font-size:12px;
+    padding:6px 0 6px 166px;
+  }
+  .stack-bracket{
+    grid-column:1 / -1;
+    border-top:1px dashed var(--line);
+    margin:14px 0 8px;
+    padding-top:10px;
+    font-size:12px;
+    color:#8A8F84;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  @media (max-width:720px){
+    .stack-layer{grid-template-columns:1fr;}
+    .stack-connector{padding-left:0;}
+    .stack-boxes{grid-auto-flow:row;}
+  }
+  ul{margin:0 0 14px;padding-left:20px;color:var(--ink-soft);font-size:15px;}
+  li{margin-bottom:6px;}
+  .footnote{font-size:12.5px;color:#8A8F84;border-top:1px solid var(--line);padding-top:18px;margin-top:8px;}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:28px;}
+  @media (max-width:720px){
+    .arch,.two-col,.ledger-grid{grid-template-columns:1fr;}
+    .stat-row{grid-template-columns:1fr;}
+    header.hero h1{font-size:30px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Strategic Insights &amp; AI · Tool Selection Brief</p>
+    <h1>Claude vs. Power BI / Tableau for deep-dive analysis and executive narrative</h1>
+    <p class="dek">A working model for where each tool earns its place — governed dashboarding vs. reasoning-driven, narrative-ready insight — with an illustrative cost comparison across licensing, infrastructure, and analyst time.</p>
+    <div class="stat-row">
+      <div class="stat">
+        <div class="num">~70–85%</div>
+        <div class="lbl">Less analyst time from raw data to a leadership-ready narrative, in the illustrative model below</div>
+      </div>
+      <div class="stat">
+        <div class="num">$0</div>
+        <div class="lbl">Per-viewer licensing to distribute a finding — output is a document or deck, not a gated dashboard seat</div>
+      </div>
+      <div class="stat">
+        <div class="num">Both</div>
+        <div class="lbl">Most mature analytics orgs land on Claude layered over a governed BI semantic model, not a replacement</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<section>
+  <p class="eyebrow">Framing</p>
+  <h2>Two different jobs, often mistaken for one tool decision</h2>
+  <p class="lede">Power BI and Tableau were built to answer "what is happening" — governed, refreshed, permissioned dashboards that a large viewer population checks repeatedly. Claude is built to answer "what does it mean, and what should a leader do about it" — a smaller group of analysts running exploratory, multi-step reasoning over data and turning it into a written argument.</p>
+  <p>The comparison below treats these as distinct jobs rather than a head-to-head replacement, because that's how the economics actually shake out: the BI tools' cost structure scales with <em>how many people view something</em>, while Claude's scales with <em>how much reasoning work gets done</em>. That single difference drives almost every number in this brief.</p>
+</section>
+
+<section>
+  <p class="eyebrow">Architecture</p>
+  <h2>Where the work happens, and who pays for a seat to see it</h2>
+  <div class="arch">
+    <div class="arch-col bi">
+      <h3>Power BI / Tableau</h3>
+      <div class="node">Source systems (ERP, POS, warehouse)</div>
+      <div class="arrow">↓ ETL / dataflow / Prep</div>
+      <div class="node">Semantic model (fixed schema, refresh schedule)</div>
+      <div class="arrow">↓ authored by a Creator seat</div>
+      <div class="node">Dashboard / report object</div>
+      <div class="arrow">↓ gated per consumer</div>
+      <div class="node gate">Every viewer needs a Pro / PPU / Viewer seat — or a pooled capacity tier (Fabric F-SKU, Tableau Server core)</div>
+    </div>
+    <div class="arch-col claude">
+      <h3>Claude</h3>
+      <div class="node">Source systems, via a connector (BigQuery, Snowflake, Databricks) or code execution against extracts</div>
+      <div class="arrow">↓ prompted, iterative query + analysis</div>
+      <div class="node">Exploratory reasoning: hypothesis, statistical check, chart, re-query</div>
+      <div class="arrow">↓ one pass, same session</div>
+      <div class="node">Narrative synthesis: what changed, why, who's affected, what to do</div>
+      <div class="arrow">↓ distributed as a document</div>
+      <div class="node open">Recipients read a doc, deck, or Slack post — no seat required to consume it</div>
+    </div>
+  </div>
+  <p>The practical effect: BI tools charge per person who <em>looks</em> at an answer; Claude charges (via API/seat usage) per unit of reasoning it takes to <em>produce</em> one. A 3,000-person leadership readership costs Power BI/Tableau real money in viewer seats or capacity; it costs Claude nothing extra, because the output is a static artifact once written.</p>
+  <div class="flag">The trade-off runs the other way too — see "Where BI tools still win" below. Claude has no native semantic layer, row-level security, or scheduled refresh; those governance features are exactly what Power BI/Tableau are built around, and they don't disappear from the requirement just because Claude is faster at the analysis itself.</div>
+</section>
+
+<section>
+  <p class="eyebrow">Claude reference architecture</p>
+  <h2>What a BI server bundles into one license, a Claude implementation composes from several</h2>
+  <p>Tableau Server / Power BI Service ship as one platform: the vendor hosts compute, stores every workbook version, enforces row-level permissions, and runs a validation/refresh pipeline, all inside a single license. A Claude-based deep-dive stack gets the same outcomes, but each capability is a separate, owned piece — that's the real architectural delta, and it's where engineering time and a handful of ancillary line items enter the cost model.</p>
+
+  <div class="stack">
+    <div class="stack-layer">
+      <div class="stack-tag">Data layer</div>
+      <div class="stack-boxes">
+        <div class="stack-box"><span class="t">GCP — BigQuery</span><span class="d">warehouse tables, views, IAM-scoped service accounts</span></div>
+        <div class="stack-box"><span class="t">AWS — Redshift / S3</span><span class="d">warehouse or data-lake extracts, IAM roles</span></div>
+      </div>
+    </div>
+    <div class="stack-connector">↓ MCP connector / native BigQuery &amp; Snowflake connectors / code execution reading a scoped extract</div>
+
+    <div class="stack-layer">
+      <div class="stack-tag">Access &amp; reasoning</div>
+      <div class="stack-boxes">
+        <div class="stack-box claude-box"><span class="t">Claude (Enterprise / API)</span><span class="d">runs the query plan, statistical checks, and drafts the analysis in one session</span></div>
+      </div>
+    </div>
+    <div class="stack-connector">↓ every prompt, query, and generated script is a file, not a screen state</div>
+
+    <div class="stack-layer">
+      <div class="stack-tag">Version control</div>
+      <div class="stack-boxes">
+        <div class="stack-box"><span class="t">GitHub repository</span><span class="d">stores analysis notebooks/scripts, prompt templates, and generated artifacts under normal PR review — replaces Tableau/Power BI's built-in workbook version history</span></div>
+      </div>
+    </div>
+    <div class="stack-connector">↓ CI on merge</div>
+
+    <div class="stack-layer">
+      <div class="stack-tag">Validation</div>
+      <div class="stack-boxes">
+        <div class="stack-box aux"><span class="t">CI checks (GitHub Actions)</span><span class="d">re-run the query against the warehouse, diff output numbers against the prior run</span></div>
+        <div class="stack-box aux"><span class="t">Analyst sign-off</span><span class="d">human review of any figure before it reaches a leadership doc — replaces a BI tool's automatic single-source-of-truth guarantee</span></div>
+      </div>
+    </div>
+    <div class="stack-connector">↓ approved output, rendered to a static HTML report</div>
+
+    <div class="stack-layer">
+      <div class="stack-tag">Hosting</div>
+      <div class="stack-boxes">
+        <div class="stack-box aux"><span class="t">GitHub Pages</span><span class="d">publishes straight from the same repo on merge; free under an existing GitHub Enterprise plan; fine for internal-only, non-sensitive summaries</span></div>
+        <div class="stack-box aux"><span class="t">Internal hosting platform</span><span class="d">e.g. an internal web/App Engine service behind existing corporate SSO — the default choice once a report contains anything access-restricted</span></div>
+      </div>
+    </div>
+    <div class="stack-connector">↓ served as a link, not a licensed viewer session</div>
+
+    <div class="stack-layer">
+      <div class="stack-tag">Distribution</div>
+      <div class="stack-boxes">
+        <div class="stack-box"><span class="t">Doc / deck / Slack post / hosted link</span><span class="d">no viewer seat — see architecture section above</span></div>
+      </div>
+    </div>
+
+    <div class="stack-bracket">Everything above the data layer is what Tableau Server / Power BI Service provide natively, in one hosted product, for the price of a seat.</div>
+  </div>
+
+  <p>Concretely, the pieces a BI-tool license already includes that a Claude implementation has to assemble itself:</p>
+  <ul>
+    <li><strong>Hosting/compute</strong> — GCP or AWS project cost for the warehouse and any orchestration (Cloud Run/Lambda job scheduling a recurring pull), typically a few hundred dollars a month at this scale, well below either BI vendor's server/capacity tier.</li>
+    <li><strong>Version control &amp; code storage</strong> — a GitHub repo (often already free/sunk cost under an existing Enterprise GitHub agreement) holding the analysis scripts and prompt templates that produced each report, so a number can be traced back to the exact query that generated it.</li>
+    <li><strong>Validation</strong> — CI (GitHub Actions) re-running the query and diffing results, plus a lightweight human sign-off step before a figure ships to leadership. This is the piece that most directly substitutes for a BI tool's built-in single-source-of-truth guarantee, and it's the one most teams underbudget for.</li>
+    <li><strong>Report hosting</strong> — GitHub Pages for free, low-friction publishing of non-sensitive internal summaries straight from the repo, or an internal hosting platform behind existing corporate SSO once a report includes anything access-restricted. Either way this replaces the "log into the BI server" step with a link, and neither option adds a recurring per-viewer cost.</li>
+    <li><strong>Access control</strong> — handled at the data layer via existing GCP/AWS IAM and service accounts scoped per team, rather than a BI tool's row-level security model layered on top of the semantic model.</li>
+  </ul>
+  <p class="footnote">None of this is exotic infrastructure — most analytics orgs already run a warehouse on GCP/AWS and a GitHub org for other code. The incremental build is largely the CI validation step and the connector/service-account wiring, which is a one-time engineering cost rather than a recurring per-seat one — the opposite cost shape from a BI tool's server.</p>
+</section>
+
+<section>
+  <p class="eyebrow">Capability</p>
+  <h2>What changes for a deep-dive, and what changes for a leadership narrative</h2>
+  <table>
+    <tr><th>Dimension</th><th class="claude-col">Claude</th><th class="bi-col">Power BI / Tableau</th></tr>
+    <tr><td>Exploratory analysis</td><td>Open-ended: can reformulate the question mid-analysis, run statistical tests, check alternative explanations, without pre-built visuals</td><td>Constrained to what's modeled: a new question often means a new measure, relationship, or extract before it can be answered</td></tr>
+    <tr><td>Narrative for leaders</td><td>Native output — writes the "so what," frames trade-offs, tailors register to the audience, in the same pass as the analysis</td><td>Not a native capability; Tableau Agent/Pulse and Copilot in Power BI are early and quoted separately, and still produce bullet summaries, not a reasoned argument</td></tr>
+    <tr><td>Iteration speed</td><td>Minutes per follow-up question, same session</td><td>Hours to days per new field/measure, gated by the dashboard owner's queue</td></tr>
+    <tr><td>Governed, repeated reporting</td><td>Weak fit — no native refresh schedule, row-level security, or audit trail</td><td>Strong fit — this is the core design point of both products</td></tr>
+    <tr><td>Distribution cost at scale</td><td>Flat — a document or deck has no per-reader license</td><td>Scales with viewer count, unless capacity licensing is in place</td></tr>
+    <tr><td>Skill required to operate</td><td>A written question; deeper work benefits from someone comfortable checking the model's numbers</td><td>Dashboard authoring is a specialized skill (Tableau Desktop, DAX, Power Query)</td></tr>
+  </table>
+</section>
+
+<section>
+  <p class="eyebrow">Cost model — illustrative</p>
+  <h2>A 150-person analytics organization, modeled three ways</h2>
+  <p>Figures below use published list pricing as of August 2026 and a stated set of workload assumptions — not a negotiated enterprise quote. Treat this as a framework to drop your own numbers into, not a budget figure. The scenario: 50 analysts who actively author analysis ("Creators"), 100 stakeholders who consume findings ("Viewers"), running roughly 24 substantial deep-dive analyses per analyst per year.</p>
+
+  <div class="ledger-grid">
+    <div class="ledger-block claude">
+      <h4 style="color:var(--claude)">CLAUDE</h4>
+      <div class="ledger">
+        <div class="ledger-row"><span class="desc">50 Enterprise seats · $20/seat/mo</span><span class="amt">$12,000</span></div>
+        <div class="ledger-row"><span class="desc">API usage — deep-dive reasoning, Sonnet 5, 1,200 analyses/yr</span><span class="amt">~$11,000</span></div>
+        <div class="ledger-row"><span class="desc">100 viewers — reports distributed as documents, no seat</span><span class="amt">$0</span></div>
+        <div class="ledger-row total"><span class="desc">Annual total</span><span class="amt">~$23,000</span></div>
+      </div>
+    </div>
+    <div class="ledger-block bi-a">
+      <h4 style="color:var(--bi)">POWER BI</h4>
+      <div class="ledger">
+        <div class="ledger-row"><span class="desc">50 Pro seats (authors) · $14/mo</span><span class="amt">$8,400</span></div>
+        <div class="ledger-row"><span class="desc">100 Pro seats (viewers, required to view shared reports) · $14/mo</span><span class="amt">$16,800</span></div>
+        <div class="ledger-row"><span class="desc">Dataflow/ETL &amp; semantic model upkeep (est.)</span><span class="amt">$25,000</span></div>
+        <div class="ledger-row total"><span class="desc">Annual total</span><span class="amt">~$50,000</span></div>
+      </div>
+    </div>
+    <div class="ledger-block bi-b">
+      <h4 style="color:var(--bi)">TABLEAU</h4>
+      <div class="ledger">
+        <div class="ledger-row"><span class="desc">50 Creator seats (Standard) · $75/mo</span><span class="amt">$45,000</span></div>
+        <div class="ledger-row"><span class="desc">100 Viewer seats · $15/mo</span><span class="amt">$18,000</span></div>
+        <div class="ledger-row"><span class="desc">Prep/ETL, admin, certification (est.)</span><span class="amt">$35,000</span></div>
+        <div class="ledger-row total"><span class="desc">Annual total</span><span class="amt">~$98,000</span></div>
+      </div>
+    </div>
+  </div>
+  <p class="footnote">Power BI Pro list price rose from $10 to $14/user/mo in April 2025 and is unchanged through 2026; Fabric capacity (from ~$5,068/mo for F64) undercuts per-user Pro above roughly 360 viewers and would change this math at larger scale. Tableau Creator list runs $75–115/mo depending on Standard vs. Enterprise edition; Explorer and Viewer tiers were omitted here in favor of the simpler Creator/Viewer split. Claude API usage assumes ~200K input / ~50K output tokens per deep-dive analysis at Sonnet 5's current $2/$10 per-million-token rate (in effect through Aug 31, 2026; reverts to $3/$15 standard rate after) — prompt caching on repeated data context would lower this further.</p>
+
+  <h3 style="font-size:17px;margin:28px 0 6px;">The bigger number: analyst time, not licenses</h3>
+  <p>License cost is the smaller lever. The larger one is what an analyst spends building a dashboard, then separately writing the memo or deck that explains it to a leader — work Claude collapses into one pass.</p>
+  <div class="bars">
+    <div class="bar-row">
+      <div class="bar-label"><span class="name">Power BI / Tableau — build dashboard + write narrative separately</span><span class="val">~32 hrs / analysis</span></div>
+      <div class="bar-track"><div class="bar-fill bi" style="width:100%"></div></div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label"><span class="name">Claude — exploratory analysis + narrative, one workflow</span><span class="val">~8 hrs / analysis</span></div>
+      <div class="bar-track"><div class="bar-fill claude" style="width:25%"></div></div>
+    </div>
+  </div>
+  <div class="ledger" style="max-width:520px;">
+    <div class="ledger-row"><span class="desc">Hours reclaimed per analysis</span><span class="amt">24 hrs</span></div>
+    <div class="ledger-row"><span class="desc">× 1,200 analyses/yr (50 analysts × 24)</span><span class="amt">28,800 hrs</span></div>
+    <div class="ledger-row"><span class="desc">× blended loaded analyst rate</span><span class="amt">$75/hr</span></div>
+    <div class="ledger-row total"><span class="desc">Reclaimed capacity, annualized</span><span class="amt">~$2.16M</span></div>
+  </div>
+  <p class="footnote">The 32-vs-8-hour estimate and the $75/hr loaded rate are placeholders — replace both with your team's actuals (Victor's team spans four pillars with different seniority mixes, so a single blended rate will understate some pillars and overstate others). What doesn't change directionally: the license delta between these tools is a rounding error next to the value of analyst hours redirected from dashboard mechanics to judgment.</p>
+</section>
+
+<section>
+  <p class="eyebrow">Narrative for leaders</p>
+  <h2>Why this matters more than the chart itself</h2>
+  <p>A dashboard answers a question a leader already knew to ask. A narrative tells them the question they didn't know to ask yet — why utilization moved, which cohort drove it, what happens if the trend continues, what trade-off a decision involves. That synthesis step is where most analytics organizations lose the most time, because it's manual: an analyst reads several dashboards, then writes the memo by hand. Claude does the reading and the writing together, which is the actual source of the time savings above — not that it renders a faster chart, but that it removes a whole separate authoring step.</p>
+  <p>This also changes what a "deliverable" looks like for CES-style AOP or QBR work: instead of a dashboard link a leader has to interpret themselves, the artifact is a short written brief with the numbers embedded — closer to how a chief of staff would summarize an initiative than how a BI tool renders one.</p>
+</section>
+
+<section>
+  <p class="eyebrow">Where BI tools still win</p>
+  <h2>This isn't a clean replacement, and shouldn't be pitched as one</h2>
+  <ul>
+    <li><strong>Governed, repeated reporting.</strong> A daily ops scorecard that 500 people refresh and trust needs row-level security, a refresh SLA, and an audit trail — Power BI and Tableau are purpose-built for this; Claude is not.</li>
+    <li><strong>Numeric accuracy at a glance.</strong> A model can misstate a figure it reasons over; a governed semantic model can't drift from the source system. Any Claude-produced number that goes to leadership should trace back to a query against the governed model, not a value the model recalled or estimated.</li>
+    <li><strong>Existing sunk investment.</strong> If a semantic layer, RLS, and a trained Creator population already exist, the marginal cost of one more dashboard is low — the case above is strongest for <em>new</em> deep-dive and narrative work, not for retiring what's already governed and working.</li>
+    <li><strong>Regulatory/compliance dashboards.</strong> Where an auditor needs to see exactly how a number was computed and refreshed on a fixed cadence, that's a BI-tool job.</li>
+  </ul>
+  <p>The strongest architecture in practice is usually additive: Power BI/Tableau (or the underlying warehouse) stays the governed system of record and refresh engine; Claude sits on top for the ad hoc "why" questions and the narrative layer, querying the same governed tables via a connector rather than a separate, ungoverned copy of the data.</p>
+</section>
+
+<section>
+  <p class="eyebrow">Bottom line</p>
+  <h2>Recommendation framing</h2>
+  <p class="lede">Don't budget this as "Claude vs. BI tool." Budget it as two line items with different jobs: keep (or right-size) BI seats for the governed, repeated reporting surface, and add Claude seats sized to the analyst population doing deep-dive and narrative work — not the full viewer population, since that's where the per-seat model stops mattering.</p>
+  <p>The fastest way to validate the numbers above against reality: pick one recurring deep-dive deliverable your team already produces manually, run it through Claude against the same governed data source for one cycle, and time both the old and new process end to end. That single comparison will be more persuasive to leadership than any list-price model, illustrative or otherwise.</p>
+</section>
+
+<p class="footnote">Pricing sourced from published vendor rate cards as of August 2026 (Anthropic, Microsoft, Tableau/Salesforce); all figures are list price before enterprise discounting, which commonly runs 10–25% at 100+ seat volume for BI vendors. This is a planning framework, not a procurement quote — confirm current rates and any existing enterprise agreement terms before budgeting.
+
+
+Created by Victor Chowdhury
+</p>
+
+</div>
+</body>
+</html>

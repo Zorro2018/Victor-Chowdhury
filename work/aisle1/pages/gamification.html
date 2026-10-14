@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gamification - AISLE One Demo</title>
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+    .trivia-opt { display:block; width:100%; text-align:left; padding:10px 14px; margin-bottom:8px; border-radius:8px; border:1px solid var(--card-bd); background:var(--card-bg); color:var(--text); cursor:pointer; font-size:.85rem; }
+    .trivia-opt:hover { background: var(--tbl-row-hover); }
+    .trivia-opt.correct { background: rgba(30,142,62,.2); border-color: #1E8E3E; }
+    .trivia-opt.wrong { background: rgba(197,34,31,.2); border-color: #C5221F; }
+    .banner { border-radius:14px; background: var(--titlegrad); color:#fff; padding:20px 24px; display:flex; align-items:center; gap:20px; flex-wrap:wrap; margin-bottom:18px; }
+</style>
+</head>
+<body>
+
+<div id="app-header"></div>
+
+<div id="app-sidebar"></div>
+<div class="content">
+
+        <div class="banner">
+            <div style="flex:1;min-width:160px;">
+                <div style="font-size:.68rem;color:#FFC220;font-weight:800;letter-spacing:.1em;">GAMIFICATION DEMO</div>
+                <div style="font-size:1.4rem;font-weight:900;" id="banner-points">0 <span style="font-size:.8rem;font-weight:500;color:#cbd5e1;">points this session</span></div>
+            </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+            <div class="section-card">
+                <h2>Walmart Trivia</h2>
+                <div id="trivia-question" style="font-weight:700;margin-bottom:10px;"></div>
+                <div id="trivia-options"></div>
+                <div id="trivia-feedback" style="font-size:.8rem;margin-top:6px;color:var(--muted);"></div>
+                <button class="btn btn-primary" id="next-question" style="margin-top:10px;">Next Question</button>
+            </div>
+
+            <div class="section-card">
+                <h2>Monthly Leaderboard</h2>
+                <table class="data-table">
+                    <thead><tr><th>#</th><th>Name</th><th>Points</th></tr></thead>
+                    <tbody id="leaderboard-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+<div id="app-footer"></div>
+
+<script src="../assets/data.js"></script>
+<script src="../assets/search.js"></script>
+<script src="../assets/nav.js"></script>
+<script>
+    CES_NAV.renderHeader({ activeHref: "pages/gamification.html", title: "Gamification" });
+    CES_NAV.renderFooter();
+
+    let qIndex = 0;
+    let answered = false;
+
+    function refreshBannerPoints() {
+        document.getElementById("banner-points").innerHTML = `${CES_POINTS.get()} <span style="font-size:.8rem;font-weight:500;color:#cbd5e1;">points this session</span>`;
+    }
+    document.addEventListener("ces-points-changed", refreshBannerPoints);
+
+    function renderLeaderboard() {
+        const board = CES.getLeaderboard();
+        document.getElementById("leaderboard-tbody").innerHTML = board.map(r =>
+            `<tr><td>#${r.rank}</td><td>${r.name}</td><td><strong>${CES.fmt(r.points)}</strong></td></tr>`
+        ).join("");
+    }
+
+    function renderQuestion() {
+        answered = false;
+        const q = CES.TRIVIA_QUESTIONS[qIndex % CES.TRIVIA_QUESTIONS.length];
+        document.getElementById("trivia-question").textContent = q.q;
+        document.getElementById("trivia-feedback").textContent = "";
+        document.getElementById("trivia-options").innerHTML = q.options.map((opt, i) =>
+            `<button class="trivia-opt" data-i="${i}">${opt}</button>`
+        ).join("");
+        document.querySelectorAll(".trivia-opt").forEach(btn => {
+            btn.addEventListener("click", () => {
+                if (answered) return;
+                answered = true;
+                const i = Number(btn.dataset.i);
+                const correct = i === q.answer;
+                btn.classList.add(correct ? "correct" : "wrong");
+                if (!correct) {
+                    document.querySelector(`.trivia-opt[data-i="${q.answer}"]`).classList.add("correct");
+                }
+                document.getElementById("trivia-feedback").textContent = correct ? "Correct! +100 pts" : "Not quite - the right answer is highlighted.";
+                if (correct) { CES_POINTS.add(100); }
+            });
+        });
+    }
+
+    document.getElementById("next-question").addEventListener("click", () => {
+        qIndex += 1;
+        renderQuestion();
+    });
+
+    renderLeaderboard();
+    renderQuestion();
+    refreshBannerPoints();
+</script>
+</body>
+</html>

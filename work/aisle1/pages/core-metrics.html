@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Core Metrics - AISLE One Demo</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<div id="app-header"></div>
+
+<div class="tabs-shell">
+    <button class="tabs-trigger active" data-tab="scorecard">Scorecard</button>
+    <button class="tabs-trigger" data-tab="byvertical">By Vertical</button>
+</div>
+
+<div id="filter-bar"></div>
+
+<div id="app-sidebar"></div>
+<div class="content">
+
+        <div class="tab-panel active" id="panel-scorecard">
+            <div class="kpi-grid" id="kpi-grid"></div>
+            <div class="section-card">
+                <h2>CSAT &amp; NPS Trend</h2>
+                <div class="chart-wrap"><canvas id="trend-chart"></canvas></div>
+            </div>
+        </div>
+
+        <div class="tab-panel" id="panel-byvertical">
+            <div class="section-card">
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+                    <h2 style="margin:0;">Core Metrics by Vertical</h2>
+                    <button class="btn" id="export-btn">Export CSV</button>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Vertical</th><th>CSAT</th><th>NPS</th><th>SLA Attainment</th>
+                                <th>Repeat Contact Rate</th><th>Transfer Rate</th><th>Cost Per Order</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vertical-tbody"></tbody>
+                    </table>
+                </div>
+                <p style="font-size:.72rem;color:var(--muted);margin-top:10px;">
+                    Green = at or better than target &middot; Red = below target. Targets: CSAT &ge;90%, NPS &ge;40,
+                    SLA &ge;95%, Repeat Contact Rate &le;12%, Transfer Rate &le;8%, CPO &le;$4.50.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+<div id="app-footer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="../assets/data.js"></script>
+<script src="../assets/search.js"></script>
+<script src="../assets/nav.js"></script>
+<script>
+    CES_NAV.renderHeader({ activeHref: "pages/core-metrics.html", title: "Core Metrics", liveBadge: true });
+    CES_NAV.renderFooter();
+
+    const DEFAULT_FILTERS = { fy: "all", vertical: "all" };
+    let filters = { ...DEFAULT_FILTERS };
+    let trendChart = null;
+
+    function opts(arr, allLabel) { return [{ value: "all", label: allLabel }, ...arr.map(v => ({ value: v, label: v }))]; }
+    function filterDefs() {
+        const f = CES.FILTER_OPTIONS;
+        return [
+            { id: "fy", label: "Fiscal Year", value: filters.fy, options: opts(f.fiscal_years, "All Years") },
+            { id: "vertical", label: "Vertical", value: filters.vertical, options: opts(f.verticals, "All Verticals") },
+        ];
+    }
+
+    function goodBadRow(label, value, unit, isGood) {
+        return `
+            <div class="kpi-card">
+                <div class="kpi-label">${label}</div>
+                <div class="kpi-value">${value}${unit}</div>
+                <div class="kpi-delta ${isGood ? "up" : "down"}">${isGood ? "On target" : "Below target"}</div>
+            </div>
+        `;
+    }
+
+    function renderKpi() {
+        const k = CES.getCoreMetricsKpi(filters);
+        const t = CES.CORE_METRIC_TARGETS;
+        document.getElementById("kpi-grid").innerHTML = [
+            goodBadRow("CSAT", k.csat, "%", k.csat >= t.csat),
+            goodBadRow("NPS", k.nps, "", k.nps >= t.nps),
+            goodBadRow("SLA Attainment", k.sla, "%", k.sla >= t.sla),
+            goodBadRow("Repeat Contact Rate", k.rcr, "%", k.rcr <= t.rcr),
+            goodBadRow("Transfer Rate", k.transfer, "%", k.transfer <= t.transfer),
+            goodBadRow("Cost Per Order", "$" + k.cpo.toFixed(2), "", k.cpo <= t.cpo),
+        ].join("");
+    }
+
+    function renderTrendChart() {
+        const trend = CES.getCoreMetricsTrend(filters);
+        const ctx = document.getElementById("trend-chart");
+        if (trendChart) trendChart.destroy();
+        trendChart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: trend.map(t => t.month),
+                datasets: [
+                    {
+                        label: "CSAT (%)", data: trend.map(t => t.csat), yAxisID: "y",
+                        borderColor: "#0071CE", backgroundColor: "rgba(0,113,206,.15)",
+                        tension: .35, fill: true, pointBackgroundColor: "#0071CE", pointRadius: 3,
+                    },
+                    {
+                        label: "NPS", data: trend.map(t => t.nps), yAxisID: "y1",
+                        borderColor: "#FFC220", backgroundColor: "rgba(255,194,32,.15)",
+                        tension: .35, fill: false, pointBackgroundColor: "#FFC220", pointRadius: 3,
+                    },
+                ],
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: "bottom" } },
+                scales: {
+                    y: { type: "linear", position: "left", title: { display: true, text: "CSAT (%)" } },
+                    y1: { type: "linear", position: "right", title: { display: true, text: "NPS" }, grid: { drawOnChartArea: false } },
+                },
+            },
+        });
+    }
+
+    function renderVerticalTable() {
+        const rows = CES.getCoreMetricsByVertical(filters);
+        const t = CES.CORE_METRIC_TARGETS;
+        const cls = isGood => isGood ? "kpi-delta up" : "kpi-delta down";
+        document.getElementById("vertical-tbody").innerHTML = rows.map(r => `
+            <tr>
+                <td><span class="swatch" style="background:${r.color}"></span>${r.vertical}</td>
+                <td><span class="${cls(r.csat >= t.csat)}">${r.csat}%</span></td>
+                <td><span class="${cls(r.nps >= t.nps)}">${r.nps}</span></td>
+                <td><span class="${cls(r.sla >= t.sla)}">${r.sla}%</span></td>
+                <td><span class="${cls(r.rcr <= t.rcr)}">${r.rcr}%</span></td>
+                <td><span class="${cls(r.transfer <= t.transfer)}">${r.transfer}%</span></td>
+                <td><span class="${cls(r.cpo <= t.cpo)}">$${r.cpo.toFixed(2)}</span></td>
+            </tr>
+        `).join("");
+    }
+
+    function render() { renderKpi(); renderTrendChart(); renderVerticalTable(); }
+
+    function wireFilterBar() {
+        CES_NAV.renderFilterBar(
+            document.getElementById("filter-bar"), filterDefs(),
+            (id, value) => { filters[id] = value; render(); },
+            () => { filters = { ...DEFAULT_FILTERS }; wireFilterBar(); render(); },
+            `<button class="btn btn-primary" id="refresh-btn">Refresh</button>`
+        );
+        document.getElementById("refresh-btn").addEventListener("click", render);
+    }
+
+    document.querySelectorAll(".tabs-trigger").forEach(btn => {
+        btn.addEventListener("click", () => {
+            document.querySelectorAll(".tabs-trigger").forEach(b => b.classList.remove("active"));
+            document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+            btn.classList.add("active");
+            document.getElementById("panel-" + btn.dataset.tab).classList.add("active");
+        });
+    });
+
+    document.getElementById("export-btn").addEventListener("click", () => {
+        const rows = CES.getCoreMetricsByVertical(filters);
+        const headers = ["Vertical", "CSAT", "NPS", "SLA", "RepeatContactRate", "TransferRate", "CPO"];
+        const csv = [headers.join(",")].concat(rows.map(r =>
+            [r.vertical, r.csat, r.nps, r.sla, r.rcr, r.transfer, r.cpo.toFixed(2)].join(",")
+        )).join("\n");
+        const blob = new Blob([csv], { type: "text/csv" });
+        const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: "core-metrics-demo.csv" });
+        document.body.appendChild(a); a.click(); a.remove();
+    });
+
+    wireFilterBar();
+    render();
+</script>
+</body>
+</html>

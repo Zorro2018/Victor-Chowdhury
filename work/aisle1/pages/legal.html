@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Legal Tickets - AISLE One Demo</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<div id="app-header"></div>
+
+<div class="tabs-shell">
+    <button class="tabs-trigger active" data-tab="spark">Spark Driver Results</button>
+    <button class="tabs-trigger" data-tab="feedback">Customer Feedback Results</button>
+</div>
+
+<div id="app-sidebar"></div>
+<div class="content">
+
+        <div class="tab-panel active" id="panel-spark">
+            <div class="section-card">
+                <h2>Search Spark Driver Chatbot Data</h2>
+                <form id="spark-form" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+                    <div>
+                        <label style="display:block;font-size:.72rem;color:var(--muted);margin-bottom:4px;">Email / Driver ID</label>
+                        <input type="text" id="spark-email" class="filter-select" style="min-width:220px;" placeholder="driver@example.com" required>
+                    </div>
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </form>
+            </div>
+            <div class="section-card" id="spark-results" style="display:none;">
+                <h2>Results</h2>
+                <div class="kpi-grid" id="spark-meta"></div>
+                <div style="overflow-x:auto;"><table class="data-table" id="spark-table"></table></div>
+            </div>
+        </div>
+
+        <div class="tab-panel" id="panel-feedback">
+            <div class="section-card">
+                <h2>Search Customer Feedback Chatbot Data</h2>
+                <form id="feedback-form" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+                    <div>
+                        <label style="display:block;font-size:.72rem;color:var(--muted);margin-bottom:4px;">Email</label>
+                        <input type="text" id="feedback-email" class="filter-select" style="min-width:220px;" placeholder="customer@example.com" required>
+                    </div>
+                    <button class="btn btn-primary" type="submit">Search</button>
+                </form>
+            </div>
+            <div class="section-card" id="feedback-results" style="display:none;">
+                <h2>Results</h2>
+                <div class="kpi-grid" id="feedback-meta"></div>
+                <div id="feedback-categories" style="margin:10px 0;display:flex;gap:8px;flex-wrap:wrap;"></div>
+                <div style="overflow-x:auto;"><table class="data-table" id="feedback-table"></table></div>
+            </div>
+        </div>
+
+    </div>
+
+<div id="app-footer"></div>
+
+<script src="../assets/data.js"></script>
+<script src="../assets/search.js"></script>
+<script src="../assets/nav.js"></script>
+<script>
+    CES_NAV.renderHeader({ activeHref: "pages/legal.html", title: "Legal Tickets", liveBadge: true });
+    CES_NAV.renderFooter();
+
+    document.querySelectorAll(".tabs-trigger").forEach(btn => {
+        btn.addEventListener("click", () => {
+            document.querySelectorAll(".tabs-trigger").forEach(b => b.classList.remove("active"));
+            document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+            btn.classList.add("active");
+            document.getElementById("panel-" + btn.dataset.tab).classList.add("active");
+        });
+    });
+
+    function renderResultsTable(tableEl, columns, records) {
+        tableEl.innerHTML = `
+            <thead><tr>${columns.map(c => `<th>${c}</th>`).join("")}</tr></thead>
+            <tbody>${records.map(r => `<tr>${columns.map(c => `<td>${r[c]}</td>`).join("")}</tr>`).join("")}</tbody>
+        `;
+    }
+
+    document.getElementById("spark-form").addEventListener("submit", e => {
+        e.preventDefault();
+        const email = document.getElementById("spark-email").value.trim();
+        if (!email) return;
+        const data = CES.getLegalResults("spark-driver", email);
+        document.getElementById("spark-meta").innerHTML = [
+            ["Total Records", data.total_records], ["Date Min", data.date_range_min],
+            ["Date Max", data.date_range_max], ["Columns", data.columns.length],
+        ].map(([l, v]) => `<div class="kpi-card"><div class="kpi-label">${l}</div><div class="kpi-value" style="font-size:1.1rem;">${v}</div></div>`).join("");
+        renderResultsTable(document.getElementById("spark-table"), data.columns, data.records);
+        document.getElementById("spark-results").style.display = "block";
+    });
+
+    document.getElementById("feedback-form").addEventListener("submit", e => {
+        e.preventDefault();
+        const email = document.getElementById("feedback-email").value.trim();
+        if (!email) return;
+        const data = CES.getLegalResults("customer-feedback", email);
+        document.getElementById("feedback-meta").innerHTML = [
+            ["Total Records", data.total_records], ["Unique Drivers", data.unique_drivers],
+            ["Date Min", data.date_range_min], ["Date Max", data.date_range_max],
+        ].map(([l, v]) => `<div class="kpi-card"><div class="kpi-label">${l}</div><div class="kpi-value" style="font-size:1.1rem;">${v}</div></div>`).join("");
+        document.getElementById("feedback-categories").innerHTML = data.level1_categories.map(c =>
+            `<span class="pill yellow">${c.label} <strong>${c.count}</strong></span>`
+        ).join("");
+        renderResultsTable(document.getElementById("feedback-table"), data.columns, data.records);
+        document.getElementById("feedback-results").style.display = "block";
+    });
+</script>
+</body>
+</html>

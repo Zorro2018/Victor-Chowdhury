@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creative Solutions: The Store Summary</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --navy: #001E60; --navy2: #16233F; --accent: #FFC220; --blue: #0053E2;
+    --bg: #F7F8FA; --card-bd: #E4E7ED; --text: #1F2937; --muted: #6B7280;
+    --good: #1E8E3E;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #fff; color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 1.5rem; }
+  h1, h2, h3 { color: var(--navy); font-weight: 800; }
+  a { color: var(--blue); }
+
+  /* Hero */
+  .hero { background: linear-gradient(135deg, #001E60 0%, #003087 55%, #001E60 100%); color: #fff; padding: 3.2rem 0 2.6rem; }
+  .hero .wrap { }
+  .hero .eyebrow { text-transform: uppercase; letter-spacing: .16em; font-size: .72rem; font-weight: 800; color: var(--accent); margin-bottom: .8rem; }
+  .hero h1 { color: #fff; font-size: 2.1rem; margin: 0 0 .7rem; }
+  .hero p { color: rgba(255,255,255,.85); max-width: 640px; margin: 0 0 1rem; font-size: 1rem; }
+  .hero .byline { font-size: .82rem; color: rgba(255,255,255,.65); }
+
+  section { padding: 2.6rem 0; border-bottom: 1px solid var(--card-bd); }
+  section:last-of-type { border-bottom: none; }
+  .kicker { text-transform: uppercase; letter-spacing: .14em; font-size: .7rem; font-weight: 800; color: var(--blue); margin-bottom: .5rem; }
+  .lede { font-size: 1.05rem; color: #374151; max-width: 760px; }
+  .callout { background: #FFFBEA; border-left: 4px solid var(--accent); border-radius: 8px; padding: 1rem 1.3rem; margin: 1.2rem 0; font-size: .96rem; }
+  .callout b { color: var(--navy); }
+  .quote { font-style: italic; color: var(--navy2); border-left: 3px solid var(--card-bd); padding-left: 1rem; margin: 1rem 0; }
+
+  /* Workflow diagram */
+  .flow { display: flex; flex-wrap: wrap; gap: 0; align-items: stretch; margin: 1.8rem 0 1rem; position: relative; }
+  .flow-step { flex: 1 1 150px; background: #fff; border: 1px solid var(--card-bd); border-radius: 12px; padding: 1rem .9rem; text-align: center; position: relative; margin: 0 .35rem; }
+  .flow-step .n { width: 30px; height: 30px; border-radius: 50%; background: var(--navy); color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 0 auto .5rem; font-size: .85rem; }
+  .flow-step .ic { font-size: 1.5rem; margin-bottom: .3rem; }
+  .flow-step p { font-size: .78rem; color: var(--muted); margin: 0; }
+  .flow-arrow { display: flex; align-items: center; justify-content: center; color: var(--card-bd); font-size: 1.3rem; flex: 0 0 20px; }
+  .flow-track { position: relative; height: 3px; background: var(--card-bd); margin: -1.6rem 8px 1.4rem; border-radius: 2px; overflow: hidden; }
+  .flow-track .pulse { position: absolute; top: -3.5px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px 2px rgba(255,194,32,.6); animation: travel 4s linear infinite; }
+  @keyframes travel { 0% { left: -2%; opacity: 0; } 8% { opacity: 1; } 92% { opacity: 1; } 100% { left: 100%; opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .flow-track .pulse { animation: none; left: 50%; } }
+  .timer-badge { display: inline-flex; align-items: center; gap: .4rem; background: var(--navy); color: #fff; font-weight: 800; font-size: .78rem; padding: .35rem .8rem; border-radius: 999px; margin-top: .4rem; }
+
+  /* Mock email cards */
+  .email-row { display: flex; gap: 1rem; flex-wrap: wrap; margin: 1.2rem 0; }
+  .email-card { flex: 1 1 300px; border: 1px solid var(--card-bd); border-radius: 10px; overflow: hidden; background: #fff; }
+  .email-card .email-head { background: #F3F4F6; padding: .6rem .9rem; font-size: .78rem; color: var(--muted); border-bottom: 1px solid var(--card-bd); }
+  .email-card .email-head b { color: var(--text); }
+  .email-card .email-body { padding: .9rem; font-size: .85rem; }
+  .email-card .subject { font-weight: 700; color: var(--navy); margin-bottom: .4rem; }
+  .attachment-pill { display: inline-flex; align-items: center; gap: .3rem; background: #EEF2FF; color: var(--navy); font-size: .74rem; font-weight: 700; padding: .25rem .6rem; border-radius: 999px; margin: .2rem .3rem .2rem 0; }
+
+  /* Report mockup */
+  .disclaimer { background: #FEF2F2; border: 1px solid #FCA5A5; color: #7f1d1d; font-size: .82rem; padding: .7rem 1rem; border-radius: 8px; margin: 1rem 0 1.4rem; }
+  .mock { border: 1px solid var(--card-bd); border-radius: 14px; overflow: hidden; box-shadow: 0 10px 30px -18px rgba(0,0,0,.25); }
+  .mock-head { background: #fff; padding: 1rem 1.3rem; display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid var(--card-bd); flex-wrap: wrap; gap: 1rem; }
+  .mock-head h3 { margin: 0; font-size: 1.3rem; }
+  .mock-head .spark { color: var(--blue); }
+  .mock-badge { background: #F3F4F6; border: 1px solid var(--card-bd); border-radius: 8px; padding: .3rem 1rem; text-align: center; }
+  .mock-badge .lbl { font-size: .68rem; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .mock-badge .num { font-size: 1.7rem; font-weight: 800; color: var(--navy); }
+  .mock-strip { display: flex; flex-wrap: wrap; gap: 1.4rem; padding: .8rem 1.3rem; background: #FAFBFC; font-size: .8rem; border-bottom: 1px solid var(--card-bd); }
+  .mock-strip .f { text-align: center; }
+  .mock-strip .f .l { color: var(--muted); font-size: .68rem; text-transform: uppercase; font-weight: 700; }
+  .mock-strip .f .v { font-weight: 700; color: var(--text); }
+  .mock-body { padding: 1.2rem 1.3rem; }
+  .mock-grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.2rem; }
+  @media (max-width: 700px) { .mock-grid3 { grid-template-columns: 1fr; } }
+  .gauge-card { border: 1px solid var(--card-bd); border-radius: 10px; padding: .9rem; text-align: center; }
+  .gauge-card h4 { margin: 0 0 .6rem; font-size: .82rem; color: var(--navy2); }
+  .gauge { width: 96px; height: 96px; border-radius: 50%; margin: 0 auto .6rem; display: flex; align-items: center; justify-content: center; position: relative; }
+  .gauge::after { content: ''; position: absolute; width: 70px; height: 70px; border-radius: 50%; background: #fff; }
+  .gauge span { position: relative; z-index: 2; font-weight: 800; font-size: 1.05rem; color: var(--text); }
+  .rank-pill { display: inline-block; font-size: .72rem; background: #F3F4F6; border-radius: 999px; padding: .15rem .6rem; color: var(--muted); font-weight: 700; }
+  .mock-grid5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: .8rem; margin-bottom: 1.2rem; text-align: center; }
+  @media (max-width: 700px) { .mock-grid5 { grid-template-columns: repeat(2, 1fr); } }
+  .stat-tile { border: 1px solid var(--card-bd); border-radius: 10px; padding: .7rem .5rem; }
+  .stat-tile .l { font-size: .68rem; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+  .stat-tile .v { font-size: 1.25rem; font-weight: 800; color: var(--navy); }
+  .mock-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 700px) { .mock-grid2 { grid-template-columns: 1fr; } }
+  .chart-card { border: 1px solid var(--card-bd); border-radius: 10px; padding: .9rem; }
+  .chart-card h4 { margin: 0 0 .6rem; font-size: .82rem; color: var(--navy2); }
+  .chart-box { position: relative; height: 210px; }
+  table.wtable { width: 100%; border-collapse: collapse; font-size: .82rem; margin-top: .6rem; }
+  table.wtable th { text-align: left; background: var(--navy2); color: #fff; padding: .5rem .7rem; font-size: .7rem; text-transform: uppercase; letter-spacing: .03em; }
+  table.wtable td { padding: .55rem .7rem; border-bottom: 1px solid var(--card-bd); vertical-align: top; }
+  table.wtable tr:nth-child(even) td { background: #FAFBFC; }
+  .age-pill { display: inline-block; background: #FEE2E2; color: #991B1B; font-weight: 800; border-radius: 999px; padding: .1rem .6rem; font-size: .74rem; }
+  .contacts-table td, .contacts-table th { font-size: .78rem; }
+
+  .stat-grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1.2rem 0; }
+  @media (max-width: 700px) { .stat-grid3 { grid-template-columns: 1fr; } }
+  .proj-card { border: 1px solid var(--card-bd); border-radius: 10px; padding: 1rem; }
+  .proj-card h4 { margin: 0 0 .3rem; font-size: .95rem; }
+  .proj-card .big { font-size: 2rem; font-weight: 800; color: var(--navy); margin-bottom: .5rem; }
+  .proj-card table.wtable { font-size: .74rem; }
+
+  /* Comparison table */
+  table.compare { width: 100%; border-collapse: collapse; margin: 1.2rem 0; font-size: .88rem; }
+  table.compare th { text-align: left; padding: .6rem .8rem; background: var(--navy); color: #fff; font-size: .78rem; }
+  table.compare td { padding: .65rem .8rem; border-bottom: 1px solid var(--card-bd); }
+  table.compare td.bad { color: #991B1B; }
+  table.compare td.good { color: var(--good); font-weight: 700; }
+  table.compare tr:nth-child(even) td { background: #FAFBFC; }
+
+  .impact-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 1.2rem 0; }
+  @media (max-width: 800px) { .impact-grid { grid-template-columns: repeat(2, 1fr); } }
+  .impact-tile { border: 1px solid var(--card-bd); border-radius: 12px; padding: 1.1rem .9rem; text-align: center; }
+  .impact-tile .v { font-size: 1.5rem; font-weight: 800; color: var(--navy); }
+  .impact-tile .l { font-size: .76rem; color: var(--muted); margin-top: .3rem; }
+
+  footer { background: var(--navy2); color: rgba(255,255,255,.7); padding: 1.6rem 0; font-size: .78rem; }
+  footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .6rem; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Field-Tested Innovation &middot; Facility Services</div>
+    <h1>Creative Solutions: The Store Summary</h1>
+    <p>How swapping a live dashboard for an email address fixed the one problem Tableau and Power BI couldn't: getting insight into a Business leader's hands when the store's own WiFi and BI servers can't be trusted.</p>
+    <div class="byline">Victor Chowdhury &middot; example shown: Store 540</div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- PROBLEM -->
+  <section id="problem">
+    <div class="kicker">The Problem</div>
+    <h2>Dashboards were dying a slow, quiet death</h2>
+    <p class="lede">Facility Services, like most of Walmart, had hundreds of dashboards. Most of them followed the same arc: a big launch, a burst of use, and then a slow fade as fewer and fewer people opened them. Nobody killed them on purpose &mdash; they just stopped being useful at the exact moment leadership needed them most.</p>
+    <p>Talking through it with several stakeholders &mdash; including a senior vice president &mdash; surfaced the actual root cause, and it had nothing to do with the dashboards' content. The dashboards were fine. The problem was <em>where</em> and <em>when</em> leaders needed them: while physically touring a store.</p>
+  </section>
+
+  <!-- CONSTRAINT -->
+  <section id="constraint">
+    <div class="kicker">The Constraint Nobody Was Naming</div>
+    <h2>Three failure points, all stacked in the same 10 minutes</h2>
+    <p class="lede">A leader walking a sales floor to have an informed conversation with the store manager was fighting three things at once, and any one of them alone was enough to kill the interaction:</p>
+    <div class="callout">
+      <b>1. Bad in-store WiFi.</b> Store networks are built for registers and scanners, not for a VP live-loading a BI dashboard on a phone.<br><br>
+      <b>2. Unpredictable BI servers.</b> Tableau Server and Power BI Server uptime was inconsistent &mdash; and there was no way to know in advance whether the server would be up at the exact moment someone needed it.<br><br>
+      <b>3. Compounding failure.</b> A slow network plus a shaky server doesn't average out to "somewhat slow" &mdash; it multiplies into "doesn't load," right as the leader is standing in an aisle with the store manager waiting.
+    </div>
+    <p class="quote">The dashboard didn't need to be live in the store. It needed to already be in their pocket before they walked in the door.</p>
+  </section>
+
+  <!-- SOLUTION -->
+  <section id="solution">
+    <div class="kicker">The Fix</div>
+    <h2>An email address, not another dashboard</h2>
+    <p class="lede">The Store Summary Report sidesteps the live-connection problem entirely by removing the live connection. A leader emails a generic inbox with a store number in the subject line; a Power Automate flow does the rest, and a finished PDF lands back in the leader's inbox before they've even walked in the front door &mdash; no server session required once it arrives.</p>
+
+    <div class="email-row">
+      <div class="email-card">
+        <div class="email-head">To: <b>storesummary@company.com</b></div>
+        <div class="email-body">
+          <div class="subject">Subject: Store Summary 540</div>
+          A leader sends this from their phone before heading to the store &mdash; no login, no dashboard URL, no filters to configure.
+        </div>
+      </div>
+      <div class="email-card">
+        <div class="email-head">From: <b>storesummary@company.com</b> &middot; ~120 sec later</div>
+        <div class="email-body">
+          <div class="subject">Subject: Data for store 540</div>
+          "Please find the report attached."
+          <div style="margin-top:.5rem;">
+            <span class="attachment-pill">&#128196; Store 540.pdf</span>
+            <span class="attachment-pill">&#128202; Open WO details.xlsx</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin-top:2rem;">How it works</h3>
+    <div class="flow">
+      <div class="flow-step"><div class="n">1</div><div class="ic">&#128231;</div><p>Leader emails "Store Summary 540" &mdash; a plain subject line, nothing else required</p></div>
+      <div class="flow-step"><div class="n">2</div><div class="ic">&#9889;</div><p>Power Automate flow triggers on the new message in the shared inbox</p></div>
+      <div class="flow-step"><div class="n">3</div><div class="ic">&#128269;</div><p>Flow parses "540" out of the subject line</p></div>
+      <div class="flow-step"><div class="n">4</div><div class="ic">&#128202;</div><p>Filters the master Power BI dataset down to just that store</p></div>
+      <div class="flow-step"><div class="n">5</div><div class="ic">&#128196;</div><p>Renders the filtered view + open work orders as a PDF/Excel pair</p></div>
+      <div class="flow-step"><div class="n">6</div><div class="ic">&#128233;</div><p>Emails both files back to the leader's own inbox</p></div>
+    </div>
+    <div class="flow-track"><div class="pulse"></div></div>
+    <div style="text-align:center;">
+      <span class="timer-badge">&#9201; End-to-end: about 120 seconds</span>
+    </div>
+    <p style="margin-top:1.4rem;">From there, the leader has a finished PDF sitting in their inbox &mdash; readable offline, on any phone, regardless of what the store's WiFi or the BI server happen to be doing at that moment.</p>
+  </section>
+
+  <!-- EXAMPLE: REPORT -->
+  <section id="example">
+    <div class="kicker">Worked Example</div>
+    <h2>What actually landed in the inbox &mdash; Store 540</h2>
+    <p class="lede">Below is a recreation of the real report layout so the shape of it is concrete, not just described.</p>
+    <div class="disclaimer">
+      <b>Note on the data shown below:</b> the report layout, section names, and metric types are real. The specific values, names, phone numbers, and city have been fictionalized/altered for this write-up &mdash; the original PDF contains real employee contact information that has no business being in a shareable explainer.
+    </div>
+
+    <div class="mock">
+      <div class="mock-head">
+        <h3><span class="spark">Facility Services</span> | Store Report</h3>
+        <div class="mock-badge"><div class="lbl">Store</div><div class="num">540</div></div>
+      </div>
+      <div class="mock-strip">
+        <div class="f"><div class="l">Region</div><div class="v">10</div></div>
+        <div class="f"><div class="l">Sub-Region</div><div class="v">10&ndash;19</div></div>
+        <div class="f"><div class="l">Store Age</div><div class="v">38 yrs</div></div>
+        <div class="f"><div class="l">Delivery Model</div><div class="v">Insourced</div></div>
+        <div class="f"><div class="l">State</div><div class="v">LA</div></div>
+        <div class="f"><div class="l">Store Type</div><div class="v">Supercenter</div></div>
+        <div class="f"><div class="l">Store Manager</div><div class="v">J. Alvarez</div></div>
+        <div class="f"><div class="l">Regional Manager</div><div class="v">T. Boone</div></div>
+      </div>
+      <div class="mock-body">
+        <div class="mock-grid3">
+          <div class="gauge-card">
+            <h4>Response Time</h4>
+            <div class="gauge" style="background: conic-gradient(#3aa757 0deg 280.8deg, #e5e7eb 280.8deg 360deg);"><span>78%</span></div>
+            <span class="rank-pill">Rank 5 of 31</span>
+          </div>
+          <div class="gauge-card">
+            <h4>Repair Time</h4>
+            <div class="gauge" style="background: conic-gradient(#3aa757 0deg 360deg, #e5e7eb 360deg 360deg);"><span>100%</span></div>
+            <span class="rank-pill">Rank 2 of 31</span>
+          </div>
+          <div class="gauge-card">
+            <h4>First Time Fix</h4>
+            <div class="gauge" style="background: conic-gradient(#e0a83a 0deg 255.6deg, #e5e7eb 255.6deg 360deg);"><span>71%</span></div>
+            <span class="rank-pill">Rank 15 of 31</span>
+          </div>
+        </div>
+
+        <div class="mock-grid5">
+          <div class="stat-tile"><div class="l">Aging (under 15d)</div><div class="v">2</div></div>
+          <div class="stat-tile"><div class="l">NPS</div><div class="v">9</div></div>
+          <div class="stat-tile"><div class="l">Open WOs</div><div class="v">2</div></div>
+          <div class="stat-tile"><div class="l">Active Projects</div><div class="v">13</div></div>
+          <div class="stat-tile"><div class="l">Cart Inventory</div><div class="v">103.4%</div></div>
+        </div>
+
+        <div class="mock-grid2">
+          <div class="chart-card">
+            <h4>Refrigeration Health &mdash; % time in target range</h4>
+            <div class="chart-box"><canvas id="refrigChart"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <h4>Energy Data &mdash; utility systems (kW)</h4>
+            <div class="chart-box"><canvas id="energyChart"></canvas></div>
+          </div>
+        </div>
+
+        <h4 style="margin: 1.4rem 0 .4rem; font-size: .82rem; color: var(--navy2);">FS Contacts (excerpt)</h4>
+        <table class="wtable contacts-table">
+          <thead><tr><th>Role</th><th>Contact</th></tr></thead>
+          <tbody>
+            <tr><td>HVAC Manager</td><td>D. Whitfield</td></tr>
+            <tr><td>GM Manager</td><td>R. Castillo</td></tr>
+            <tr><td>Regional Manager</td><td>L. Fenwick</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORK ORDERS -->
+  <section id="workorders">
+    <div class="kicker">Companion Artifact</div>
+    <h2>...plus the open work order list, oldest first</h2>
+    <p class="lede">The PDF is paired with a second attachment: every open work order for that store, sorted with the longest-open items at the top &mdash; so the leader can pair "here's what the dashboard says" with "here's the specific thing that's been sitting for 3 days" in the same conversation.</p>
+    <table class="wtable">
+      <thead><tr><th>Tracking #</th><th>Age</th><th>Trade</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>WO&ndash;4471982</td>
+          <td><span class="age-pill">3 days</span></td>
+          <td>Pest Management</td>
+          <td>Ants reported at a front-end register; inside/outside treatment requested (ants, beetles, spiders, moths).</td>
+        </tr>
+        <tr>
+          <td>WO&ndash;4482310</td>
+          <td><span class="age-pill">1 day</span></td>
+          <td>FM &ndash; HVAC</td>
+          <td>Rooftop HVAC unit not cooling over the sales floor; several other RTUs flagged not-cooling / comm-loss on the same call.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <div class="kicker">Companion Artifact</div>
+    <h2>...plus a rollup of every active capital project</h2>
+    <p class="lede">Store-level facility work rarely lives in one system. The report pulls a rollup across the three project pipelines that actually touch a store, so the leader isn't blindsided by a capital project mid-tour.</p>
+    <div class="stat-grid3">
+      <div class="proj-card">
+        <h4>FM/PM Projects</h4>
+        <div class="big">2</div>
+        <table class="wtable"><thead><tr><th>Type</th><th>Year</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>ST (Restripe)</td><td>2022</td><td>Active</td></tr>
+            <tr><td>ST (Restripe)</td><td>2021</td><td>Canceled</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="proj-card">
+        <h4>Smart Bundle Projects</h4>
+        <div class="big">2</div>
+        <table class="wtable"><thead><tr><th>Type</th><th>Year</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Smart Bundle</td><td>2022</td><td>Active</td></tr>
+            <tr><td>Smart Bundle</td><td>2021</td><td>Complete</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="proj-card">
+        <h4>Phoenix Projects</h4>
+        <div class="big">10</div>
+        <table class="wtable"><thead><tr><th>Type</th><th>Year</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>HVAC Setpoint Adjustments</td><td>2021</td><td>Complete</td></tr>
+            <tr><td>HVAC Capital Upgrade</td><td>2022</td><td>Complete</td></tr>
+            <tr><td>Electrical Switchgear EOL</td><td>2023</td><td>Pending</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARISON -->
+  <section id="comparison">
+    <div class="kicker">Why This Beat The Dashboard</div>
+    <h2>Same data, fundamentally different failure mode</h2>
+    <table class="compare">
+      <thead><tr><th></th><th>Live Tableau / Power BI mobile app</th><th>Store Summary Report</th></tr></thead>
+      <tbody>
+        <tr><td>Needs a live server session</td><td class="bad">Yes &mdash; fails if the server happens to be down</td><td class="good">No &mdash; PDF is fully rendered before it's sent</td></tr>
+        <tr><td>Needs strong in-store WiFi</td><td class="bad">Yes &mdash; store WiFi is often the weakest in the building</td><td class="good">No &mdash; already in the inbox, readable offline</td></tr>
+        <tr><td>Getting to the right store's data</td><td class="bad">Navigate filters/prompts in a dashboard UI</td><td class="good">Send one email with a store number in it</td></tr>
+        <tr><td>Training required</td><td class="bad">Yes &mdash; how to find, filter, and read it</td><td class="good">No &mdash; it's an email attachment</td></tr>
+        <tr><td>What happens when the server hiccups</td><td class="bad">Leader gets nothing, mid-tour</td><td class="good">Leader already has the PDF regardless</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- IMPACT -->
+  <section id="impact">
+    <div class="kicker">Impact</div>
+    <h2>What changed</h2>
+    <div class="impact-grid">
+      <div class="impact-tile"><div class="v">~120 sec</div><div class="l">From email sent to PDF delivered</div></div>
+      <div class="impact-tile"><div class="v">Zero</div><div class="l">Live server connections required in-store</div></div>
+      <div class="impact-tile"><div class="v">Any leader</div><div class="l">Self-service &mdash; no dashboard training needed</div></div>
+      <div class="impact-tile"><div class="v">2-in-1</div><div class="l">Strategic KPIs + oldest-first work order list, same inbox</div></div>
+    </div>
+    <p class="lede">The bigger shift wasn't technical &mdash; it was recognizing that "make the dashboard better" was the wrong problem to solve. The dashboard was never going to reliably load on a store's WiFi. The fix was to stop asking the store to serve the data live at all, and instead deliver a finished artifact ahead of time, in the one format that survives bad WiFi and shaky servers equally well: an email already sitting in someone's inbox.</p>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>Created by Victor Chowdhury &middot; Facility Services</span>
+    <span>Illustrative example (Store 540) &mdash; values, names, and contact details fictionalized for this write-up</span>
+  </div>
+</footer>
+
+<script>
+  const tooltipBase = { backgroundColor: '#fff', titleColor: '#111827', bodyColor: '#111827', borderColor: '#e5e7eb', borderWidth: 1, padding: 8 };
+
+  new Chart(document.getElementById('refrigChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Rack D', 'Rack A', 'Rack C', 'Rack B'],
+      datasets: [{ data: [78, 65, 61, 54], backgroundColor: '#0071CE', borderRadius: 4 }],
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...tooltipBase, callbacks: { label: c => ` ${c.parsed.x}% time in target` } } },
+      scales: { x: { max: 100, ticks: { color: '#6b7280' }, grid: { color: 'rgba(0,0,0,.06)' } }, y: { ticks: { color: '#6b7280' }, grid: { display: false } } },
+    },
+  });
+
+  const months = ['Mo 1', 'Mo 2', 'Mo 3', 'Mo 4', 'Mo 5', 'Mo 6', 'Mo 7', 'Mo 8', 'Mo 9', 'Mo 10', 'Mo 11', 'Mo 12'];
+  new Chart(document.getElementById('energyChart'), {
+    type: 'line',
+    data: {
+      labels: months,
+      datasets: [
+        { label: 'Main', data: [420, 430, 425, 440, 445, 450, 448, 455, 460, 458, 462, 465], borderColor: '#16233F', borderWidth: 2, pointRadius: 0, tension: .35 },
+        { label: 'Refrigeration', data: [180, 190, 185, 195, 200, 205, 210, 208, 215, 220, 218, 225], borderColor: '#E4772E', borderWidth: 2, pointRadius: 0, tension: .35 },
+        { label: 'Lighting', data: [30, 28, 29, 27, 26, 25, 5, 6, 5, 6, 5, 6], borderColor: '#0071CE', borderWidth: 2, pointRadius: 0, tension: .35 },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 10 } }, tooltip: tooltipBase },
+      scales: { x: { ticks: { color: '#6b7280', font: { size: 9 } }, grid: { display: false } }, y: { ticks: { color: '#6b7280' }, grid: { color: 'rgba(0,0,0,.06)' } } },
+    },
+  });
+</script>
+</body>
+</html>
