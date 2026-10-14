@@ -2973,8 +2973,11 @@
 
     function open(item, title) {
       // Already unlocked on this browser: go straight to the content
+      // (only trust links on this site -- older unlocks saved the retired github.io address)
       const saved = store.get('premium_' + item);
-      if (saved && saved.url) { const w0 = window.open(saved.url, '_blank'); if (w0) { w0.opener = null; return; } }
+      if (saved && saved.url && !/^https:\/\/www\.victorbuildsai\.com\//.test(saved.url)) {
+        try { localStorage.removeItem('premium_' + item); } catch (e) {}
+      } else if (saved && saved.url) { const w0 = window.open(saved.url, '_blank'); if (w0) { w0.opener = null; return; } }
       current = item; lastFocus = document.activeElement;
       titleEl.textContent = title;
       form.style.display = ''; done.style.display = 'none';
