@@ -1778,7 +1778,7 @@
 
     function open(item, title) {
       // Already unlocked on this browser: go straight to the content
-      // (only trust links on this site -- older unlocks saved the retired github.io address)
+      // (only trust links on this site -- older unlocks saved a retired address)
       const saved = store.get('premium_' + item);
       if (saved && saved.url && !/^https:\/\/www\.victorbuildsai\.com\//.test(saved.url)) {
         try { localStorage.removeItem('premium_' + item); } catch (e) {}
