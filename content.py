@@ -422,6 +422,14 @@ RESUMES = [
 # ---------------------------------------------------------------------------
 WORK_SAMPLES = [
     {
+        "title": "AISLE1: The AI-Native Reporting Hub That Replaced Our BI Sprawl",
+        "tag": "AI Product · Customer Engagement Services",
+        "description": "A walkthrough of AISLE1, the governed, AI-driven insights product my partner director and I built for Walmart's customer care org: one searchable hub for core metrics, queue performance, handle time, billable contacts, leadership insights and sprint health, with natural-language metric search and the gamified adoption that took it from a few users to the whole org. Interactive demo with synthetic data.",
+        "thumbnail": "/static/aisle1.png",
+        "url": "",
+        "premium": "aisle1",
+    },
+    {
         "title": "Agent Performance Scorecard",
         "tag": "Contact Center Analytics · Performance Management",
         "description": (

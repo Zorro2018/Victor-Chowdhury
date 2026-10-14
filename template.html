@@ -237,6 +237,21 @@
   @keyframes nudgeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) { #chatNudge.show { animation: none; } }
 
+  /* Premium work samples */
+  .premium-card { font: inherit; color: inherit; cursor: pointer; padding: 0; box-shadow: 0 0 0 1px rgba(232,185,35,0.35); }
+  .premium-badge { position: absolute; top: 10px; left: 10px; z-index: 2; background: linear-gradient(135deg,#FFC220,#E8A317); color: #16233F;
+    font-size: 0.68rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px;
+    box-shadow: 0 4px 12px -2px rgba(0,0,0,0.25); }
+  #premiumOverlay { position: fixed; inset: 0; z-index: 75; background: rgba(15,23,42,0.6); display: none; align-items: center; justify-content: center; padding: 1rem; }
+  #premiumOverlay.open { display: flex; }
+  #premiumModal { background: #fff; border-radius: 1rem; width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; box-shadow: 0 30px 70px -15px rgba(0,0,0,0.45); }
+  #premiumModal label { display: block; font-size: 0.78rem; font-weight: 600; color: #374151; margin: 0.7rem 0 0.25rem; }
+  #premiumModal, #premiumModal * { box-sizing: border-box; }
+  #premiumModal input { width: 100%; padding: 0.6rem 0.8rem; border: 1px solid #E4E7ED; border-radius: 0.6rem; font-size: 0.88rem; outline: none; font-family: inherit; }
+  #premiumModal input:focus { border-color: #0F7B6C; }
+  #premiumModal input.invalid { border-color: #DC2626; }
+  .premium-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
   /* "Check My Fit" modal */
   #jobFitOverlay {
     position: fixed; inset: 0; z-index: 70; background: rgba(15,23,42,0.6);
@@ -455,10 +470,17 @@
 
 <!-- WORK SAMPLES -->
 {% macro sample_card(s, duplicate=False) %}
+{% if s.premium %}
+<button type="button" data-premium="{{ s.premium }}" data-premium-title="{{ s.title }}"
+   class="premium-card carousel-card group block text-left bg-white border border-[#E8B923] rounded-xl overflow-hidden hover:border-accent"
+   {% if duplicate %}aria-hidden="true" tabindex="-1"{% else %}aria-label="Premium: {{ s.title }} - unlock to view"{% endif %}>
+{% else %}
 <a href="{{ s.url }}" target="_blank" rel="noopener"
    class="carousel-card group block bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-accent"
    {% if duplicate %}aria-hidden="true" tabindex="-1"{% endif %}>
-  <div class="aspect-[16/10] overflow-hidden bg-gray-100 border-b border-gray-200">
+{% endif %}
+  <div class="aspect-[16/10] overflow-hidden bg-gray-100 border-b border-gray-200 relative">
+    {% if s.premium %}<span class="premium-badge">&#9733; Premium</span>{% endif %}
     <img src="{{ s.thumbnail }}" alt="{{ s.title }}" loading="lazy"
          class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300">
   </div>
@@ -466,9 +488,9 @@
     <div class="text-[10px] tracking-[0.12em] uppercase text-accent font-bold mb-2">{{ s.tag }}</div>
     <h3 class="serif font-bold text-lg text-navy mb-2 leading-snug group-hover:text-accent transition">{{ s.title }}</h3>
     <p class="text-sm text-[#3A4459] leading-relaxed mb-3">{{ s.description }}</p>
-    <div class="text-xs font-semibold text-accent">View live &rarr;</div>
+    {% if s.premium %}<div class="text-xs font-semibold text-[#B7791F]">&#128274; Unlock to view &rarr;</div>{% else %}<div class="text-xs font-semibold text-accent">View live &rarr;</div>{% endif %}
   </div>
-</a>
+{% if s.premium %}</button>{% else %}</a>{% endif %}
 {% endmacro %}
 <section id="samples" class="bg-[#F7F8FA] border-y border-gray-200 overflow-hidden">
   <div class="max-w-6xl mx-auto px-6 pt-20">
@@ -1247,6 +1269,44 @@
   <div style="font-size:0.66rem;color:#94A3B8;text-align:center;padding:0 0.75rem 0.55rem;">AI-generated answers can be imperfect. Chats are saved so Victor can follow up.</div>
 </div>
 
+<!-- PREMIUM CONTENT GATE -- visitor leaves a verified contact before a
+     premium work sample opens. The unlock-premium edge function validates the
+     email (syntax + live DNS), alerts Victor (WhatsApp + email) and only then
+     returns the content URL, which never appears in this page. -->
+<div id="premiumOverlay">
+  <div id="premiumModal" role="dialog" aria-modal="true" aria-labelledby="premiumTitle">
+    <div style="background:#16233F;color:#fff;padding:1.1rem 1.3rem;display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;">
+      <div>
+        <div style="font-size:0.68rem;font-weight:800;letter-spacing:0.08em;color:#FFC220;text-transform:uppercase;">&#9733; Premium work sample</div>
+        <div id="premiumTitle" style="font-weight:800;font-size:1.02rem;margin-top:2px;line-height:1.3;"></div>
+      </div>
+      <button type="button" id="premiumClose" aria-label="Close" style="background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;line-height:1;">&times;</button>
+    </div>
+    <div style="padding:1.2rem 1.3rem 1.3rem;">
+      <p style="font-size:0.85rem;color:#3A4459;line-height:1.5;margin:0;">This one's my flagship build. Tell me who you are and it opens right away &mdash; I'll know you stopped by, and I may follow up.</p>
+      <form id="premiumForm" novalidate>
+        <label for="pmName">Name *</label>
+        <input id="pmName" autocomplete="name" maxlength="120" required>
+        <label for="pmEmail">Email *</label>
+        <input id="pmEmail" type="email" autocomplete="email" maxlength="200" required placeholder="you@company.com">
+        <label for="pmCompany">Company</label>
+        <input id="pmCompany" autocomplete="organization" maxlength="150">
+        <label for="pmRole">Role you're hiring for</label>
+        <input id="pmRole" maxlength="150">
+        <div class="premium-hp" aria-hidden="true"><label for="pmWebsite">Website</label><input id="pmWebsite" tabindex="-1" autocomplete="off"></div>
+        <div id="pmStatus" role="status" style="font-size:0.8rem;margin-top:0.7rem;min-height:1.1em;color:#DC2626;"></div>
+        <button type="submit" id="pmSubmit" style="margin-top:0.4rem;width:100%;background:#0F7B6C;color:#fff;border:none;border-radius:0.6rem;padding:0.75rem;font-weight:700;font-size:0.92rem;cursor:pointer;">Unlock &amp; view &rarr;</button>
+        <div style="font-size:0.7rem;color:#94A3B8;margin-top:0.6rem;text-align:center;">Your details go only to Victor. No mailing lists.</div>
+      </form>
+      <div id="pmDone" style="display:none;text-align:center;padding:0.6rem 0 0.2rem;">
+        <div style="font-size:1.6rem;">&#127881;</div>
+        <div style="font-weight:700;color:#16233F;margin:0.3rem 0 0.8rem;">Unlocked &mdash; thanks!</div>
+        <a id="pmOpen" href="#" target="_blank" rel="noopener" style="display:inline-block;background:#0F7B6C;color:#fff;border-radius:0.6rem;padding:0.7rem 1.2rem;font-weight:700;font-size:0.9rem;text-decoration:none;">Open it &rarr;</a>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- CHECK MY FIT -- pastes a job link or job description, calls a Supabase
      Edge Function (check-job-fit) that fetches the link server-side (avoids
      browser CORS limits), sends it to Gemini alongside Victor's profile, and
@@ -1695,5 +1755,92 @@
   })();
 </script>
 
+<script>
+  // Premium work samples: gate behind a verified contact (see unlock-premium).
+  (function initPremiumGate() {
+    const overlay = document.getElementById('premiumOverlay');
+    const form = document.getElementById('premiumForm');
+    if (!overlay || !form) return;
+    const ENDPOINT = 'https://wownxeielqhubwfzqqor.supabase.co/functions/v1/unlock-premium';
+    const titleEl = document.getElementById('premiumTitle');
+    const statusEl = document.getElementById('pmStatus');
+    const submitBtn = document.getElementById('pmSubmit');
+    const done = document.getElementById('pmDone');
+    const openLink = document.getElementById('pmOpen');
+    const $ = (id) => document.getElementById(id);
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    let current = null, lastFocus = null;
+
+    const store = {
+      get(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } },
+      set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+    };
+
+    function open(item, title) {
+      // Already unlocked on this browser: go straight to the content
+      const saved = store.get('premium_' + item);
+      if (saved && saved.url) { const w0 = window.open(saved.url, '_blank'); if (w0) { w0.opener = null; return; } }
+      current = item; lastFocus = document.activeElement;
+      titleEl.textContent = title;
+      form.style.display = ''; done.style.display = 'none';
+      statusEl.textContent = ''; statusEl.style.color = '#DC2626';
+      overlay.classList.add('open');
+      $('pmName').focus();
+    }
+    function close() {
+      overlay.classList.remove('open');
+      if (lastFocus) lastFocus.focus();
+    }
+
+    document.addEventListener('click', (e) => {
+      const card = e.target.closest('[data-premium]');
+      if (card) { e.preventDefault(); open(card.dataset.premium, card.dataset.premiumTitle); }
+    });
+    $('premiumClose').addEventListener('click', close);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && overlay.classList.contains('open')) close(); });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        item: current,
+        name: $('pmName').value.trim(),
+        email: $('pmEmail').value.trim(),
+        company: $('pmCompany').value.trim(),
+        role: $('pmRole').value.trim(),
+        website: $('pmWebsite').value,
+      };
+      $('pmName').classList.toggle('invalid', payload.name.length < 2);
+      $('pmEmail').classList.toggle('invalid', !EMAIL_RE.test(payload.email));
+      if (payload.name.length < 2) { statusEl.textContent = 'Please enter your name.'; $('pmName').focus(); return; }
+      if (!EMAIL_RE.test(payload.email)) { statusEl.textContent = "That doesn't look like a valid email address."; $('pmEmail').focus(); return; }
+
+      submitBtn.disabled = true; submitBtn.textContent = 'Verifying\u2026';
+      statusEl.style.color = '#64748B'; statusEl.textContent = 'Checking your email and unlocking\u2026';
+      try {
+        const resp = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok || !data.url) {
+          statusEl.style.color = '#DC2626';
+          statusEl.textContent = data.error || 'Something went wrong \u2014 please try again.';
+          if (data.field) { const f = data.field === 'name' ? $('pmName') : $('pmEmail'); f.classList.add('invalid'); f.focus(); }
+          return;
+        }
+        store.set('premium_' + current, { url: data.url });
+        openLink.href = data.url;
+        form.style.display = 'none'; done.style.display = '';
+        // Try to open it straight away; the button stays as a fallback if a popup blocker steps in
+        const w = window.open(data.url, '_blank');
+        if (w) { w.opener = null; setTimeout(close, 1200); } else { openLink.focus(); }
+      } catch (err) {
+        statusEl.style.color = '#DC2626';
+        statusEl.textContent = 'Network error \u2014 please try again.';
+      } finally {
+        submitBtn.disabled = false; submitBtn.innerHTML = 'Unlock &amp; view &rarr;';
+      }
+    });
+    ['pmName', 'pmEmail'].forEach((id) => $(id).addEventListener('input', () => $(id).classList.remove('invalid')));
+  })();
+</script>
 </body>
 </html>
