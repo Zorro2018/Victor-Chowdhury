@@ -242,6 +242,11 @@
   .premium-badge { position: absolute; top: 10px; left: 10px; z-index: 2; background: linear-gradient(135deg,#FFC220,#E8A317); color: #16233F;
     font-size: 0.68rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px;
     box-shadow: 0 4px 12px -2px rgba(0,0,0,0.25); }
+  /* Highlight badges on regular cards (e.g. "Creativity") */
+  .sample-badge { position: absolute; top: 10px; left: 10px; z-index: 2; background: linear-gradient(135deg,#8B5CF6,#EC4899); color: #fff;
+    font-size: 0.68rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px;
+    box-shadow: 0 4px 12px -2px rgba(0,0,0,0.25); }
+  .badge-card { box-shadow: 0 0 0 1px rgba(139,92,246,0.35); border-color: #C4B5FD !important; }
   #premiumOverlay { position: fixed; inset: 0; z-index: 75; background: rgba(15,23,42,0.6); display: none; align-items: center; justify-content: center; padding: 1rem; }
   #premiumOverlay.open { display: flex; }
   #premiumModal { background: #fff; border-radius: 1rem; width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; box-shadow: 0 30px 70px -15px rgba(0,0,0,0.45); }
@@ -762,6 +767,24 @@
 </button>
 
 
+<a href="https://sites.google.com/view/fruitslicerandmathgame/full-page-embed" target="_blank" rel="noopener"
+   class="carousel-card group block bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-accent badge-card"
+   >
+
+  <div class="aspect-[16/10] overflow-hidden bg-gray-100 border-b border-gray-200 relative">
+    <span class="sample-badge">&#10024; Creativity</span>
+    <img src="/static/fruit-slicer-math.png" alt="Fruit Slicer &amp; Math: A Game I Built So My Son Would Practice Math" loading="lazy"
+         class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300">
+  </div>
+  <div class="p-5">
+    <div class="text-[10px] tracking-[0.12em] uppercase text-accent font-bold mb-2">Creative Problem-Solving · Personal Project</div>
+    <h3 class="serif font-bold text-lg text-navy mb-2 leading-snug group-hover:text-accent transition">Fruit Slicer &amp; Math: A Game I Built So My Son Would Practice Math</h3>
+    <p class="text-sm text-[#3A4459] leading-relaxed mb-3">My son, who is on the spectrum, plays exactly one game: Fruit Ninja. It had started pushing ads and a $30-a-year subscription button he kept tapping by accident, while my wife struggled to get him to sit down for math he&#39;s actually great at. So I built my own version: a calmer, slower slicing game that pauses every 10 seconds for one multiple-choice math problem and one spoken grade 2-3 spelling word he types in. He gets one retry before the problem changes, and when he ends the session his mom gets a report card showing first- versus second-attempt results. No ads, no paywall, and the screen time now counts as practice.</p>
+    <div class="text-xs font-semibold text-accent">Play the game &rarr;</div>
+  </div>
+</a>
+
+
 <a href="https://www.victorbuildsai.com/work/agent-performance/" target="_blank" rel="noopener"
    class="carousel-card group block bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-accent"
    >
@@ -977,6 +1000,24 @@
     <div class="text-xs font-semibold text-[#B7791F]">&#128274; Unlock to view &rarr;</div>
   </div>
 </button>
+
+
+<a href="https://sites.google.com/view/fruitslicerandmathgame/full-page-embed" target="_blank" rel="noopener"
+   class="carousel-card group block bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-accent badge-card"
+   aria-hidden="true" tabindex="-1">
+
+  <div class="aspect-[16/10] overflow-hidden bg-gray-100 border-b border-gray-200 relative">
+    <span class="sample-badge">&#10024; Creativity</span>
+    <img src="/static/fruit-slicer-math.png" alt="Fruit Slicer &amp; Math: A Game I Built So My Son Would Practice Math" loading="lazy"
+         class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300">
+  </div>
+  <div class="p-5">
+    <div class="text-[10px] tracking-[0.12em] uppercase text-accent font-bold mb-2">Creative Problem-Solving · Personal Project</div>
+    <h3 class="serif font-bold text-lg text-navy mb-2 leading-snug group-hover:text-accent transition">Fruit Slicer &amp; Math: A Game I Built So My Son Would Practice Math</h3>
+    <p class="text-sm text-[#3A4459] leading-relaxed mb-3">My son, who is on the spectrum, plays exactly one game: Fruit Ninja. It had started pushing ads and a $30-a-year subscription button he kept tapping by accident, while my wife struggled to get him to sit down for math he&#39;s actually great at. So I built my own version: a calmer, slower slicing game that pauses every 10 seconds for one multiple-choice math problem and one spoken grade 2-3 spelling word he types in. He gets one retry before the problem changes, and when he ends the session his mom gets a report card showing first- versus second-attempt results. No ads, no paywall, and the screen time now counts as practice.</p>
+    <div class="text-xs font-semibold text-accent">Play the game &rarr;</div>
+  </div>
+</a>
 
 
 <a href="https://www.victorbuildsai.com/work/agent-performance/" target="_blank" rel="noopener"

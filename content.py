@@ -430,6 +430,24 @@ WORK_SAMPLES = [
         "premium": "aisle1",
     },
     {
+        "title": "Fruit Slicer & Math: A Game I Built So My Son Would Practice Math",
+        "tag": "Creative Problem-Solving · Personal Project",
+        "description": (
+            "My son, who is on the spectrum, plays exactly one game: Fruit Ninja. It had started "
+            "pushing ads and a $30-a-year subscription button he kept tapping by accident, while my "
+            "wife struggled to get him to sit down for math he's actually great at. So I built my own "
+            "version: a calmer, slower slicing game that pauses every 10 seconds for one multiple-choice "
+            "math problem and one spoken grade 2-3 spelling word he types in. He gets one retry before "
+            "the problem changes, and when he ends the session his mom gets a report card showing "
+            "first- versus second-attempt results. No ads, no paywall, and the screen time now counts "
+            "as practice."
+        ),
+        "thumbnail": "/static/fruit-slicer-math.png",
+        "url": "https://sites.google.com/view/fruitslicerandmathgame/full-page-embed",
+        "badge": "Creativity",
+        "cta": "Play the game",
+    },
+    {
         "title": "Agent Performance Scorecard",
         "tag": "Contact Center Analytics · Performance Management",
         "description": (

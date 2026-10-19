@@ -242,6 +242,11 @@
   .premium-badge { position: absolute; top: 10px; left: 10px; z-index: 2; background: linear-gradient(135deg,#FFC220,#E8A317); color: #16233F;
     font-size: 0.68rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px;
     box-shadow: 0 4px 12px -2px rgba(0,0,0,0.25); }
+  /* Highlight badges on regular cards (e.g. "Creativity") */
+  .sample-badge { position: absolute; top: 10px; left: 10px; z-index: 2; background: linear-gradient(135deg,#8B5CF6,#EC4899); color: #fff;
+    font-size: 0.68rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px;
+    box-shadow: 0 4px 12px -2px rgba(0,0,0,0.25); }
+  .badge-card { box-shadow: 0 0 0 1px rgba(139,92,246,0.35); border-color: #C4B5FD !important; }
   #premiumOverlay { position: fixed; inset: 0; z-index: 75; background: rgba(15,23,42,0.6); display: none; align-items: center; justify-content: center; padding: 1rem; }
   #premiumOverlay.open { display: flex; }
   #premiumModal { background: #fff; border-radius: 1rem; width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; box-shadow: 0 30px 70px -15px rgba(0,0,0,0.45); }
@@ -476,11 +481,11 @@
    {% if duplicate %}aria-hidden="true" tabindex="-1"{% else %}aria-label="Premium: {{ s.title }} - unlock to view"{% endif %}>
 {% else %}
 <a href="{{ s.url }}" target="_blank" rel="noopener"
-   class="carousel-card group block bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-accent"
+   class="carousel-card group block bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-accent{% if s.badge %} badge-card{% endif %}"
    {% if duplicate %}aria-hidden="true" tabindex="-1"{% endif %}>
 {% endif %}
   <div class="aspect-[16/10] overflow-hidden bg-gray-100 border-b border-gray-200 relative">
-    {% if s.premium %}<span class="premium-badge">&#9733; Premium</span>{% endif %}
+    {% if s.premium %}<span class="premium-badge">&#9733; Premium</span>{% elif s.badge %}<span class="sample-badge">&#10024; {{ s.badge }}</span>{% endif %}
     <img src="{{ s.thumbnail }}" alt="{{ s.title }}" loading="lazy"
          class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300">
   </div>
@@ -488,7 +493,7 @@
     <div class="text-[10px] tracking-[0.12em] uppercase text-accent font-bold mb-2">{{ s.tag }}</div>
     <h3 class="serif font-bold text-lg text-navy mb-2 leading-snug group-hover:text-accent transition">{{ s.title }}</h3>
     <p class="text-sm text-[#3A4459] leading-relaxed mb-3">{{ s.description }}</p>
-    {% if s.premium %}<div class="text-xs font-semibold text-[#B7791F]">&#128274; Unlock to view &rarr;</div>{% else %}<div class="text-xs font-semibold text-accent">View live &rarr;</div>{% endif %}
+    {% if s.premium %}<div class="text-xs font-semibold text-[#B7791F]">&#128274; Unlock to view &rarr;</div>{% else %}<div class="text-xs font-semibold text-accent">{{ s.cta or "View live" }} &rarr;</div>{% endif %}
   </div>
 {% if s.premium %}</button>{% else %}</a>{% endif %}
 {% endmacro %}
