@@ -3,19 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{ profile.name }} &mdash; {{ profile.tagline }}</title>
+<title>{{ profile.name }} | {{ profile.tagline }}</title>
 <meta name="description" content="{{ profile.subhead }}">
 
 <!-- Open Graph / Twitter preview card -->
 <meta property="og:type" content="website">
-<meta property="og:title" content="{{ profile.name }} &mdash; {{ profile.tagline }}">
+<meta property="og:title" content="{{ profile.name }} | {{ profile.tagline }}">
 <meta property="og:description" content="{{ profile.subhead }}">
 <meta property="og:image" content="https://www.victorbuildsai.com/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:url" content="https://www.victorbuildsai.com/">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="{{ profile.name }} &mdash; {{ profile.tagline }}">
+<meta name="twitter:title" content="{{ profile.name }} | {{ profile.tagline }}">
 <meta name="twitter:description" content="{{ profile.subhead }}">
 <meta name="twitter:image" content="https://www.victorbuildsai.com/og-image.png">
 
@@ -442,7 +442,7 @@
   <div class="mb-10">
     <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">Experience, by Lens</div>
     <h2 class="serif font-bold text-3xl text-navy mb-3">Four ways to look at the same career</h2>
-    <p class="text-slate2 max-w-2xl">The work overlaps constantly &mdash; an AI launch is also a product bet, a data platform is also a business-strategy call. These buckets are just the four lenses people usually ask about.</p>
+    <p class="text-slate2 max-w-2xl">The work overlaps constantly. An AI launch is also a product bet, a data platform is also a business-strategy call. These buckets are just the four lenses people usually ask about.</p>
   </div>
 
   <div class="flex flex-wrap gap-2 mb-8" role="tablist">
@@ -501,7 +501,7 @@
   <div class="max-w-6xl mx-auto px-6 pt-20">
     <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">Work Samples</div>
     <h2 class="serif font-bold text-3xl text-navy mb-3">See it, not just read about it</h2>
-    <p class="text-slate2 max-w-2xl mb-4">Live, interactive artifacts &mdash; click through to explore the real thing. Hover any card to pause and take a closer look.</p>
+    <p class="text-slate2 max-w-2xl mb-4">Live, interactive artifacts. Click through to explore the real thing. Hover any card to pause and take a closer look.</p>
   </div>
   <div class="carousel-wrap">
     <button type="button" class="carousel-nav prev" id="samplesPrev" aria-label="Scroll work samples left">&larr;</button>
@@ -883,11 +883,11 @@
 
       submitBtn.disabled = false;
       if (error) {
-        statusEl.textContent = "Something went wrong -- try the Email Me button instead.";
+        statusEl.textContent = "Something went wrong. Try the Email Me button instead.";
         statusEl.className = 'text-xs mt-2 text-center text-red-300';
       } else {
         form.reset();
-        statusEl.textContent = 'Thanks -- message sent!';
+        statusEl.textContent = 'Thanks, message sent!';
         statusEl.className = 'text-xs mt-2 text-center text-green-300';
       }
     });
@@ -1210,7 +1210,7 @@
      contact_submissions, which pushes an ntfy alert. -->
 <div id="chatNudge" role="status">
   <button class="x" aria-label="Dismiss">&times;</button>
-  <strong>Hi, I'm Victor's AI.</strong> Hiring? Ask me what you'd ask on a first call &mdash; or paste a job description.
+  <strong>Hi, I'm Victor's AI.</strong> Hiring? Ask me what you'd ask on a first call, or paste a job description.
 </div>
 <button id="chatLauncher" class="tt" aria-label="Talk to Victor (AI)" aria-expanded="false" aria-controls="chatPanel"
         data-tip="Hi, I'm Victor's AI agent &#128075; Hiring? Let's talk!">
@@ -1288,7 +1288,7 @@
       <button type="button" id="premiumClose" aria-label="Close" style="background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;line-height:1;">&times;</button>
     </div>
     <div style="padding:1.2rem 1.3rem 1.3rem;">
-      <p style="font-size:0.85rem;color:#3A4459;line-height:1.5;margin:0;">This one's my flagship build. Tell me who you are and it opens right away &mdash; I'll know you stopped by, and I may follow up.</p>
+      <p style="font-size:0.85rem;color:#3A4459;line-height:1.5;margin:0;">This one's my flagship build. Tell me who you are and it opens right away. I'll know you stopped by, and I may follow up.</p>
       <form id="premiumForm" novalidate>
         <label for="pmName">Name *</label>
         <input id="pmName" autocomplete="name" maxlength="120" required>
@@ -1305,7 +1305,7 @@
       </form>
       <div id="pmDone" style="display:none;text-align:center;padding:0.6rem 0 0.2rem;">
         <div style="font-size:1.6rem;">&#127881;</div>
-        <div style="font-weight:700;color:#16233F;margin:0.3rem 0 0.8rem;">Unlocked &mdash; thanks!</div>
+        <div style="font-weight:700;color:#16233F;margin:0.3rem 0 0.8rem;">Unlocked, thanks!</div>
         <a id="pmOpen" href="#" target="_blank" rel="noopener" style="display:inline-block;background:#0F7B6C;color:#fff;border-radius:0.6rem;padding:0.7rem 1.2rem;font-weight:700;font-size:0.9rem;text-decoration:none;">Open it &rarr;</a>
       </div>
     </div>
@@ -1330,7 +1330,7 @@
         <label for="jobFitInput" style="display:block;font-size:0.8rem;font-weight:600;color:#374151;margin-bottom:0.4rem;">Paste a job posting link or the job description text</label>
         <textarea id="jobFitInput" rows="4" maxlength="6000" placeholder="https://... or paste the full job description"
                   style="width:100%;padding:0.7rem 0.85rem;border:1px solid #E4E7ED;border-radius:0.6rem;font-size:0.85rem;outline:none;resize:vertical;font-family:inherit;"></textarea>
-        <div style="font-size:0.72rem;color:#9CA3AF;margin-top:0.4rem;">Note: some sites (LinkedIn especially) block automated link fetching \u2014 if the link doesn't work, paste the job description text directly instead.</div>
+        <div style="font-size:0.72rem;color:#9CA3AF;margin-top:0.4rem;">Note: some sites (LinkedIn especially) block automated link fetching. If the link doesn't work, paste the job description text directly instead.</div>
         <button type="submit" id="jobFitSubmit" style="margin-top:0.9rem;width:100%;background:#0F7B6C;color:#fff;border:none;border-radius:0.6rem;padding:0.75rem;font-weight:700;font-size:0.9rem;cursor:pointer;">Check Fit</button>
       </form>
       <div id="jobFitResult" style="margin-top:1.3rem;"></div>
@@ -1377,7 +1377,7 @@
     if (!launcher || !panel || !form) return;
 
     const ENDPOINT = 'https://wownxeielqhubwfzqqor.supabase.co/functions/v1/talk-to-victor';
-    const GREETING = "Hi, I'm Victor's AI agent \u{1F44B} Think of me as the first-call version of Victor. Ask me about the AI products I've built, how I lead teams, or the messiest problem I've solved \u2014 or paste a job description and I'll tell you how I'd fit.\n\nLike what you hear? Book a call with me right here, or tap \"Pass my details to Victor\" and the real me will reach out.";
+    const GREETING = "Hi, I'm Victor's AI agent \u{1F44B} Think of me as the first-call version of Victor. Ask me about the AI products I've built, how I lead teams, or the messiest problem I've solved. Or paste a job description and I'll tell you how I'd fit.\n\nLike what you hear? Book a call with me right here, or tap \"Pass my details to Victor\" and the real me will reach out.";
     const STARTERS = [
       'Give me the 60-second overview',
       "What's your biggest AI win?",
@@ -1467,7 +1467,7 @@
       } catch (err) {
         typing.remove();
         history.pop(); saveHistory();   // let them resend the same question
-        addBubble(err.message || 'Something went wrong — try the contact form below.', 'bot');
+        addBubble(err.message || 'Something went wrong. Please try the contact form below.', 'bot');
       } finally {
         if (submitBtn) submitBtn.disabled = false;
         input.focus();
@@ -1499,11 +1499,11 @@
     // Rotating hover greetings -- a new line each time someone hovers
     const HOVER_LINES = [
       "Hi, I'm Victor's AI agent \u{1F44B} Hiring? Let's talk!",
-      "Hey there! I'm Victor's AI agent. Ask me anything — I've got stories.",
+      "Hey there! I'm Victor's AI agent. Ask me anything, I've got stories.",
       "Grab a coffee ☕ I'm Victor's AI agent and I'm ready when you are.",
-      "Hiring for AI & data? I'm Victor's AI agent — let's chat.",
+      "Hiring for AI & data? I'm Victor's AI agent. Let's chat!",
       "Got a job description? Paste it in and I'll show you how I fit \u{1F3AF}",
-      "I'm Victor's AI agent. Skip the small talk — ask me about impact \u{1F4C8}",
+      "I'm Victor's AI agent. Skip the small talk and ask me about impact \u{1F4C8}",
     ];
     let hoverIdx = 0;
     launcher.addEventListener('mouseenter', () => {
@@ -1639,9 +1639,9 @@
         leadForm.classList.remove('open');
         leadToggle.textContent = '✓ Victor has your details';
         leadToggle.disabled = true;
-        addBubble("Thanks, " + payload.name.split(' ')[0] + "! I've passed your details and our conversation to the real Victor — he'll be in touch soon.", 'bot');
+        addBubble("Thanks, " + payload.name.split(' ')[0] + "! I've passed your details and our conversation to the real Victor. He'll be in touch soon.", 'bot');
       } catch (err) {
-        leadStatus.textContent = err.message || 'Could not send — please use the contact form below.';
+        leadStatus.textContent = err.message || 'Could not send. Please use the contact form below.';
       } finally { btn.disabled = false; }
     });
 
@@ -1746,12 +1746,12 @@
         });
         const data = await resp.json().catch(() => ({}));
         if (!resp.ok) {
-          renderError(data.error || 'Something went wrong -- please try again.');
+          renderError(data.error || 'Something went wrong. Please try again.');
         } else {
           renderResult(data);
         }
       } catch (err) {
-        renderError('Something went wrong -- please try again.');
+        renderError('Something went wrong. Please try again.');
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Check Fit';
@@ -1830,7 +1830,7 @@
         const data = await resp.json().catch(() => ({}));
         if (!resp.ok || !data.url) {
           statusEl.style.color = '#DC2626';
-          statusEl.textContent = data.error || 'Something went wrong \u2014 please try again.';
+          statusEl.textContent = data.error || 'Something went wrong. Please try again.';
           if (data.field) { const f = data.field === 'name' ? $('pmName') : $('pmEmail'); f.classList.add('invalid'); f.focus(); }
           return;
         }
@@ -1842,7 +1842,7 @@
         if (w) { w.opener = null; setTimeout(close, 1200); } else { openLink.focus(); }
       } catch (err) {
         statusEl.style.color = '#DC2626';
-        statusEl.textContent = 'Network error \u2014 please try again.';
+        statusEl.textContent = 'Network error. Please try again.';
       } finally {
         submitBtn.disabled = false; submitBtn.innerHTML = 'Unlock &amp; view &rarr;';
       }

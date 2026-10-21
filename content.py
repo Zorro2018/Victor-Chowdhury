@@ -11,9 +11,9 @@ PROFILE = {
     "name": "Victor Chowdhury",
     "tagline": "Data, AI & Product Leader",
     "subhead": (
-        "I build the systems that decide what a business does next \u2014 "
+        "I build the systems that decide what a business does next: "
         "metric layers, experiments, and the AI agents that put insight "
-        "directly in a leader's hands \u2014 then help Product and Engineering "
+        "directly in a leader's hands. Then I help Product and Engineering "
         "ship it."
     ),
     "location": "Bentonville, Arkansas",
@@ -21,15 +21,15 @@ PROFILE = {
     "email": "victorchowdhury1988@gmail.com",
     "years_industry": 16,
     "years_walmart": "9+",
-    "current_role": "Director, Strategic Insights & AI \u2014 Walmart",
+    "current_role": "Director, Strategic Insights & AI, Walmart",
 }
 
 ABOUT = [
     (
         "Sixteen years in analytics and AI, including nine-plus at Walmart, spent in the seam "
         "between what the data says, what engineering can build, and what the customer actually "
-        "needs. I currently lead a 25+ person organization across four pillars \u2014 Self-Serve/"
-        "Chatbots/AI, CRM, Workforce Management, and Ops \u2014 and have shipped alongside Product "
+        "needs. I currently lead a 25+ person organization across four pillars (Self-Serve/"
+        "Chatbots/AI, CRM, Workforce Management, and Ops) and have shipped alongside Product "
         "teams in customer service, fulfillment, facilities, fuel & convenience, and store innovation."
     ),
     (
@@ -49,8 +49,8 @@ IMPACT = [
         "metric": "$36M",
         "label": "CRM AI Savings",
         "tag": "Customer Engagement",
-        "detail": "Championed AI initiatives across CRM \u2014 including AI-based voice and chat "
-                  "agents (Agent Assist) \u2014 measured and tracked through to realized savings.",
+        "detail": "Championed AI initiatives across CRM, including AI-based voice and chat "
+                  "agents (Agent Assist), measured and tracked through to realized savings.",
     },
     {
         "metric": "$330M",
@@ -91,8 +91,8 @@ IMPACT = [
         "metric": "AISLE1",
         "label": "Agentic AI Product",
         "tag": "Claude + BigQuery",
-        "detail": "Built the org's governed metric repository as a conversational AI product \u2014 "
-                  "leaders query certified definitions in natural language.",
+        "detail": "Built the org's governed metric repository as a conversational AI product. "
+                  "Leaders query certified definitions in natural language.",
     },
     {
         "metric": "$6M",
@@ -111,7 +111,7 @@ BUCKETS = [
         "id": "ai",
         "label": "AI",
         "intro": (
-            "Agentic AI, GenAI, computer vision, and conversational AI \u2014 built to change a "
+            "Agentic AI, GenAI, computer vision, and conversational AI, built to change a "
             "decision, not just add a feature. My focus is always the measurement framework "
             "underneath: how do we know it worked?"
         ),
@@ -121,7 +121,7 @@ BUCKETS = [
                 "tag": "Claude + BigQuery",
                 "body": "Built an agentic AI insights product that serves as the org's governed "
                         "metric repository. Leaders query certified definitions in natural "
-                        "language and get narrative answers with context \u2014 not just tables \u2014 "
+                        "language and get narrative answers with context, not just tables, "
                         "and the semantic layer keeps the number the same no matter who asks. It "
                         "absorbed the recurring ad hoc analysis load and now powers \u201c4-in-the-box\u201d "
                         "product, ops, and engineering reviews.",
@@ -129,8 +129,8 @@ BUCKETS = [
             {
                 "title": "Sierra Voice AI: Defining What \u201cGood\u201d Looks Like",
                 "tag": "Conversational AI",
-                "body": "Owned the measurement framework \u2014 containment, resolution, cost per "
-                        "contact \u2014 that leadership used to judge the shift from traditional IVR "
+                "body": "Owned the measurement framework (containment, resolution, cost per "
+                        "contact) that leadership used to judge the shift from traditional IVR "
                         "to an AI voice assistant. Self-serve rate rose from 30% to 70%, with CSAT "
                         "climbing alongside it rather than trading off against it.",
             },
@@ -138,11 +138,11 @@ BUCKETS = [
                 "title": "Agent Assist: From Pilot to Scale",
                 "tag": "AI-based CRM Platform",
                 "body": "Partnered directly with Product on AI-based voice and chat agents on the "
-                        "CRM platform \u2014 requirements and problem framing, pilot design, launch "
+                        "CRM platform: requirements and problem framing, pilot design, launch "
                         "readiness, adoption tracking, and post-launch iteration. Built sentiment "
                         "analysis into the measurement layer to track how customers actually felt "
                         "about AI-handled interactions turn by turn, not just whether the contact "
-                        "resolved \u2014 catching tone and satisfaction drift early enough to fix it "
+                        "resolved. That caught tone and satisfaction drift early enough to fix it "
                         "before it showed up in CSAT. Part of a broader CRM AI push that delivered "
                         "$36M in realized savings.",
             },
@@ -160,15 +160,15 @@ BUCKETS = [
         "id": "product",
         "label": "Product",
         "intro": (
-            "I build the analytics that decide what gets built \u2014 instrumentation, funnels, "
-            "experiment design, and the success metrics a product is judged on \u2014 embedded with "
+            "I build the analytics that decide what gets built: instrumentation, funnels, "
+            "experiment design, and the success metrics a product is judged on. I work embedded with "
             "Product from problem definition through launch and scale."
         ),
         "anecdotes": [
             {
                 "title": "Shipping the Instrumentation Behind the Roadmap",
                 "tag": "Product Analytics",
-                "body": "Own product analytics for the full service portfolio \u2014 instrumentation, "
+                "body": "Own product analytics for the full service portfolio: instrumentation, "
                         "journey funnels, containment and escalation analysis, and self-serve deep "
                         "dives that tell Product exactly where customers dropped off and which "
                         "experiences to rebuild first.",
@@ -196,7 +196,7 @@ BUCKETS = [
                 "title": "Tech Assist: Turning Maintenance Reactive to Proactive",
                 "tag": "Facility Services",
                 "body": "Partnered with Product to deploy live refrigeration and HVAC telemetry "
-                        "monitoring, giving field teams a signal before equipment failed \u2014 turning "
+                        "monitoring, giving field teams a signal before equipment failed and turning "
                         "a maintenance queue into a proactive product experience.",
             },
             {
@@ -204,7 +204,7 @@ BUCKETS = [
                 "tag": "Decision Systems",
                 "body": "Established definitions, architecture review, and sign-off processes "
                         "that gave Product one trusted source of truth for roadmap and "
-                        "prioritization \u2014 replacing dashboard sprawl with an actual decision "
+                        "prioritization, replacing dashboard sprawl with an actual decision "
                         "system.",
             },
         ],
@@ -214,7 +214,7 @@ BUCKETS = [
         "label": "Business Strategy",
         "intro": (
             "I work at the seam where physical footprint, operating model, cost structure, and "
-            "customer experience meet \u2014 framing the right problems and converting complex "
+            "customer experience meet, framing the right problems and converting complex "
             "operational challenges into scalable capabilities."
         ),
         "anecdotes": [
@@ -222,7 +222,7 @@ BUCKETS = [
                 "title": "Building Fuel & Convenience from the Ground Up",
                 "tag": "0\u21921 Business Strategy",
                 "body": "Built the strategy and data foundation for a new division from zero, "
-                        "standing up the metrics an entire business needed to operate \u2014 and drove "
+                        "standing up the metrics an entire business needed to operate, and drove "
                         "a 26% merchandise sales lift by connecting fuel traffic to inside-store "
                         "purchases.",
             },
@@ -231,22 +231,22 @@ BUCKETS = [
                 "tag": "Network Strategy",
                 "body": "Helped shape the build-out and operating case for Internal Consolidation "
                         "Centers, modeling flow, capacity, and cost-to-serve to inform how volume "
-                        "moved through the network \u2014 part of a 35% GMV lift for the fulfillment "
+                        "moved through the network, part of a 35% GMV lift for the fulfillment "
                         "business.",
             },
             {
                 "title": "One-Page Decision Briefs for 200+ Leaders",
                 "tag": "Executive Communication",
-                "body": "Translated network economics \u2014 cost to serve, capacity, carrier "
-                        "performance \u2014 into a one-page format used every week across Weekly "
+                "body": "Translated network economics (cost to serve, capacity, carrier "
+                        "performance) into a one-page format used every week across Weekly "
                         "Business Reviews, making complex trade-offs legible fast for a "
                         "multibillion-dollar business.",
             },
             {
                 "title": "From Reactive Tickets to Proactive Asset Strategy",
                 "tag": "Connected Assets",
-                "body": "Built the data and IoT foundation for Facilities Maintenance \u2014 "
-                        "architecture, telemetry flows, asset hierarchy \u2014 shifting the operating "
+                "body": "Built the data and IoT foundation for Facilities Maintenance "
+                        "(architecture, telemetry flows, asset hierarchy), shifting the operating "
                         "model from ticket response to prevention and informing capital versus "
                         "expense decisions on repair-or-replace.",
             },
@@ -272,14 +272,14 @@ BUCKETS = [
                 "title": "NLP Self-Service at Sam's Club",
                 "tag": "Applied NLP",
                 "body": "Shipped natural-language self-service so senior leaders could query "
-                        "their own data in free-form text \u2014 then trained them on it, treating "
+                        "their own data in free-form text, then trained them on it, treating "
                         "adoption as seriously as the technical build.",
             },
             {
                 "title": "Experimentation as a Practice, Not a One-Off",
                 "tag": "Causal Impact",
                 "body": "Ran control-group testing and IVR modernization measurement, built AHT "
-                        "trackers, and recovered IEX forecasting accuracy from red to green \u2014 "
+                        "trackers, and recovered IEX forecasting accuracy from red to green, "
                         "turning experimentation into a standing capability rather than a special "
                         "project.",
             },
@@ -287,7 +287,7 @@ BUCKETS = [
                 "title": "Text Analytics to Find the Root Cause",
                 "tag": "Diagnostic Analytics",
                 "body": "Used text analytics to diagnose root causes across the bottom 10% of "
-                        "Sam's Club locations and target intervention precisely \u2014 grounded by "
+                        "Sam's Club locations and target intervention precisely, grounded by "
                         "running field inspections as first-hand user research.",
             },
             {
@@ -295,7 +295,7 @@ BUCKETS = [
                 "tag": "Predictive Scoring",
                 "body": "Built a weighted, six-factor model that scores every contact Low, "
                         "Medium, or High complexity from contact reason, workflow count, talk %, "
-                        "repeat calls, transfers, and genuine/non-genuine intent \u2014 giving CES a "
+                        "repeat calls, transfers, and genuine/non-genuine intent, giving CES a "
                         "defensible, auditable score to strategize call routing, headcount and "
                         "skills planning, and scheduling around the real complexity mix instead of "
                         "raw contact volume.",
@@ -320,7 +320,7 @@ TIMELINE = [
         "org": "Walmart Fulfillment Services",
         "dates": "Feb 2024 \u2014 Jul 2025",
         "blurb": "Insight and measurement strategy for a multibillion-dollar fulfillment "
-                 "business \u2014 multi-channel, carrier, and consolidation network economics.",
+                 "business: multi-channel, carrier, and consolidation network economics.",
     },
     {
         "title": "Director, Data Analytics",
@@ -352,14 +352,14 @@ TIMELINE = [
     },
     {
         "title": "BI Consultant",
-        "org": "Wipro \u2014 Nike Workforce Insights Network & Client Engagement",
+        "org": "Wipro \u00b7 Nike Workforce Insights Network & Client Engagement",
         "dates": "Feb 2014 \u2014 Jan 2017",
         "blurb": "Grew the Nike project team 4x in 18 months. HR analytics, client-facing "
                  "discovery, and vendor partnerships (Alteryx, Domo) as part of the pre-sales team.",
     },
     {
         "title": "BI Developer",
-        "org": "Wipro \u2014 Nike & GMACI",
+        "org": "Wipro \u00b7 Nike & GMACI",
         "dates": "Sep 2010 \u2014 Feb 2014",
         "blurb": "Cognos reporting, SAP HR modeling, and mainframe-to-modern analytics "
                  "migration.",
@@ -396,12 +396,12 @@ EDUCATION = [
 ]
 
 CERTIFICATIONS = [
-    "Intro to Generative AI for Data Analysis \u2014 Microsoft",
-    "Core Designer Certificate \u2014 Dataiku",
-    "Alteryx Designer Core \u2014 Alteryx",
-    "Tableau Desktop Specialist \u2014 Tableau",
-    "Google Analytics Certification \u2014 Google",
-    "Intro to CS & Programming Using Python \u2014 MIT",
+    "Intro to Generative AI for Data Analysis (Microsoft)",
+    "Core Designer Certificate (Dataiku)",
+    "Alteryx Designer Core (Alteryx)",
+    "Tableau Desktop Specialist (Tableau)",
+    "Google Analytics Certification (Google)",
+    "Intro to CS & Programming Using Python (MIT)",
     "IBM Cognos 10 BI Administrator \u00b7 Reports \u00b7 Metadata Modeling",
 ]
 
@@ -465,7 +465,7 @@ WORK_SAMPLES = [
     {
         "title": "Smart Woffie: An AI Insights Agent That Doesn't Make Things Up",
         "tag": "Agentic AI · Customer Engagement Services",
-        "description": "An AI analytics agent for Walmart's customer care org that writes SQL against billions of rows in BigQuery, builds executive-ready reports, and keeps its knowledge in a database instead of a prompt — so any analyst on any machine loads the same 'brain.' New findings are saved as drafts and only become trusted once a human validates them, and a two-layer anti-hallucination design (schema rules plus prompt rules) means it only states facts it can cite, with confidence scaled to how well it knows each domain.",
+        "description": "An AI analytics agent for Walmart's customer care org that writes SQL against billions of rows in BigQuery, builds executive-ready reports, and keeps its knowledge in a database instead of a prompt, so any analyst on any machine loads the same 'brain.' New findings are saved as drafts and only become trusted once a human validates them, and a two-layer anti-hallucination design (schema rules plus prompt rules) means it only states facts it can cite, with confidence scaled to how well it knows each domain.",
         "thumbnail": "/static/smart-woffie.png",
         "url": "https://www.victorbuildsai.com/work/smart-woffie/",
     },
@@ -474,7 +474,7 @@ WORK_SAMPLES = [
         "tag": "Interactive Data Product",
         "description": (
             "Multi-tab analysis of promo code issuance, redemption, and GMV lift by "
-            "category and membership tier — the kind of decision-ready insight surface "
+            "category and membership tier. It's the kind of decision-ready insight "
             "behind the appeasement strategy work that lifted utilization from 51% to "
             "73.5%."
         ),
@@ -482,13 +482,13 @@ WORK_SAMPLES = [
         "url": "https://www.victorbuildsai.com/work/appeasement-analysis/",
     },
     {
-        "title": "CES Weekly Update — Searchable, Not Just Skimmable",
+        "title": "CES Weekly Update: Searchable, Not Just Skimmable",
         "tag": "Executive Reporting, Reimagined",
         "description": (
             "Reimagined the standard weekly status report as a searchable, taggable archive "
             "instead of a deck nobody reopens. Search surfaces matches across every past week "
             "instantly, and each update carries built-in Appreciate / Feature Request / "
-            "Escalate actions — turning a routine reporting ritual into something leadership "
+            "Escalate actions. A routine reporting ritual became something leadership "
             "actually engages with."
         ),
         "thumbnail": "/static/weekly-update.png",
@@ -500,7 +500,7 @@ WORK_SAMPLES = [
         "description": (
             "A weighted, six-factor scoring model that classifies every contact as "
             "Low, Medium, or High complexity from contact reason, workflow count, "
-            "talk %, repeat calls, transfers, and genuine/non-genuine intent \u2014 "
+            "talk %, repeat calls, transfers, and genuine/non-genuine intent, "
             "turning a vague sense of 'this queue feels hard' into a defensible, "
             "auditable score leadership can route, coach, and staff against."
         ),
@@ -512,7 +512,7 @@ WORK_SAMPLES = [
         "tag": "Contact Center Analytics",
         "description": (
             "Pairs the Call Complexity score against Self-Serve Rate by workflow and "
-            "over time \u2014 a strong negative correlation shows self-service winning "
+            "over time. A strong negative correlation shows self-service winning "
             "on the easy stuff while the residual, agent-handled mix quietly gets "
             "harder, the kind of insight that keeps an SSR win from masking a rising "
             "AHT problem."
@@ -524,8 +524,8 @@ WORK_SAMPLES = [
         "title": "AISLEONE CRM Portable Dashboard Demos",
         "tag": "Product Analytics Suite",
         "description": (
-            "Six sanitized, standalone reporting dashboards \u2014 Agent Assist, AHT "
-            "Savings, AHT Deepdive, Fixit Ops, QSR, and Spark \u2014 rebuilt as "
+            "Six sanitized, standalone reporting dashboards (Agent Assist, AHT "
+            "Savings, AHT Deepdive, Fixit Ops, QSR, and Spark), rebuilt as "
             "zero-backend, single-file demos with synthetic data so the full product "
             "analytics story (AHT trends, SLA compliance, contact-reason mix, cost per "
             "order) can be shared and explored without exposing production data."
@@ -539,7 +539,7 @@ WORK_SAMPLES = [
         "description": (
             "When live Tableau/Power BI dashboards kept failing store leaders on bad "
             "in-store WiFi and unpredictable BI servers, the fix wasn't a better "
-            "dashboard \u2014 it was removing the live connection entirely. A leader "
+            "dashboard. It was removing the live connection entirely. A leader "
             "emails a store number, Power Automate filters the data and renders a "
             "PDF + open-work-order list, and both land back in their inbox in about "
             "120 seconds, readable offline before they ever walk in the door."
@@ -552,7 +552,7 @@ WORK_SAMPLES = [
         "tag": "Walmart Fulfillment Services",
         "description": (
             "Before AI copilots existed, a ~30-page weekly scorecard export got hand-"
-            "translated into a single leadership email every week \u2014 every KPI framed "
+            "translated into a single leadership email every week, with every KPI framed "
             "three ways (week-over-week, year-over-year, vs. plan), backed by a formal "
             "root-cause process, and closed out with a curated scan of industry and "
             "competitive news so leadership always knew whether a miss was Walmart-"
@@ -584,7 +584,7 @@ WORK_SAMPLES = [
             "alongside Kalibrate's third-party competitor pricing, let the pricing "
             "team set a radius and a price-gap threshold, and ran 24/7 to flag any "
             "competitor breach with the site, the delta, and an estimated dollar "
-            "cost of not repricing \u2014 delivered via Power BI and mobile alerts."
+            "cost of not repricing, delivered via Power BI and mobile alerts."
         ),
         "thumbnail": "/static/fuel-and-convenience.png",
         "url": "https://www.victorbuildsai.com/work/fuel-pricing-engine/",
@@ -599,11 +599,11 @@ ARTICLES = [
         "title": "Claude vs. Power BI/Tableau: A Working Model, Not a Cage Match",
         "tag": "Strategic Insights & AI · Tool Selection Brief",
         "description": (
-            "A framework for where each tool actually earns its place — governed "
+            "A framework for where each tool actually earns its place: governed "
             "dashboarding for ‘what is happening’ versus reasoning-driven, narrative-ready "
             "insight for ‘what does it mean, and what should a leader do about it.’ "
             "Includes an illustrative cost model showing why the two tools’ economics "
-            "scale on completely different axes — viewers versus reasoning work."
+            "scale on completely different axes (viewers versus reasoning work)."
         ),
         "thumbnail": "/static/ai-vs-bi.png",
         "url": "https://www.victorbuildsai.com/articles/ai-vs-bi/",
@@ -612,8 +612,8 @@ ARTICLES = [
         "title": "Stop Being Overwhelmed. Start Delivering What Matters.",
         "tag": "Analytics Leadership · Prioritization Playbook",
         "description": (
-            "A six-step field guide for analytics teams drowning in ad hoc requests — "
-            "Intake, Classify, Question, Score, Validate, Launch — built to turn a chaotic "
+            "A six-step field guide for analytics teams drowning in ad hoc requests. "
+            "Six steps (Intake, Classify, Question, Score, Validate, Launch) turn a chaotic "
             "request queue into a defensible, confidence-backed prioritization process "
             "instead of whoever-asks-loudest."
         ),
@@ -705,7 +705,7 @@ CERTIFICATES = [
         "brand": "cornell",
         "description": (
             "Verified credential from Cornell Tech covering product strategy, discovery, "
-            "and roadmapping \u2014 the foundation underneath the product-analytics work in the "
+            "and roadmapping, the foundation underneath the product-analytics work in the "
             "Experience section above."
         ),
         "thumbnail": "/static/cert1.png",
@@ -717,7 +717,7 @@ CERTIFICATES = [
         "brand": "cornell",
         "description": (
             "Verified credential from Cornell's Ann S. Bowers College of Computing and "
-            "Information Science \u2014 the technical grounding behind the ML deployment and "
+            "Information Science: the technical grounding behind the ML deployment and "
             "computer-vision work at Intelligent Retail Lab."
         ),
         "thumbnail": "/static/cert2.png",
@@ -729,7 +729,7 @@ CERTIFICATES = [
         "brand": "mitx",
         "description": (
             "Verified certificate from MIT Sloan's Operations Research and Statistics "
-            "faculty \u2014 data-driven decision-making, regression, classification, and "
+            "faculty, covering data-driven decision-making, regression, classification, and "
             "optimization, taught by Dimitris Bertsimas and Allison O'Hair."
         ),
         "thumbnail": "/static/cert-analytics-edge.png",
@@ -741,7 +741,7 @@ CERTIFICATES = [
         "brand": "mitx",
         "description": (
             "Verified certificate from MIT's Department of Electrical Engineering and "
-            "Computer Science \u2014 the Python foundation underneath the analytics and "
+            "Computer Science, the Python foundation underneath the analytics and "
             "tooling work throughout this site."
         ),
         "thumbnail": "/static/cert-python.png",
@@ -752,7 +752,7 @@ CERTIFICATES = [
         "tag": "Tableau \u00b7 May 2019",
         "brand": "tableau",
         "description": (
-            "Certified on essential Tableau Desktop knowledge and data analysis \u2014 the "
+            "Certified on essential Tableau Desktop knowledge and data analysis: the "
             "dashboarding and visualization skill set behind the BI reporting work "
             "referenced across the Product and Data lenses above."
         ),
@@ -765,7 +765,7 @@ CERTIFICATES = [
         "brand": "alteryx",
         "description": (
             "Certified on Alteryx Designer's core data-prep and workflow-automation "
-            "toolset \u2014 part of the analytics engineering behind the pricing, "
+            "toolset, part of the analytics engineering behind the pricing, "
             "reporting, and pipeline work referenced throughout this site."
         ),
         "thumbnail": "/static/cert-alteryx.png",
@@ -777,7 +777,7 @@ CERTIFICATES = [
         "brand": "dataiku",
         "description": (
             "Certified on Dataiku's core visual data-prep and workflow-design "
-            "toolset \u2014 another pillar of the analytics-engineering skill set "
+            "toolset, another pillar of the analytics-engineering skill set "
             "underneath the pipeline and automation work referenced throughout this site."
         ),
         "thumbnail": "/static/cert-dataiku.png",
@@ -788,7 +788,7 @@ CERTIFICATES = [
         "tag": "Google Analytics Academy \u00b7 Expired May 2022",
         "brand": "google",
         "description": (
-            "Certificate of completion from Google Analytics Academy \u2014 core web "
+            "Certificate of completion from Google Analytics Academy, covering core web "
             "analytics and measurement fundamentals underpinning the instrumentation "
             "and funnel-analysis work in the Product lens above."
         ),
@@ -801,7 +801,7 @@ CERTIFICATES = [
         "brand": "microsoft",
         "description": (
             "Part of the Microsoft Generative AI for Data Analysis Professional "
-            "Certificate \u2014 prompt engineering, AI-assisted data cleaning, and "
+            "Certificate, covering prompt engineering, AI-assisted data cleaning, and "
             "responsible-AI considerations directly underneath the agentic AI work "
             "in the AI lens above."
         ),
