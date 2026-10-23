@@ -443,7 +443,7 @@ WORK_SAMPLES = [
             "as practice."
         ),
         "thumbnail": "/static/fruit-slicer-math.png",
-        "url": "https://sites.google.com/view/fruitslicerandmathgame/full-page-embed",
+        "url": "https://sites.google.com/view/victorgames/full-page-embed",
         "badge": "Creativity",
         "cta": "Play the game",
     },
