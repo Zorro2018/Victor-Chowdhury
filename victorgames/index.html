@@ -1,0 +1,2460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Fruit Slicer & Math Adventure</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      touch-action: none;
+      overscroll-behavior: none;
+      font-family: 'Fredoka', 'Nunito', sans-serif;
+      background-color: #1e293b;
+    }
+
+    #gameCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+      cursor: crosshair;
+    }
+
+    /* Gentle floating animation for UI cards */
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.88); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes celebratePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+    }
+
+    .animate-float {
+      animation: floatSlow 3.5s ease-in-out infinite;
+    }
+
+    .animate-pop {
+      animation: popIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    .animate-celebrate {
+      animation: celebratePulse 0.5s ease-in-out infinite;
+    }
+
+    /* Tactile 3D button style for iPad fingers */
+    .tactile-btn {
+      transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.2s ease, opacity 0.25s ease;
+    }
+    .tactile-btn:active:not(:disabled) {
+      transform: translateY(4px);
+    }
+
+    /* Visual counter item bounce on tap */
+    .counter-fruit {
+      transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .counter-fruit.counted {
+      transform: scale(1.22);
+    }
+
+    /* Ensure the portfolio link allows standard browser click/tap gestures */
+    #portfolioLinkBtn {
+      touch-action: manipulation;
+      user-select: auto;
+      -webkit-user-select: auto;
+      -webkit-touch-callout: default;
+      pointer-events: auto;
+    }
+  </style>
+</head>
+<body class="relative w-screen h-screen overflow-hidden select-none">
+
+  <!-- Main Interactive Game Canvas -->
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- Top Sensory-Friendly HUD Bar (z-40 so End button & timers stay accessible even during Math Pause) -->
+  <header class="fixed top-0 left-0 right-0 z-40 pointer-events-none px-3 sm:px-4 pt-2.5 pb-2 flex flex-wrap items-center justify-between gap-2">
+    
+    <!-- Left: Score, Math Stars & Total Time Played -->
+    <div class="flex items-center gap-2 sm:gap-3 pointer-events-auto">
+      <!-- Fruit Score Pill -->
+      <div class="bg-white/95 backdrop-blur-md border-2 border-amber-300 shadow-md rounded-2xl px-3 sm:px-4 py-1.5 sm:py-2 flex items-center gap-2">
+        <span class="text-xl sm:text-3xl" role="img" aria-label="Watermelon">🍉</span>
+        <div>
+          <div class="text-[10px] sm:text-[11px] uppercase tracking-wider font-bold text-amber-700 leading-none">Fruits</div>
+          <div id="scoreDisplay" class="text-xl sm:text-2xl font-bold text-slate-800 leading-tight">0</div>
+        </div>
+      </div>
+
+      <!-- Math Stars Pill -->
+      <div class="bg-white/95 backdrop-blur-md border-2 border-sky-300 shadow-md rounded-2xl px-3 sm:px-4 py-1.5 sm:py-2 flex items-center gap-2">
+        <span class="text-xl sm:text-3xl" role="img" aria-label="Star">⭐</span>
+        <div>
+          <div class="text-[10px] sm:text-[11px] uppercase tracking-wider font-bold text-sky-700 leading-none">Math &amp; Words</div>
+          <div id="starsDisplay" class="text-xl sm:text-2xl font-bold text-slate-800 leading-tight">0</div>
+        </div>
+      </div>
+
+      <!-- Total Time Played Pill -->
+      <div class="bg-white/95 backdrop-blur-md border-2 border-violet-300 shadow-md rounded-2xl px-3 sm:px-4 py-1.5 sm:py-2 flex items-center gap-2">
+        <span class="text-xl sm:text-2xl" role="img" aria-label="Stopwatch">⏱️</span>
+        <div>
+          <div class="text-[10px] sm:text-[11px] uppercase tracking-wider font-bold text-violet-700 leading-none">Total Time</div>
+          <div id="totalTimeDisplay" class="text-xl sm:text-2xl font-bold text-slate-800 leading-tight tabular-nums">00:00</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center: Predictable Visual Countdown Bar for 10s Math & Spelling Time -->
+    <div class="hidden lg:flex flex-col items-center bg-white/95 backdrop-blur-md border-2 border-emerald-300 shadow-md rounded-2xl px-4 py-2 min-w-[215px] pointer-events-auto">
+      <div class="w-full flex items-center justify-between text-xs font-bold text-emerald-800 mb-1">
+        <span>🧮🔤 Next Challenge</span>
+        <span id="timerTextDisplay" class="tabular-nums">10s</span>
+      </div>
+      <div class="w-full h-3 bg-emerald-100 rounded-full overflow-hidden p-0.5">
+        <div id="timerBarFill" class="h-full bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full transition-all duration-200" style="width: 100%;"></div>
+      </div>
+    </div>
+
+    <!-- Right: Next Math Compact Badge, Sound Toggle, Parent Settings & Prominent End Button -->
+    <div class="flex items-center gap-2 pointer-events-auto">
+      <!-- Compact timer badge for smaller/medium screens -->
+      <div class="lg:hidden bg-white/95 backdrop-blur-md border-2 border-emerald-300 shadow-md rounded-2xl px-3 py-2 flex items-center gap-1.5 text-xs sm:text-sm font-bold text-emerald-800 tabular-nums">
+        <span>🧮</span>
+        <span id="timerTextMobile">10s</span>
+      </div>
+
+      <!-- Sound On/Off Button -->
+      <button id="soundToggleBtn" type="button" aria-label="Toggle Sound"
+        class="tactile-btn bg-white/95 hover:bg-white border-2 border-slate-300 shadow-md rounded-2xl w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center text-xl sm:text-2xl text-slate-700">
+        <span id="soundIcon">🔊</span>
+      </button>
+
+      <!-- Subtle Parent Settings Button -->
+      <button id="parentSettingsBtn" type="button" aria-label="Parent Settings"
+        class="tactile-btn bg-white/95 hover:bg-white border-2 border-slate-300 shadow-md rounded-2xl px-3 h-11 sm:h-12 flex items-center gap-1.5 text-slate-700 font-bold text-xs sm:text-sm">
+        <span class="text-lg sm:text-xl">⚙️</span>
+        <span class="hidden md:inline">Parent</span>
+      </button>
+
+      <!-- Prominent Friendly End Session Button -->
+      <button id="endSessionBtn" type="button" aria-label="End Session and View Math Summary"
+        class="tactile-btn bg-gradient-to-b from-amber-400 to-orange-500 hover:brightness-105 text-white border-2 border-amber-200 shadow-[0_4px_0_#c2410c] active:shadow-[0_1px_0_#c2410c] rounded-2xl px-3.5 sm:px-4 h-11 sm:h-12 flex items-center gap-1.5 font-bold text-sm sm:text-base">
+        <span class="text-lg sm:text-xl">🏁</span>
+        <span>End</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Welcome / Start Screen Overlay (Unlocks iPad Web Audio & Launches Seamless Play) -->
+  <div id="startModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+    <div class="animate-pop animate-float bg-gradient-to-b from-amber-50 via-white to-sky-50 border-4 border-amber-300 rounded-[2rem] shadow-2xl max-w-lg w-full p-6 sm:p-8 text-center">
+      <div class="flex justify-center gap-3 text-4xl sm:text-5xl mb-3">
+        <span>🍉</span>
+        <span>🍌</span>
+        <span>🍓</span>
+        <span>🍍</span>
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-bold text-slate-800 mb-2">
+        Fruit Slicer, Math &amp; Words!
+      </h1>
+      <p class="text-slate-600 text-base sm:text-lg font-medium mb-5 leading-relaxed">
+        Use your finger to slice the flying fruits! Avoid the fizzing bombs, and every <span id="welcomeIntervalText" class="font-bold text-emerald-700">10</span> seconds solve a fun math puzzle &amp; spell a word to keep playing!
+      </p>
+
+      <div class="grid grid-cols-3 gap-2.5 mb-6 text-xs sm:text-sm font-bold">
+        <div class="bg-amber-100/80 border-2 border-amber-200 rounded-2xl p-2.5 text-amber-900">
+          <div class="text-2xl mb-1">👆</div>
+          Swipe Fruits
+        </div>
+        <div class="bg-sky-100/80 border-2 border-sky-200 rounded-2xl p-2.5 text-sky-900">
+          <div class="text-2xl mb-1">🧮</div>
+          10s Math Step
+        </div>
+        <div class="bg-violet-100/80 border-2 border-violet-200 rounded-2xl p-2.5 text-violet-900">
+          <div class="text-2xl mb-1">🔊</div>
+          Listen &amp; Spell
+        </div>
+      </div>
+
+      <button id="startPlayBtn" type="button"
+        class="tactile-btn w-full py-4 sm:py-5 px-8 rounded-2xl bg-gradient-to-b from-emerald-400 to-emerald-600 text-white font-bold text-2xl sm:text-3xl shadow-[0_6px_0_#047857] hover:brightness-105 active:shadow-[0_2px_0_#047857]">
+        Tap to Play! ▶️
+      </button>
+    </div>
+  </div>
+
+  <!-- 10-Second Math + English Spelling Challenge Modal -->
+  <div id="mathModal" class="hidden fixed inset-0 z-30 flex items-center justify-center bg-slate-900/45 backdrop-blur-sm p-2.5 pt-16 sm:p-5 sm:pt-20">
+    <div id="mathCardContainer" class="animate-pop bg-gradient-to-b from-sky-50 via-white to-amber-50 border-4 border-sky-300 rounded-[2rem] shadow-2xl max-w-2xl w-full p-4 sm:p-6 text-center relative overflow-hidden max-h-[88vh] overflow-y-auto">
+      
+      <!-- Predictable 2-Step Progress Pill Bar (Step 1: Math -> Step 2: Listen & Spell) -->
+      <div class="flex items-center justify-center gap-2 sm:gap-3 mb-3">
+        <div id="stepIndicatorMath" class="flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs sm:text-sm font-bold border-2 bg-sky-500 text-white border-sky-600 shadow-sm transition-all">
+          <span>1️⃣</span>
+          <span>Math Puzzle</span>
+        </div>
+        <div id="stepConnector" class="text-slate-300 font-bold text-sm">➔</div>
+        <div id="stepIndicatorSpell" class="flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs sm:text-sm font-bold border-2 bg-slate-100 text-slate-400 border-slate-200 transition-all">
+          <span>2️⃣</span>
+          <span>Listen &amp; Spell</span>
+        </div>
+      </div>
+
+      <!-- STEP 1: MATH CHALLENGE SECTION -->
+      <div id="mathStepSection">
+        <!-- Top Header Badge & Gentle 2-Tries Indicator -->
+        <div class="flex flex-wrap items-center justify-center sm:justify-between gap-2 mb-2.5">
+          <div class="inline-flex items-center gap-2 bg-sky-100 border-2 border-sky-300 text-sky-800 px-3.5 py-1 rounded-full text-xs sm:text-sm font-bold">
+            <span>🧮</span>
+            <span id="mathModeBadgeText">Step 1: Solve the Math Puzzle!</span>
+          </div>
+
+          <div id="triesBadge" class="inline-flex items-center gap-2 bg-white/90 border-2 border-sky-200 text-slate-600 px-3 py-1 rounded-full text-xs sm:text-sm font-bold shadow-sm">
+            <span>Tries before new question:</span>
+            <span id="triesDots" class="tracking-widest text-base leading-none">🔵🔵</span>
+          </div>
+        </div>
+
+        <!-- Visual Fruit Counters Helper Area (Tap to Count!) -->
+        <div id="visualCounterWrapper" class="bg-white/95 border-2 border-slate-200 rounded-2xl p-2.5 sm:p-3.5 mb-3.5 shadow-inner min-h-[76px] flex flex-col items-center justify-center">
+          <div id="visualCounterHint" class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+            Tap the fruits to count along!
+          </div>
+          <div id="visualCounterArea" class="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2"></div>
+        </div>
+
+        <!-- Big Clear Math Equation -->
+        <div class="bg-amber-50/90 border-3 border-amber-200 rounded-3xl py-3.5 px-5 mb-3.5 shadow-sm flex items-center justify-center gap-3 sm:gap-5">
+          <span id="mathNumA" class="text-5xl sm:text-6xl font-bold text-slate-800">15</span>
+          <span id="mathOp" class="text-4xl sm:text-5xl font-bold text-sky-600">+</span>
+          <span id="mathNumB" class="text-5xl sm:text-6xl font-bold text-slate-800">2</span>
+          <span class="text-4xl sm:text-5xl font-bold text-slate-400">=</span>
+          <span id="mathAnswerSlot" class="inline-flex items-center justify-center min-w-[76px] sm:min-w-[92px] h-14 sm:h-18 px-3 rounded-2xl bg-white border-4 border-dashed border-amber-400 text-4xl sm:text-5xl font-bold text-emerald-600">
+            ?
+          </span>
+        </div>
+
+        <!-- Friendly Feedback Prompt -->
+        <div id="mathFeedback" class="h-7 sm:h-8 text-base sm:text-lg font-bold text-slate-600 mb-3 flex items-center justify-center transition-all">
+          Pick the right answer below! 👇
+        </div>
+
+        <!-- 4 Huge iPad-Finger-Friendly Answer Buttons -->
+        <div id="mathChoicesGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+          <!-- Dynamically populated buttons -->
+        </div>
+      </div>
+
+      <!-- STEP 2: ENGLISH LISTEN & SPELL CHALLENGE SECTION -->
+      <div id="spellingStepSection" class="hidden">
+        <div class="flex flex-wrap items-center justify-center sm:justify-between gap-2 mb-2.5">
+          <div class="inline-flex items-center gap-2 bg-violet-100 border-2 border-violet-300 text-violet-800 px-3.5 py-1 rounded-full text-xs sm:text-sm font-bold">
+            <span>🔤</span>
+            <span>Step 2: Listen &amp; Spell the Word!</span>
+          </div>
+
+          <div class="inline-flex items-center gap-2 bg-white/90 border-2 border-violet-200 text-slate-600 px-3 py-1 rounded-full text-xs sm:text-sm font-bold shadow-sm">
+            <span>Tries before help:</span>
+            <span id="spellTriesDots" class="tracking-widest text-base leading-none">🟣🟣</span>
+          </div>
+        </div>
+
+        <!-- Prominent Listen Button + Emoji & Context Clue Card -->
+        <div class="bg-white/95 border-2 border-violet-200 rounded-2xl p-3 sm:p-4 mb-3 shadow-inner flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div class="flex items-center gap-3 text-left">
+            <div id="spellEmojiBadge" class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-violet-50 border-2 border-violet-200 flex items-center justify-center text-3xl sm:text-4xl shrink-0">
+              🌟
+            </div>
+            <div>
+              <div class="text-[11px] font-bold uppercase tracking-wider text-violet-600">Standard 2–3 Word Clue</div>
+              <div id="spellClueText" class="text-sm sm:text-base font-bold text-slate-700 leading-snug">
+                Tap "Listen to Word" to hear the word!
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-center">
+            <button id="listenWordBtn" type="button"
+              class="tactile-btn flex-1 sm:flex-initial py-3 px-4 sm:px-5 rounded-2xl bg-gradient-to-b from-violet-500 to-purple-600 text-white font-bold text-base sm:text-lg shadow-[0_4px_0_#6d28d9] active:shadow-[0_1px_0_#6d28d9] flex items-center justify-center gap-2 border-2 border-violet-300">
+              <span class="text-xl">🔊</span>
+              <span>Listen to Word</span>
+            </button>
+            <button id="listenSlowBtn" type="button" title="Hear Slowly"
+              class="tactile-btn py-3 px-3.5 rounded-2xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-sm sm:text-base border-2 border-amber-300 shadow-sm flex items-center gap-1">
+              <span>🐢</span>
+              <span class="hidden sm:inline">Slow</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Visual Letter Slots Display -->
+        <div id="spellingSlotsContainer" class="bg-amber-50/90 border-3 border-amber-200 rounded-2xl py-3 px-3 mb-2.5 min-h-[68px] flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 shadow-sm">
+          <!-- Dynamically populated letter tiles -->
+        </div>
+
+        <!-- Friendly Spelling Feedback -->
+        <div id="spellingFeedback" class="h-7 text-sm sm:text-base font-bold text-slate-600 mb-2.5 flex items-center justify-center transition-all">
+          Tap the letters below to spell the word, then press Enter! 👇
+        </div>
+
+        <!-- Kid-Friendly On-Screen Touch Keyboard (No iPad Safari Viewport Jumping!) -->
+        <div class="bg-slate-100/95 border-2 border-slate-200 rounded-2xl p-2 sm:p-2.5 space-y-1.5">
+          <!-- Row 1: Q W E R T Y U I O P -->
+          <div class="grid grid-cols-10 gap-1 sm:gap-1.5" id="kbRow1"></div>
+          <!-- Row 2: A S D F G H J K L -->
+          <div class="grid grid-cols-9 gap-1 sm:gap-1.5 px-3 sm:px-6" id="kbRow2"></div>
+          <!-- Row 3: Backspace + Z X C V B N M + Enter -->
+          <div class="flex items-center justify-center gap-1 sm:gap-1.5" id="kbRow3"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- End Session Celebratory Summary Modal (Displays Total Time, Solved Math & Spelled Words) -->
+  <div id="endSummaryModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-3 sm:p-6">
+    <div class="animate-pop bg-gradient-to-b from-amber-50 via-white to-sky-50 border-4 border-amber-300 rounded-[2rem] shadow-2xl max-w-2xl w-full p-5 sm:p-8 text-slate-800 max-h-[92vh] flex flex-col">
+      
+      <!-- Celebratory Header -->
+      <div class="text-center mb-4 sm:mb-5">
+        <div class="inline-flex items-center gap-2 bg-amber-100 border-2 border-amber-300 text-amber-800 px-4 py-1 rounded-full text-xs sm:text-sm font-bold mb-2">
+          <span>🏆</span>
+          <span>Session Summary</span>
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-bold text-slate-800">Amazing Job! 🎉</h2>
+        <p class="text-sm sm:text-base text-slate-600 mt-0.5">Look at all the fruit slicing, math, and spelling you did today!</p>
+      </div>
+
+      <!-- 4 Top Summary Stat Cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 mb-5">
+        <!-- Stat 1: Total Time Played -->
+        <div class="bg-violet-50 border-2 border-violet-200 rounded-2xl p-2.5 sm:p-3.5 text-center shadow-sm">
+          <div class="text-xl sm:text-2xl mb-0.5">⏱️</div>
+          <div class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-violet-700">Total Time</div>
+          <div id="summaryTotalTime" class="text-lg sm:text-2xl font-bold text-slate-800 tabular-nums mt-0.5">00:00</div>
+        </div>
+
+        <!-- Stat 2: Math Problems Solved -->
+        <div class="bg-sky-50 border-2 border-sky-200 rounded-2xl p-2.5 sm:p-3.5 text-center shadow-sm">
+          <div class="text-xl sm:text-2xl mb-0.5">🧮</div>
+          <div class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-sky-700">Math Solved</div>
+          <div id="summaryMathCount" class="text-lg sm:text-2xl font-bold text-slate-800 tabular-nums mt-0.5">0</div>
+        </div>
+
+        <!-- Stat 3: Words Spelled -->
+        <div class="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-2.5 sm:p-3.5 text-center shadow-sm">
+          <div class="text-xl sm:text-2xl mb-0.5">🔤</div>
+          <div class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-700">Words Spelled</div>
+          <div id="summaryWordCount" class="text-lg sm:text-2xl font-bold text-slate-800 tabular-nums mt-0.5">0</div>
+        </div>
+
+        <!-- Stat 4: Fruits Sliced -->
+        <div class="bg-amber-50 border-2 border-amber-200 rounded-2xl p-2.5 sm:p-3.5 text-center shadow-sm">
+          <div class="text-xl sm:text-2xl mb-0.5">🍉</div>
+          <div class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-amber-700">Fruits Sliced</div>
+          <div id="summaryFruitScore" class="text-lg sm:text-2xl font-bold text-slate-800 tabular-nums mt-0.5">0</div>
+        </div>
+      </div>
+
+      <!-- Scrollable List of All Solved Math Equations & Spelled Words -->
+      <div class="flex-1 min-h-0 flex flex-col bg-white border-2 border-slate-200 rounded-2xl p-3.5 sm:p-4 mb-5 shadow-inner">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-2.5 mb-3">
+          <h3 class="text-sm sm:text-base font-bold text-slate-700 flex items-center gap-2">
+            <span>🌟</span>
+            <span>Math &amp; Spelling Completed</span>
+          </h3>
+          <span id="summarySolvedBadge" class="text-xs font-bold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full">
+            0 Completed
+          </span>
+        </div>
+
+        <!-- Dynamic List Container -->
+        <div id="solvedMathListContainer" class="overflow-y-auto space-y-2.5 pr-1 max-h-[240px] sm:max-h-[270px]">
+          <!-- Populated dynamically when End button is tapped -->
+        </div>
+      </div>
+
+      <!-- Bottom Action Buttons: Keep Playing or Start New Session -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+        <button id="keepPlayingBtn" type="button"
+          class="tactile-btn py-4 px-6 rounded-2xl bg-gradient-to-b from-emerald-400 to-emerald-600 text-white font-bold text-xl sm:text-2xl shadow-[0_5px_0_#047857] hover:brightness-105 active:shadow-[0_2px_0_#047857] flex items-center justify-center gap-2">
+          <span>▶️</span>
+          <span>Keep Playing</span>
+        </button>
+
+        <button id="newSessionBtn" type="button"
+          class="tactile-btn py-4 px-6 rounded-2xl bg-gradient-to-b from-sky-400 to-sky-600 text-white font-bold text-xl sm:text-2xl shadow-[0_5px_0_#0284c7] hover:brightness-105 active:shadow-[0_2px_0_#0284c7] flex items-center justify-center gap-2">
+          <span>🔄</span>
+          <span>New Session</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Parent Settings Modal -->
+  <div id="settingsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+    <div class="animate-pop bg-white border-4 border-slate-300 rounded-3xl shadow-2xl max-w-lg w-full p-6 sm:p-7 text-slate-800 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between border-b-2 border-slate-100 pb-4 mb-5">
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl">⚙️</span>
+          <h2 class="text-2xl font-bold">Parent Controls</h2>
+        </div>
+        <button id="closeSettingsBtn" type="button"
+          class="tactile-btn bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl">
+          Done ✕
+        </button>
+      </div>
+
+      <div class="space-y-5 text-left">
+        <!-- Math Pause Frequency (10s default, 15s, 30s) -->
+        <div>
+          <label class="block text-sm font-bold uppercase tracking-wider text-slate-500 mb-2">
+            Math &amp; Spelling Pause Timer
+          </label>
+          <div class="grid grid-cols-3 gap-2.5" id="timerSelector">
+            <button type="button" data-timer="10" class="setting-timer-btn tactile-btn py-3 px-3 rounded-2xl border-2 font-bold text-sm sm:text-base">
+              10s (Default)
+            </button>
+            <button type="button" data-timer="15" class="setting-timer-btn tactile-btn py-3 px-3 rounded-2xl border-2 font-bold text-sm sm:text-base">
+              15s
+            </button>
+            <button type="button" data-timer="30" class="setting-timer-btn tactile-btn py-3 px-3 rounded-2xl border-2 font-bold text-sm sm:text-base">
+              30s
+            </button>
+          </div>
+        </div>
+
+        <!-- Math Number Range -->
+        <div>
+          <label class="block text-sm font-bold uppercase tracking-wider text-slate-500 mb-2">
+            Math Number Range
+          </label>
+          <div class="grid grid-cols-3 gap-2.5" id="rangeSelector">
+            <button type="button" data-range="5" class="setting-range-btn tactile-btn py-3 px-3 rounded-2xl border-2 font-bold text-sm sm:text-base">
+              Up to 5
+            </button>
+            <button type="button" data-range="10" class="setting-range-btn tactile-btn py-3 px-3 rounded-2xl border-2 font-bold text-sm sm:text-base">
+              Up to 10
+            </button>
+            <button type="button" data-range="20" class="setting-range-btn tactile-btn py-3 px-3 rounded-2xl border-2 font-bold text-sm sm:text-base">
+              Up to 20
+            </button>
+          </div>
+        </div>
+
+        <!-- Math Operations -->
+        <div>
+          <label class="block text-sm font-bold uppercase tracking-wider text-slate-500 mb-2">
+            Math Question Type
+          </label>
+          <div class="grid grid-cols-3 gap-2.5" id="opSelector">
+            <button type="button" data-op="both" class="setting-op-btn tactile-btn py-3 px-3 rounded-2xl border-2 font-bold text-sm sm:text-base">
+              Add &amp; Subtract
+            </button>
+            <button type="button" data-op="add" class="setting-op-btn tactile-btn py-3 px-3 rounded-2xl border-2 font-bold text-sm sm:text-base">
+              Addition Only
+            </button>
+            <button type="button" data-op="sub" class="setting-op-btn tactile-btn py-3 px-3 rounded-2xl border-2 font-bold text-sm sm:text-base">
+              Subtraction Only
+            </button>
+          </div>
+        </div>
+
+        <!-- Fruit Speed -->
+        <div>
+          <label class="block text-sm font-bold uppercase tracking-wider text-slate-500 mb-2">
+            Fruit Toss Speed
+          </label>
+          <div class="grid grid-cols-2 gap-2.5" id="speedSelector">
+            <button type="button" data-speed="slow" class="setting-speed-btn tactile-btn py-3 px-4 rounded-2xl border-2 font-bold text-sm sm:text-base">
+              🐢 Slow &amp; Gentle
+            </button>
+            <button type="button" data-speed="normal" class="setting-speed-btn tactile-btn py-3 px-4 rounded-2xl border-2 font-bold text-sm sm:text-base">
+              🐇 Normal
+            </button>
+          </div>
+        </div>
+
+        <!-- Bomb Frequency -->
+        <div>
+          <label class="block text-sm font-bold uppercase tracking-wider text-slate-500 mb-2">
+            Friendly Bombs Frequency
+          </label>
+          <div class="grid grid-cols-3 gap-2.5" id="bombSelector">
+            <button type="button" data-bomb="low" class="setting-bomb-btn tactile-btn py-3 px-3 rounded-2xl border-2 font-bold text-sm sm:text-base">
+              Few Bombs
+            </button>
+            <button type="button" data-bomb="normal" class="setting-bomb-btn tactile-btn py-3 px-3 rounded-2xl border-2 font-bold text-sm sm:text-base">
+              Normal
+            </button>
+            <button type="button" data-bomb="none" class="setting-bomb-btn tactile-btn py-3 px-3 rounded-2xl border-2 font-bold text-sm sm:text-base">
+              No Bombs
+            </button>
+          </div>
+        </div>
+
+        <!-- Visual Fruit Helper Toggle & Quick Test Math Button -->
+        <div class="pt-2 border-t-2 border-slate-100 flex flex-wrap items-center justify-between gap-3">
+          <button id="toggleVisualHelpersBtn" type="button"
+            class="tactile-btn py-3 px-4 rounded-2xl border-2 border-emerald-400 bg-emerald-50 text-emerald-800 font-bold text-sm">
+            🍓 Visual Counting Dots: ON
+          </button>
+
+          <button id="triggerMathNowBtn" type="button"
+            class="tactile-btn py-3 px-4 rounded-2xl border-2 border-sky-400 bg-sky-50 text-sky-800 font-bold text-sm">
+            🧮 Show Math Problem Now
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subtle Bottom Attribution Footer -->
+  <footer class="fixed bottom-2 left-0 right-0 z-[100] pointer-events-none flex flex-col items-center justify-center px-3 gap-1.5">
+    <div id="portfolioToast" class="hidden pointer-events-auto bg-slate-800/95 text-white text-xs font-bold px-3.5 py-1.5 rounded-full shadow-lg border border-slate-600 animate-pop">
+      🔗 Opening https://www.victorbuildsai.com/ ...
+    </div>
+    <div class="pointer-events-auto bg-white/95 backdrop-blur-md border-2 border-slate-200 shadow-md rounded-full px-3.5 py-1.5 flex items-center gap-2.5 text-xs sm:text-sm font-bold text-slate-700">
+      <span>Created by Victor Chowdhury</span>
+      <a id="portfolioLinkBtn"
+        href="https://www.victorbuildsai.com/"
+        target="_blank"
+        rel="noopener"
+        onclick="event.stopPropagation(); const w = window.open(this.href, 'VictorPortfolioWindow', 'popup=yes,width=1100,height=800,menubar=yes,toolbar=yes,location=yes,status=yes,resizable=yes,scrollbars=yes'); if (w) { w.focus(); return false; } return true;"
+        class="tactile-btn cursor-pointer bg-gradient-to-b from-sky-500 to-sky-600 hover:brightness-105 text-white px-3 py-1 rounded-full shadow-[0_2px_0_#0284c7] active:shadow-none border border-sky-300 text-xs sm:text-sm font-bold inline-flex items-center gap-1 no-underline">
+        <span>my portfolio</span>
+        <span>↗</span>
+      </a>
+    </div>
+  </footer>
+
+  <script>
+    /********************************************************************
+     * 0. PORTFOLIO LINK HANDLER (NEW BROWSER POP-UP WINDOW)
+     ********************************************************************/
+    (function setupPortfolioLink() {
+      const portfolioBtn = document.getElementById('portfolioLinkBtn');
+      if (!portfolioBtn) return;
+
+      // Isolate pointer & touch events from the game canvas without blocking the browser's click action
+      ['pointerdown', 'pointerup', 'mousedown', 'mouseup', 'touchstart', 'touchend'].forEach((evtType) => {
+        portfolioBtn.addEventListener(evtType, (e) => {
+          e.stopPropagation();
+        });
+      });
+    })();
+
+    /********************************************************************
+     * 1. SENSORY-FRIENDLY WEB AUDIO SYNTHESIZER (NO EXTERNAL FILES)
+     ********************************************************************/
+    class GentleSoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) {
+            this.ctx = new AudioCtx();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      // Soft marimba / water-drop pop when slicing a fruit
+      playSlice() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        // Random pentatonic note so multiple slices sound musical!
+        const notes = [392.0, 440.0, 523.25, 587.33, 659.25, 783.99];
+        const baseFreq = notes[Math.floor(Math.random() * notes.length)];
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(baseFreq * 0.85, now);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.35, now + 0.11);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.18, now + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.17);
+      }
+
+      // Gentle low cartoon "boing/puff" if a bomb is touched (never loud or harsh)
+      playGentlePuff() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(190, now);
+        osc.frequency.exponentialRampToValueAtTime(95, now + 0.32);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.16, now + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.36);
+      }
+
+      // Soft ascending chime when Math Time opens
+      playMathPauseChime() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const freqs = [440, 554.37, 659.25];
+        freqs.forEach((f, idx) => {
+          const now = this.ctx.currentTime + idx * 0.09;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(f, now);
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(0.12, now + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.36);
+        });
+      }
+
+      // Gentle wood-tap when a wrong math choice is tapped
+      playTryAgainTap() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(280, now);
+        osc.frequency.exponentialRampToValueAtTime(220, now + 0.12);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.12, now + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.15);
+      }
+
+      // Gentle two-note breeze chime when resetting to a brand-new math question after 2 tries
+      playNewProblemChime() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const notes = [392.0, 523.25]; // G4 -> C5
+        notes.forEach((f, idx) => {
+          const now = this.ctx.currentTime + idx * 0.11;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(f, now);
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(0.13, now + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.3);
+        });
+      }
+
+      // Musical counting plink when child taps a visual fruit counter
+      playCountPlink(index = 0) {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const scale = [523.25, 587.33, 659.25, 698.46, 783.99, 880, 987.77, 1046.5];
+        const freq = scale[index % scale.length];
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.14, now + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.19);
+      }
+
+      // Warm cheerful celebration chord when the math problem is solved!
+      playMathSuccess() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
+        notes.forEach((f, idx) => {
+          const now = this.ctx.currentTime + idx * 0.08;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(f, now);
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(0.16, now + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.46);
+        });
+      }
+    }
+
+    const sound = new GentleSoundEngine();
+
+    /********************************************************************
+     * 2. FRUIT CATALOG & CUSTOM VECTOR DRAWING
+     ********************************************************************/
+    const FRUIT_TYPES = [
+      {
+        id: 'watermelon',
+        name: 'Watermelon',
+        emoji: '🍉',
+        radius: 50,
+        outerColor: '#2e7d32',
+        rindColor: '#a5d6a7',
+        innerColor: '#ff5252',
+        juiceColor: '#ff5252',
+        seedColor: '#263238'
+      },
+      {
+        id: 'orange',
+        name: 'Orange',
+        emoji: '🍊',
+        radius: 44,
+        outerColor: '#ef6c00',
+        rindColor: '#ffe0b2',
+        innerColor: '#ffa726',
+        juiceColor: '#ff9800',
+        seedColor: '#fff8e1'
+      },
+      {
+        id: 'apple',
+        name: 'Apple',
+        emoji: '🍎',
+        radius: 44,
+        outerColor: '#e53935',
+        rindColor: '#ffcdd2',
+        innerColor: '#fff9c4',
+        juiceColor: '#ef5350',
+        seedColor: '#4e342e'
+      },
+      {
+        id: 'banana',
+        name: 'Banana',
+        emoji: '🍌',
+        radius: 45,
+        outerColor: '#fdd835',
+        rindColor: '#fffde7',
+        innerColor: '#fff59d',
+        juiceColor: '#ffee58',
+        seedColor: '#fbc02d'
+      },
+      {
+        id: 'strawberry',
+        name: 'Strawberry',
+        emoji: '🍓',
+        radius: 42,
+        outerColor: '#d81b60',
+        rindColor: '#f8bbd0',
+        innerColor: '#ff4081',
+        juiceColor: '#ec407a',
+        seedColor: '#fff59d'
+      },
+      {
+        id: 'blueberry',
+        name: 'Blueberry',
+        emoji: '🫐',
+        radius: 40,
+        outerColor: '#3949ab',
+        rindColor: '#c5cae9',
+        innerColor: '#5c6bc0',
+        juiceColor: '#3f51b5',
+        seedColor: '#e8eaf6'
+      },
+      {
+        id: 'pineapple',
+        name: 'Pineapple',
+        emoji: '🍍',
+        radius: 48,
+        outerColor: '#f9a825',
+        rindColor: '#fff59d',
+        innerColor: '#ffee58',
+        juiceColor: '#fdd835',
+        seedColor: '#f57f17'
+      }
+    ];
+
+    // Helper function to draw a whole fruit or a single sliced half on Canvas
+    function drawFruitGraphic(ctx, fruitType, radius, halfSide = 0) {
+      ctx.save();
+
+      // If drawing a sliced half, clip to either top or bottom half of local coordinates
+      if (halfSide !== 0) {
+        ctx.beginPath();
+        if (halfSide === -1) {
+          ctx.rect(-radius * 1.4, -radius * 1.4, radius * 2.8, radius * 1.4);
+        } else {
+          ctx.rect(-radius * 1.4, 0, radius * 2.8, radius * 1.4);
+        }
+        ctx.clip();
+      }
+
+      // Stem / Leaf for whole fruit or top half
+      if (halfSide <= 0) {
+        ctx.fillStyle = '#43a047';
+        ctx.beginPath();
+        ctx.ellipse(6, -radius + 2, 12, 6, -0.4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Outer skin
+      ctx.beginPath();
+      ctx.arc(0, 0, radius, 0, Math.PI * 2);
+      ctx.fillStyle = fruitType.outerColor;
+      ctx.fill();
+
+      // Rind ring
+      ctx.beginPath();
+      ctx.arc(0, 0, radius * 0.86, 0, Math.PI * 2);
+      ctx.fillStyle = fruitType.rindColor;
+      ctx.fill();
+
+      // Juicy flesh center
+      ctx.beginPath();
+      ctx.arc(0, 0, radius * 0.76, 0, Math.PI * 2);
+      ctx.fillStyle = fruitType.innerColor;
+      ctx.fill();
+
+      // Fruit-specific cute inner details
+      if (fruitType.id === 'orange') {
+        ctx.strokeStyle = fruitType.rindColor;
+        ctx.lineWidth = 2.5;
+        for (let i = 0; i < 8; i++) {
+          const ang = (i * Math.PI) / 4;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(Math.cos(ang) * radius * 0.74, Math.sin(ang) * radius * 0.74);
+          ctx.stroke();
+        }
+      } else {
+        // Cute seeds
+        ctx.fillStyle = fruitType.seedColor;
+        const seedCount = 6;
+        for (let i = 0; i < seedCount; i++) {
+          const ang = (i * Math.PI * 2) / seedCount + 0.3;
+          const dist = radius * 0.42;
+          ctx.beginPath();
+          ctx.arc(Math.cos(ang) * dist, Math.sin(ang) * dist, 3.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // Glossy highlight
+      ctx.beginPath();
+      ctx.arc(-radius * 0.28, -radius * 0.28, radius * 0.2, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    // Draw a friendly cartoon bomb (non-scary, cute round fizzing ball)
+    function drawFriendlyBomb(ctx, radius, sparkPhase) {
+      ctx.save();
+
+      // Fuse cord
+      ctx.strokeStyle = '#d7ccc8';
+      ctx.lineWidth = 5;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(0, -radius + 4);
+      ctx.quadraticCurveTo(14, -radius - 16, 22, -radius - 10);
+      ctx.stroke();
+
+      // Fizzing star spark at the tip of the fuse
+      const sparkSize = 7 + Math.sin(sparkPhase * 12) * 2.5;
+      ctx.fillStyle = '#ffca28';
+      ctx.beginPath();
+      ctx.arc(22, -radius - 10, sparkSize, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ff7043';
+      ctx.beginPath();
+      ctx.arc(22, -radius - 10, sparkSize * 0.55, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Fuse cap
+      ctx.fillStyle = '#78909c';
+      ctx.beginPath();
+      ctx.roundRect(-9, -radius - 2, 18, 10, 4);
+      ctx.fill();
+
+      // Main cartoon bomb body (soft charcoal-slate)
+      const grad = ctx.createRadialGradient(-radius * 0.3, -radius * 0.3, 6, 0, 0, radius);
+      grad.addColorStop(0, '#546e7a');
+      grad.addColorStop(1, '#263238');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(0, 0, radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Gentle warning X symbol on bomb
+      ctx.strokeStyle = '#ffab91';
+      ctx.lineWidth = 4;
+      ctx.lineCap = 'round';
+      const s = radius * 0.28;
+      ctx.beginPath();
+      ctx.moveTo(-s, -s);
+      ctx.lineTo(s, s);
+      ctx.moveTo(s, -s);
+      ctx.lineTo(-s, s);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    /********************************************************************
+     * 3. GAME STATE & CONFIGURATION
+     ********************************************************************/
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Curated Standard 2 / Standard 3 (Grade 2–3) English Vocabulary Words with Emoji & Context Clues
+    const SPELLING_WORD_BANK = [
+      { word: 'FRIEND', emoji: '🤝', clue: 'Someone you love to play and share with.' },
+      { word: 'SCHOOL', emoji: '🏫', clue: 'The place where we go to learn and read.' },
+      { word: 'GARDEN', emoji: '🌻', clue: 'A sunny yard where flowers and vegetables grow.' },
+      { word: 'MONKEY', emoji: '🐒', clue: 'A playful animal that swings in trees and loves bananas.' },
+      { word: 'BASKET', emoji: '🧺', clue: 'We carry picnic food and fresh fruits inside it.' },
+      { word: 'YELLOW', emoji: '🍋', clue: 'The bright color of the sun and ripe bananas.' },
+      { word: 'ORANGE', emoji: '🍊', clue: 'A round, juicy citrus fruit and a bright color.' },
+      { word: 'PLANET', emoji: '🪐', clue: 'Earth is the one we live on in space!' },
+      { word: 'CASTLE', emoji: '🏰', clue: 'A giant stone building where a king and queen live.' },
+      { word: 'BRIDGE', emoji: '🌉', clue: 'A road built over a river so cars and people can cross.' },
+      { word: 'CLOUDY', emoji: '⛅', clue: 'When the sky is full of fluffy white clouds.' },
+      { word: 'WINTER', emoji: '⛄', clue: 'The cold season when snow falls on the ground.' },
+      { word: 'SUMMER', emoji: '☀️', clue: 'The warm, sunny season great for swimming.' },
+      { word: 'SPRING', emoji: '🌷', clue: 'The season when new flowers bloom and birds sing.' },
+      { word: 'PENCIL', emoji: '✏️', clue: 'A tool you hold in your hand to write and draw.' },
+      { word: 'RABBIT', emoji: '🐰', clue: 'A furry animal with long ears that hops fast.' },
+      { word: 'TURTLE', emoji: '🐢', clue: 'A gentle green animal with a hard shell on its back.' },
+      { word: 'ROCKET', emoji: '🚀', clue: 'It blasts off into outer space toward the moon!' },
+      { word: 'ISLAND', emoji: '🏝️', clue: 'A piece of land surrounded all around by water.' },
+      { word: 'FOREST', emoji: '🌲', clue: 'A large woodland filled with tall green trees.' },
+      { word: 'FAMILY', emoji: '👨‍👩‍👦', clue: 'Parents, children, brothers, and sisters together.' },
+      { word: 'BRIGHT', emoji: '✨', clue: 'Shining with lots of light, like a star.' },
+      { word: 'GENTLE', emoji: '🕊️', clue: 'Kind, calm, and very soft.' },
+      { word: 'HAPPY',  emoji: '😊', clue: 'Feeling joyful and smiling!' },
+      { word: 'WATER',  emoji: '💧', clue: 'Clear liquid we drink every day to stay hydrated.' },
+      { word: 'TRAIN',  emoji: '🚂', clue: 'It rides along steel tracks and says choo-choo!' },
+      { word: 'SMILE',  emoji: '😄', clue: 'What your mouth does when you are happy.' },
+      { word: 'APPLE',  emoji: '🍎', clue: 'A crunchy red or green fruit that grows on trees.' },
+      { word: 'TIGER',  emoji: '🐯', clue: 'A big wild cat with orange fur and black stripes.' },
+      { word: 'MUSIC',  emoji: '🎵', clue: 'Sweet sounds and songs we listen to and sing.' }
+    ];
+
+    const settings = {
+      mathRange: 10,        // 5, 10, or 20 (for pure single-digit turns)
+      mathOp: 'both',       // 'both', 'add', 'sub'
+      speed: 'slow',        // 'slow' (default kid-friendly), 'normal'
+      bombFreq: 'low',      // 'none', 'low', 'normal'
+      visualHelpers: true,
+      pauseIntervalSec: 10  // 10 seconds of active play between challenges (configurable 10/15/30)
+    };
+
+    const state = {
+      started: false,
+      pausedForMath: false,
+      pausedForSettings: false,
+      pausedForSummary: false,
+      challengeStep: 'math', // 'math' -> 'spelling'
+      mathTurnCounter: 0,    // Alternates single-digit vs one double-digit + one single-digit
+      score: 0,
+      mathStars: 0,
+      wordsSpelledCount: 0,
+      totalTimePlayed: 0,    // Tracks total session time in seconds
+      solvedMathHistory: [], // Stores every solved math problem + spelled word in order
+      activeTimeRemaining: 10.0,
+      spawnCooldown: 0.6,
+      fruits: [],
+      slicedHalves: [],
+      particles: [],
+      floatingTexts: [],
+      bladePoints: [],      // Recent finger/mouse trail points
+      isPointerDown: false,
+      lastPointerPos: null,
+      clouds: [
+        { x: 0.15, y: 0.18, scale: 1.0, speed: 0.008 },
+        { x: 0.55, y: 0.12, scale: 1.25, speed: 0.006 },
+        { x: 0.82, y: 0.24, scale: 0.85, speed: 0.01 }
+      ],
+      currentMath: null,
+      currentSpelling: null,
+      lastProblemKey: '',
+      lastWordUsed: ''
+    };
+
+    function formatTimeMMSS(seconds) {
+      const totalSecs = Math.max(0, Math.floor(seconds));
+      const mins = String(Math.floor(totalSecs / 60)).padStart(2, '0');
+      const secs = String(totalSecs % 60).padStart(2, '0');
+      return `${mins}:${secs}`;
+    }
+
+    // Resize canvas cleanly for Retina/iPad displays
+    function resizeCanvas() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    /********************************************************************
+     * 4. SPAWNING FRUITS, SLICING & KID-FRIENDLY PHYSICS
+     ********************************************************************/
+    function spawnWave() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+
+      // Determine how many items to toss (1 to 3 at a time so it's never overwhelming)
+      const count = Math.random() < 0.45 ? 2 : (Math.random() < 0.75 ? 1 : 3);
+      const isSlow = settings.speed === 'slow';
+      const gravity = isSlow ? 310 : 440;
+
+      // Peak height between 58% and 80% up the screen
+      for (let i = 0; i < count; i++) {
+        const margin = Math.max(80, w * 0.12);
+        const startX = margin + Math.random() * (w - margin * 2);
+        const startY = h + 60;
+
+        // Aim gently toward the center area
+        const targetX = w * 0.25 + Math.random() * (w * 0.5);
+        const apexHeight = h * (0.56 + Math.random() * 0.22);
+        const vy = -Math.sqrt(2 * gravity * apexHeight);
+        const flightTime = (-vy / gravity) * 1.85;
+        const vx = (targetX - startX) / flightTime;
+
+        // Decide if this item is a friendly bomb
+        let isBomb = false;
+        if (settings.bombFreq === 'low') {
+          isBomb = Math.random() < 0.13;
+        } else if (settings.bombFreq === 'normal') {
+          isBomb = Math.random() < 0.22;
+        }
+
+        // Never spawn more than 1 bomb in the same wave
+        if (isBomb && state.fruits.some(f => f.isBomb)) {
+          isBomb = false;
+        }
+
+        const fruitType = FRUIT_TYPES[Math.floor(Math.random() * FRUIT_TYPES.length)];
+
+        state.fruits.push({
+          x: startX,
+          y: startY,
+          vx,
+          vy,
+          gravity,
+          radius: isBomb ? 42 : fruitType.radius,
+          rotation: Math.random() * Math.PI * 2,
+          vRot: (Math.random() - 0.5) * 2.2,
+          isBomb,
+          fruitType,
+          sparkPhase: Math.random() * 10
+        });
+      }
+    }
+
+    // Create juice splash or soft cartoon smoke puff
+    function createSplash(x, y, color, isSmoke = false) {
+      const count = isSmoke ? 16 : 18;
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = isSmoke ? (30 + Math.random() * 90) : (60 + Math.random() * 190);
+        state.particles.push({
+          x,
+          y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - (isSmoke ? 30 : 0),
+          radius: isSmoke ? (14 + Math.random() * 16) : (5 + Math.random() * 8),
+          color: isSmoke ? (i % 2 === 0 ? '#cfd8dc' : '#b0bec5') : color,
+          alpha: 1,
+          decay: isSmoke ? (0.9 + Math.random() * 0.5) : (1.3 + Math.random() * 0.7),
+          isSmoke
+        });
+      }
+    }
+
+    // Check if pointer segment or tap intersects a fruit or bomb
+    function checkSliceCollisions(x1, y1, x2, y2) {
+      if (!state.started || state.pausedForMath || state.pausedForSettings || state.pausedForSummary) return;
+
+      for (let i = state.fruits.length - 1; i >= 0; i--) {
+        const item = state.fruits[i];
+
+        // Generous hit radius for kid-friendly touch accuracy
+        const hitRadius = item.radius * 1.18;
+        const dist = pointToSegmentDistance(item.x, item.y, x1, y1, x2, y2);
+
+        if (dist <= hitRadius) {
+          const sliceAngle = Math.atan2(y2 - y1, x2 - x1);
+          sliceItem(i, sliceAngle);
+        }
+      }
+    }
+
+    function pointToSegmentDistance(px, py, x1, y1, x2, y2) {
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const lenSq = dx * dx + dy * dy;
+      if (lenSq === 0) return Math.hypot(px - x1, py - y1);
+      let t = ((px - x1) * dx + (py - y1) * dy) / lenSq;
+      t = Math.max(0, Math.min(1, t));
+      const projX = x1 + t * dx;
+      const projY = y1 + t * dy;
+      return Math.hypot(px - projX, py - projY);
+    }
+
+    function sliceItem(index, sliceAngle) {
+      const item = state.fruits[index];
+      state.fruits.splice(index, 1);
+
+      if (item.isBomb) {
+        // Gentle cartoon smoke puff, soft low boing, -2 points (minimum 0)
+        sound.playGentlePuff();
+        createSplash(item.x, item.y, '#cfd8dc', true);
+
+        const prevScore = state.score;
+        state.score = Math.max(0, state.score - 2);
+        updateHUD();
+
+        const diffText = prevScore > 0 ? 'Poof! -2' : 'Poof!';
+        state.floatingTexts.push({
+          x: item.x,
+          y: item.y,
+          text: diffText,
+          color: '#64748b',
+          alpha: 1.0,
+          vy: -55
+        });
+      } else {
+        // Fruit sliced! Split into two halves flying apart + colorful splash +1 point
+        sound.playSlice();
+        state.score += 1;
+        updateHUD();
+
+        createSplash(item.x, item.y, item.fruitType.juiceColor, false);
+
+        state.floatingTexts.push({
+          x: item.x,
+          y: item.y - 10,
+          text: '+1',
+          color: '#059669',
+          alpha: 1.0,
+          vy: -70
+        });
+
+        const perpX = -Math.sin(sliceAngle);
+        const perpY = Math.cos(sliceAngle);
+        const sepSpeed = 75;
+
+        // Top half (-1) and bottom half (+1)
+        [-1, 1].forEach(side => {
+          state.slicedHalves.push({
+            x: item.x + perpX * side * 8,
+            y: item.y + perpY * side * 8,
+            vx: item.vx + perpX * side * sepSpeed,
+            vy: item.vy - 40 + perpY * side * sepSpeed,
+            gravity: item.gravity,
+            radius: item.radius,
+            rotation: sliceAngle,
+            vRot: side * 2.6,
+            halfSide: side,
+            fruitType: item.fruitType,
+            alpha: 1.0
+          });
+        });
+      }
+    }
+
+    /********************************************************************
+     * 5. UNIFIED TOUCH (iPAD) & MOUSE INPUT HANDLING
+     ********************************************************************/
+    function addBladePoint(x, y) {
+      const now = performance.now();
+      if (state.lastPointerPos) {
+        checkSliceCollisions(state.lastPointerPos.x, state.lastPointerPos.y, x, y);
+      } else {
+        // Also allow direct tap on a fruit
+        checkSliceCollisions(x, y, x, y);
+      }
+      state.lastPointerPos = { x, y };
+      state.bladePoints.push({ x, y, time: now });
+    }
+
+    // Touch Events for iPad (supports immediate finger contact & swiping)
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      sound.init();
+      state.isPointerDown = true;
+      state.lastPointerPos = null;
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        const t = e.changedTouches[i];
+        addBladePoint(t.clientX, t.clientY);
+      }
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (!state.isPointerDown) return;
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        const t = e.changedTouches[i];
+        addBladePoint(t.clientX, t.clientY);
+      }
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      state.isPointerDown = false;
+      state.lastPointerPos = null;
+    }, { passive: false });
+
+    canvas.addEventListener('touchcancel', (e) => {
+      e.preventDefault();
+      state.isPointerDown = false;
+      state.lastPointerPos = null;
+    }, { passive: false });
+
+    // Mouse Fallback for Desktop / Interactive Whiteboard
+    canvas.addEventListener('mousedown', (e) => {
+      sound.init();
+      state.isPointerDown = true;
+      state.lastPointerPos = null;
+      addBladePoint(e.clientX, e.clientY);
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!state.isPointerDown) return;
+      addBladePoint(e.clientX, e.clientY);
+    });
+
+    window.addEventListener('mouseup', () => {
+      state.isPointerDown = false;
+      state.lastPointerPos = null;
+    });
+
+    /********************************************************************
+     * 6. 10-SECOND MATH (ALTERNATING 1 DOUBLE-DIGIT) + SPELLING ENGINE
+     ********************************************************************/
+    const mathModal = document.getElementById('mathModal');
+    const mathCardContainer = document.getElementById('mathCardContainer');
+    const mathStepSection = document.getElementById('mathStepSection');
+    const spellingStepSection = document.getElementById('spellingStepSection');
+    const stepIndicatorMath = document.getElementById('stepIndicatorMath');
+    const stepIndicatorSpell = document.getElementById('stepIndicatorSpell');
+    const mathModeBadgeText = document.getElementById('mathModeBadgeText');
+
+    const mathNumA = document.getElementById('mathNumA');
+    const mathOp = document.getElementById('mathOp');
+    const mathNumB = document.getElementById('mathNumB');
+    const mathAnswerSlot = document.getElementById('mathAnswerSlot');
+    const mathFeedback = document.getElementById('mathFeedback');
+    const mathChoicesGrid = document.getElementById('mathChoicesGrid');
+    const visualCounterWrapper = document.getElementById('visualCounterWrapper');
+    const visualCounterArea = document.getElementById('visualCounterArea');
+    const triesDots = document.getElementById('triesDots');
+
+    // Spelling UI Elements
+    const spellTriesDots = document.getElementById('spellTriesDots');
+    const spellEmojiBadge = document.getElementById('spellEmojiBadge');
+    const spellClueText = document.getElementById('spellClueText');
+    const listenWordBtn = document.getElementById('listenWordBtn');
+    const listenSlowBtn = document.getElementById('listenSlowBtn');
+    const spellingSlotsContainer = document.getElementById('spellingSlotsContainer');
+    const spellingFeedback = document.getElementById('spellingFeedback');
+
+    function setChallengeStepUI(step) {
+      state.challengeStep = step;
+      if (step === 'math') {
+        mathStepSection.classList.remove('hidden');
+        spellingStepSection.classList.add('hidden');
+
+        stepIndicatorMath.className = 'flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs sm:text-sm font-bold border-2 bg-sky-500 text-white border-sky-600 shadow-sm transition-all';
+        stepIndicatorSpell.className = 'flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs sm:text-sm font-bold border-2 bg-slate-100 text-slate-400 border-slate-200 transition-all';
+      } else {
+        mathStepSection.classList.add('hidden');
+        spellingStepSection.classList.remove('hidden');
+
+        stepIndicatorMath.className = 'flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs sm:text-sm font-bold border-2 bg-emerald-100 text-emerald-800 border-emerald-300 transition-all';
+        stepIndicatorSpell.className = 'flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs sm:text-sm font-bold border-2 bg-violet-500 text-white border-violet-600 shadow-sm transition-all';
+      }
+    }
+
+    function updateTriesIndicator(wrongAttempts) {
+      if (wrongAttempts <= 0) {
+        triesDots.textContent = '🔵🔵';
+      } else if (wrongAttempts === 1) {
+        triesDots.textContent = '🔵⚪';
+      } else {
+        triesDots.textContent = '⚪⚪';
+      }
+    }
+
+    function triggerMathPause() {
+      state.pausedForMath = true;
+      state.isPointerDown = false;
+      state.lastPointerPos = null;
+      state.bladePoints = [];
+
+      // Advance turn counter so every alternate pause features ONE double-digit number (e.g., 19 + 9 or 15 + 2)
+      state.mathTurnCounter += 1;
+
+      sound.playMathPauseChime();
+      setChallengeStepUI('math');
+      generateMathProblem(false);
+      mathModal.classList.remove('hidden');
+    }
+
+    function generateMathProblem(isResetAfterTwoWrong = false) {
+      // Every alternate math pause (even turns: 2, 4, 6...) uses ONE double-digit (10..19) and ONE single-digit (1..9)
+      const useOneDoubleDigit = (state.mathTurnCounter % 2 === 0);
+      const maxVal = settings.mathRange; // 5, 10, or 20 for single-digit turns
+      let op = '+';
+      let a = 0;
+      let b = 0;
+      let answer = 0;
+      let problemKey = '';
+
+      // Pick a problem and ensure it differs from the immediately preceding problem
+      for (let attempt = 0; attempt < 15; attempt++) {
+        if (settings.mathOp === 'add') {
+          op = '+';
+        } else if (settings.mathOp === 'sub') {
+          op = '-';
+        } else {
+          op = Math.random() < 0.6 ? '+' : '-';
+        }
+
+        if (useOneDoubleDigit) {
+          // Exactly ONE double-digit number (10 to 19) and ONE single-digit number (1 to 9), like 19 + 9 or 15 + 2
+          const doubleDigit = 10 + Math.floor(Math.random() * 10); // 10..19
+          const singleDigit = 1 + Math.floor(Math.random() * 9);   // 1..9
+
+          if (op === '+') {
+            // Put the double-digit first most of the time (e.g. 19 + 9, 15 + 2) or occasionally second
+            if (Math.random() < 0.8) {
+              a = doubleDigit;
+              b = singleDigit;
+            } else {
+              a = singleDigit;
+              b = doubleDigit;
+            }
+            answer = a + b;
+          } else {
+            // Subtraction: double-digit minus single-digit (always positive & clear)
+            a = doubleDigit;
+            b = singleDigit;
+            answer = a - b;
+          }
+        } else {
+          // Pure single-digit problem (both numbers 1..9)
+          const singleCap = Math.min(9, maxVal);
+          if (op === '+') {
+            a = 1 + Math.floor(Math.random() * singleCap);
+            b = 1 + Math.floor(Math.random() * singleCap);
+            answer = a + b;
+          } else {
+            a = 2 + Math.floor(Math.random() * Math.max(2, singleCap - 1));
+            b = 1 + Math.floor(Math.random() * (a - 1));
+            answer = a - b;
+          }
+        }
+
+        problemKey = `${a}${op}${b}`;
+        if (problemKey !== state.lastProblemKey) break;
+      }
+      state.lastProblemKey = problemKey;
+
+      // Update badge to show whether this is a regular single-digit or bonus double-digit challenge
+      if (mathModeBadgeText) {
+        mathModeBadgeText.textContent = useOneDoubleDigit
+          ? 'Step 1: Bonus Double-Digit Math! 🌟'
+          : 'Step 1: Solve the Math Puzzle!';
+      }
+
+      // Generate 4 unique non-negative choices including the correct answer
+      const choicesSet = new Set([answer]);
+      const offsets = [-3, -2, -1, 1, 2, 3, 4];
+      const maxChoiceBound = Math.max(answer + 4, maxVal + 3);
+      while (choicesSet.size < 4) {
+        const delta = offsets[Math.floor(Math.random() * offsets.length)];
+        const candidate = answer + delta;
+        if (candidate >= 0 && candidate <= maxChoiceBound) {
+          choicesSet.add(candidate);
+        } else {
+          choicesSet.add(Math.max(0, answer + Math.floor(Math.random() * 5) - 2));
+        }
+      }
+
+      const choices = Array.from(choicesSet).sort(() => Math.random() - 0.5);
+      const helperFruit = FRUIT_TYPES[Math.floor(Math.random() * FRUIT_TYPES.length)].emoji;
+
+      state.currentMath = {
+        a,
+        b,
+        op,
+        answer,
+        choices,
+        helperFruit,
+        useOneDoubleDigit,
+        wrongAttempts: 0,
+        transitioning: false,
+        solved: false
+      };
+
+      // Reset tries indicator to 2 full dots
+      updateTriesIndicator(0);
+
+      // Gentle pop animation when resetting to a fresh problem
+      if (isResetAfterTwoWrong && mathCardContainer) {
+        mathCardContainer.classList.remove('animate-pop');
+        void mathCardContainer.offsetWidth;
+        mathCardContainer.classList.add('animate-pop');
+      }
+
+      // Render Equation
+      mathNumA.textContent = a;
+      mathOp.textContent = op === '+' ? '+' : '−';
+      mathNumB.textContent = b;
+      mathAnswerSlot.textContent = '?';
+      mathAnswerSlot.className = 'inline-flex items-center justify-center min-w-[76px] sm:min-w-[92px] h-14 sm:h-18 px-3 rounded-2xl bg-white border-4 border-dashed border-amber-400 text-4xl sm:text-5xl font-bold text-emerald-600';
+
+      if (isResetAfterTwoWrong) {
+        mathFeedback.textContent = '✨ Here is a fresh puzzle! Pick the answer below! 👇';
+        mathFeedback.className = 'h-7 sm:h-8 text-base sm:text-lg font-bold text-sky-600 mb-3 flex items-center justify-center transition-all';
+      } else {
+        mathFeedback.textContent = 'Pick the right answer below! 👇';
+        mathFeedback.className = 'h-7 sm:h-8 text-base sm:text-lg font-bold text-slate-600 mb-3 flex items-center justify-center transition-all';
+      }
+
+      // Render Visual Fruit Counters
+      renderVisualFruitCounters(state.currentMath);
+
+      // Render 4 Huge Answer Buttons
+      mathChoicesGrid.innerHTML = '';
+      choices.forEach((choiceVal) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = choiceVal;
+        btn.className = 'tactile-btn py-4 sm:py-5 rounded-3xl bg-gradient-to-b from-sky-400 to-sky-600 text-white font-bold text-4xl sm:text-5xl shadow-[0_6px_0_#0284c7] hover:brightness-105 active:shadow-[0_2px_0_#0284c7] border-2 border-sky-300';
+
+        btn.addEventListener('click', () => handleMathChoiceTap(btn, choiceVal));
+        mathChoicesGrid.appendChild(btn);
+      });
+    }
+
+    function renderVisualFruitCounters(problem) {
+      if (!settings.visualHelpers) {
+        visualCounterWrapper.classList.add('hidden');
+        return;
+      }
+      visualCounterWrapper.classList.remove('hidden');
+      visualCounterArea.innerHTML = '';
+
+      let plinkIdx = 0;
+      const totalFruits = problem.op === '+' ? (problem.a + problem.b) : problem.a;
+      // Slightly more compact fruit icons when showing double-digit numbers like 19 + 9
+      const sizeClass = totalFruits > 14 ? 'text-lg sm:text-2xl p-0.5' : 'text-2xl sm:text-3xl p-1';
+
+      const createTappableFruit = (emoji, isCrossedOut = false) => {
+        const span = document.createElement('button');
+        span.type = 'button';
+        span.className = `counter-fruit relative ${sizeClass} rounded-xl ${
+          isCrossedOut ? 'opacity-40 grayscale-[40%]' : 'hover:scale-110'
+        }`;
+        span.innerHTML = `<span>${emoji}</span>${
+          isCrossedOut
+            ? '<span class="absolute inset-0 flex items-center justify-center text-rose-500 font-bold text-xl pointer-events-none">✕</span>'
+            : ''
+        }`;
+        span.addEventListener('click', () => {
+          sound.playCountPlink(plinkIdx++);
+          span.classList.add('counted');
+          setTimeout(() => span.classList.remove('counted'), 260);
+        });
+        return span;
+      };
+
+      if (problem.op === '+') {
+        // Group A
+        const groupA = document.createElement('div');
+        groupA.className = 'flex flex-wrap items-center justify-center gap-0.5 sm:gap-1 bg-amber-50/80 border border-amber-200 px-2 py-1 rounded-2xl max-w-[310px]';
+        for (let i = 0; i < problem.a; i++) {
+          groupA.appendChild(createTappableFruit(problem.helperFruit, false));
+        }
+
+        const plusBadge = document.createElement('span');
+        plusBadge.className = 'text-xl sm:text-2xl font-bold text-sky-600 px-1';
+        plusBadge.textContent = '+';
+
+        // Group B
+        const groupB = document.createElement('div');
+        groupB.className = 'flex flex-wrap items-center justify-center gap-0.5 sm:gap-1 bg-sky-50/80 border border-sky-200 px-2 py-1 rounded-2xl max-w-[260px]';
+        for (let i = 0; i < problem.b; i++) {
+          groupB.appendChild(createTappableFruit(problem.helperFruit, false));
+        }
+
+        visualCounterArea.appendChild(groupA);
+        visualCounterArea.appendChild(plusBadge);
+        visualCounterArea.appendChild(groupB);
+      } else {
+        // Subtraction: Show total `a` fruits, with the last `b` gently crossed out so child can count remaining
+        const groupSub = document.createElement('div');
+        groupSub.className = 'flex flex-wrap items-center justify-center gap-1 bg-amber-50/80 border border-amber-200 px-2.5 py-1 rounded-2xl';
+        for (let i = 0; i < problem.a; i++) {
+          const isTakenAway = i >= problem.answer;
+          groupSub.appendChild(createTappableFruit(problem.helperFruit, isTakenAway));
+        }
+        visualCounterArea.appendChild(groupSub);
+      }
+    }
+
+    function handleMathChoiceTap(btn, chosenValue) {
+      if (!state.currentMath || state.currentMath.solved || state.currentMath.transitioning) return;
+
+      if (chosenValue === state.currentMath.answer) {
+        // Correct Math Answer! Transition to Step 2: English Listen & Spell Challenge!
+        state.currentMath.solved = true;
+        sound.playMathSuccess();
+
+        state.mathStars += 1;
+        updateHUD();
+
+        // Update equation box and button visuals
+        mathAnswerSlot.textContent = chosenValue;
+        mathAnswerSlot.className = 'animate-celebrate inline-flex items-center justify-center min-w-[76px] sm:min-w-[92px] h-14 sm:h-18 px-3 rounded-2xl bg-emerald-500 border-4 border-emerald-300 text-4xl sm:text-5xl font-bold text-white shadow-md';
+
+        btn.className = 'tactile-btn animate-celebrate py-4 sm:py-5 rounded-3xl bg-gradient-to-b from-emerald-400 to-emerald-600 text-white font-bold text-4xl sm:text-5xl shadow-[0_6px_0_#047857] border-2 border-emerald-200';
+
+        mathFeedback.textContent = '🌟 Great Math! Now let’s listen & spell a word! 🔤';
+        mathFeedback.className = 'h-7 sm:h-8 text-base sm:text-xl font-bold text-emerald-600 mb-3 flex items-center justify-center';
+
+        // Move smoothly to Step 2 (English Word Challenge) inside the same modal
+        setTimeout(() => {
+          startSpellingChallenge();
+        }, 750);
+      } else {
+        // Wrong answer tapped: increment wrongAttempts
+        state.currentMath.wrongAttempts += 1;
+        btn.disabled = true;
+        btn.className = 'py-4 sm:py-5 rounded-3xl bg-slate-200 text-slate-400 font-bold text-4xl sm:text-5xl opacity-40 cursor-not-allowed border-2 border-slate-200';
+
+        updateTriesIndicator(state.currentMath.wrongAttempts);
+
+        if (state.currentMath.wrongAttempts === 1) {
+          // 1st wrong answer: gentle prompt to try one more time
+          sound.playTryAgainTap();
+          mathFeedback.textContent = '🌱 Good try! Give it one more shot!';
+          mathFeedback.className = 'h-7 sm:h-8 text-base sm:text-lg font-bold text-amber-600 mb-3 flex items-center justify-center';
+        } else {
+          // 2nd wrong answer: smoothly reset and generate a brand-new math problem!
+          state.currentMath.transitioning = true;
+          sound.playNewProblemChime();
+          mathFeedback.textContent = 'Let’s try a fresh problem! 🔄';
+          mathFeedback.className = 'h-7 sm:h-8 text-base sm:text-lg font-bold text-sky-600 mb-3 flex items-center justify-center';
+
+          setTimeout(() => {
+            generateMathProblem(true);
+          }, 850);
+        }
+      }
+    }
+
+    /********************************************************************
+     * 6B. ENGLISH WORD LISTEN & SPELLING CHALLENGE (STANDARD 2–3)
+     ********************************************************************/
+    function speakSpellingWord(wordObj, slowRate = false) {
+      if (!wordObj) return;
+      sound.playCountPlink(4);
+
+      if ('speechSynthesis' in window) {
+        try {
+          window.speechSynthesis.cancel();
+          const utter = new SpeechSynthesisUtterance(
+            slowRate
+              ? `${wordObj.word.toLowerCase()}. ... ${wordObj.clue}`
+              : `${wordObj.word.toLowerCase()}`
+          );
+          utter.lang = 'en-US';
+          utter.rate = slowRate ? 0.68 : 0.86; // Clear, child-friendly articulation
+          utter.pitch = 1.05;
+          window.speechSynthesis.speak(utter);
+        } catch (err) {
+          // Fallback if speechSynthesis is busy
+        }
+      }
+    }
+
+    function updateSpellTriesDots(wrongAttempts) {
+      if (wrongAttempts <= 0) {
+        spellTriesDots.textContent = '🟣🟣';
+      } else if (wrongAttempts === 1) {
+        spellTriesDots.textContent = '🟣⚪';
+      } else {
+        spellTriesDots.textContent = '⚪⚪';
+      }
+    }
+
+    function startSpellingChallenge() {
+      setChallengeStepUI('spelling');
+
+      // Pick a Standard 2 / Standard 3 word different from the last one
+      let chosen = SPELLING_WORD_BANK[Math.floor(Math.random() * SPELLING_WORD_BANK.length)];
+      for (let i = 0; i < 10; i++) {
+        const candidate = SPELLING_WORD_BANK[Math.floor(Math.random() * SPELLING_WORD_BANK.length)];
+        if (candidate.word !== state.lastWordUsed) {
+          chosen = candidate;
+          break;
+        }
+      }
+      state.lastWordUsed = chosen.word;
+
+      state.currentSpelling = {
+        word: chosen.word.toUpperCase(),
+        emoji: chosen.emoji,
+        clue: chosen.clue,
+        typed: '',
+        wrongAttempts: 0,
+        showGhostHint: false,
+        solved: false
+      };
+
+      spellEmojiBadge.textContent = chosen.emoji;
+      spellClueText.textContent = chosen.clue;
+      updateSpellTriesDots(0);
+
+      spellingFeedback.textContent = 'Tap "Listen to Word" 🔊, spell it, and press Enter ✓';
+      spellingFeedback.className = 'h-7 text-sm sm:text-base font-bold text-slate-600 mb-2.5 flex items-center justify-center transition-all';
+
+      renderSpellingSlots();
+
+      // Automatically speak the word once when Step 2 opens so he hears it right away
+      setTimeout(() => {
+        if (state.pausedForMath && state.challengeStep === 'spelling' && state.currentSpelling) {
+          speakSpellingWord(state.currentSpelling, false);
+        }
+      }, 220);
+    }
+
+    function renderSpellingSlots() {
+      if (!state.currentSpelling) return;
+      const target = state.currentSpelling.word;
+      const typed = state.currentSpelling.typed;
+      const showHint = state.currentSpelling.showGhostHint;
+
+      spellingSlotsContainer.innerHTML = '';
+
+      for (let i = 0; i < target.length; i++) {
+        const typedChar = typed[i] || '';
+        const targetChar = target[i];
+        const isCurrentSlot = (i === typed.length) && !state.currentSpelling.solved;
+
+        const slot = document.createElement('div');
+        let slotStyle = 'bg-white border-slate-300 text-slate-800';
+
+        if (state.currentSpelling.solved) {
+          slotStyle = 'bg-emerald-500 border-emerald-300 text-white animate-celebrate';
+        } else if (typedChar) {
+          slotStyle = 'bg-violet-50 border-violet-400 text-violet-900 shadow-sm';
+        } else if (isCurrentSlot) {
+          slotStyle = 'bg-white border-amber-400 ring-2 ring-amber-200 text-slate-400';
+        }
+
+        slot.className = `w-10 h-12 sm:w-12 sm:h-14 rounded-xl border-3 flex items-center justify-center text-2xl sm:text-3xl font-bold transition-all ${slotStyle}`;
+
+        if (typedChar) {
+          slot.textContent = typedChar;
+        } else if (showHint) {
+          // After 2 wrong attempts, show light ghost letters so he can never get stuck!
+          slot.innerHTML = `<span class="text-slate-300 select-none">${targetChar}</span>`;
+        } else {
+          slot.textContent = '';
+        }
+
+        spellingSlotsContainer.appendChild(slot);
+      }
+    }
+
+    function handleSpellingKeyInput(key) {
+      if (!state.pausedForMath || state.challengeStep !== 'spelling' || !state.currentSpelling || state.currentSpelling.solved) {
+        return;
+      }
+
+      const sp = state.currentSpelling;
+
+      if (key === 'BACKSPACE') {
+        if (sp.typed.length > 0) {
+          sp.typed = sp.typed.slice(0, -1);
+          sound.playCountPlink(1);
+          renderSpellingSlots();
+        }
+        return;
+      }
+
+      if (key === 'ENTER') {
+        verifySpellingSubmission();
+        return;
+      }
+
+      // Single A-Z letter
+      if (/^[A-Z]$/.test(key) && sp.typed.length < sp.word.length) {
+        sp.typed += key;
+        sound.playCountPlink(sp.typed.length);
+        renderSpellingSlots();
+      }
+    }
+
+    function verifySpellingSubmission() {
+      const sp = state.currentSpelling;
+      if (!sp || sp.solved) return;
+
+      if (sp.typed.length < sp.word.length) {
+        sound.playTryAgainTap();
+        spellingFeedback.textContent = `Keep going! Spell all ${sp.word.length} letters, then press Enter ✓`;
+        spellingFeedback.className = 'h-7 text-sm sm:text-base font-bold text-amber-600 mb-2.5 flex items-center justify-center';
+        return;
+      }
+
+      if (sp.typed.toUpperCase() === sp.word) {
+        // Correct Spelling!
+        sp.solved = true;
+        sound.playMathSuccess();
+        state.wordsSpelledCount += 1;
+        renderSpellingSlots();
+
+        // Save combined Math + Spelling record into session history
+        const m = state.currentMath;
+        const displayOp = m.op === '+' ? '+' : '−';
+        state.solvedMathHistory.push({
+          number: state.solvedMathHistory.length + 1,
+          a: m.a,
+          b: m.b,
+          op: displayOp,
+          answer: m.answer,
+          equation: `${m.a} ${displayOp} ${m.b} = ${m.answer}`,
+          fruitEmoji: m.helperFruit,
+          opType: m.useOneDoubleDigit ? `Double-Digit ${m.op === '+' ? 'Add' : 'Sub'}` : (m.op === '+' ? 'Addition' : 'Subtraction'),
+          triesUsed: m.wrongAttempts + 1,
+          spelledWord: sp.word,
+          wordEmoji: sp.emoji,
+          timeSolved: formatTimeMMSS(state.totalTimePlayed)
+        });
+
+        updateHUD();
+
+        spellingFeedback.textContent = `🎉 Awesome! You spelled ${sp.word}! Back to slicing! 🍉`;
+        spellingFeedback.className = 'h-7 text-base sm:text-lg font-bold text-emerald-600 mb-2.5 flex items-center justify-center';
+
+        setTimeout(() => {
+          mathModal.classList.add('hidden');
+          state.activeTimeRemaining = settings.pauseIntervalSec;
+          state.pausedForMath = false;
+          updateHUD();
+        }, 1050);
+      } else {
+        // Incorrect spelling attempt
+        sp.wrongAttempts += 1;
+        updateSpellTriesDots(sp.wrongAttempts);
+        sound.playTryAgainTap();
+
+        if (sp.wrongAttempts === 1) {
+          // 1st wrong try: keep any matching prefix letters or clear to let him try again, and replay the word
+          sp.typed = '';
+          renderSpellingSlots();
+          speakSpellingWord(sp, true);
+          spellingFeedback.textContent = '🌱 Good try! Listen closely and try one more time!';
+          spellingFeedback.className = 'h-7 text-sm sm:text-base font-bold text-amber-600 mb-2.5 flex items-center justify-center';
+        } else {
+          // 2nd wrong try: reveal light helper letters inside the boxes so he can type it frustration-free!
+          sp.typed = '';
+          sp.showGhostHint = true;
+          renderSpellingSlots();
+          speakSpellingWord(sp, true);
+          spellingFeedback.textContent = `✨ Helper letters unlocked! Type ${sp.word} and press Enter ✓`;
+          spellingFeedback.className = 'h-7 text-sm sm:text-base font-bold text-violet-600 mb-2.5 flex items-center justify-center';
+        }
+      }
+    }
+
+    function initTouchKeyboard() {
+      const row1 = ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'];
+      const row2 = ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'];
+      const row3 = ['Z', 'X', 'C', 'V', 'B', 'N', 'M'];
+
+      const kbRow1 = document.getElementById('kbRow1');
+      const kbRow2 = document.getElementById('kbRow2');
+      const kbRow3 = document.getElementById('kbRow3');
+
+      const makeKeyBtn = (letter) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = letter;
+        btn.className = 'tactile-btn py-2.5 sm:py-3 rounded-xl bg-white hover:bg-sky-50 active:bg-sky-100 text-slate-800 font-bold text-lg sm:text-xl shadow-[0_3px_0_#cbd5e1] border border-slate-300';
+        btn.addEventListener('click', () => handleSpellingKeyInput(letter));
+        return btn;
+      };
+
+      row1.forEach(l => kbRow1.appendChild(makeKeyBtn(l)));
+      row2.forEach(l => kbRow2.appendChild(makeKeyBtn(l)));
+
+      // Backspace button
+      const backBtn = document.createElement('button');
+      backBtn.type = 'button';
+      backBtn.innerHTML = '⌫ <span class="hidden sm:inline text-xs">Delete</span>';
+      backBtn.className = 'tactile-btn py-2.5 sm:py-3 px-2.5 sm:px-3.5 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold text-sm sm:text-base shadow-[0_3px_0_#fda4af] border border-rose-300';
+      backBtn.addEventListener('click', () => handleSpellingKeyInput('BACKSPACE'));
+      kbRow3.appendChild(backBtn);
+
+      row3.forEach(l => {
+        const btn = makeKeyBtn(l);
+        btn.classList.add('flex-1', 'max-w-[54px]');
+        kbRow3.appendChild(btn);
+      });
+
+      // Prominent Enter / Verify button
+      const enterBtn = document.createElement('button');
+      enterBtn.type = 'button';
+      enterBtn.innerHTML = 'Enter ✓';
+      enterBtn.className = 'tactile-btn py-2.5 sm:py-3 px-3.5 sm:px-5 rounded-xl bg-gradient-to-b from-emerald-400 to-emerald-600 text-white font-bold text-sm sm:text-base shadow-[0_3px_0_#047857] border border-emerald-300';
+      enterBtn.addEventListener('click', () => handleSpellingKeyInput('ENTER'));
+      kbRow3.appendChild(enterBtn);
+    }
+
+    initTouchKeyboard();
+
+    // Listen & Slow Listen button handlers
+    listenWordBtn.addEventListener('click', () => {
+      if (state.currentSpelling) {
+        speakSpellingWord(state.currentSpelling, false);
+      }
+    });
+
+    listenSlowBtn.addEventListener('click', () => {
+      if (state.currentSpelling) {
+        speakSpellingWord(state.currentSpelling, true);
+      }
+    });
+
+    // Also support physical hardware keyboard if attached to iPad or desktop
+    window.addEventListener('keydown', (e) => {
+      if (!state.pausedForMath || state.challengeStep !== 'spelling') return;
+      if (e.key === 'Backspace') {
+        e.preventDefault();
+        handleSpellingKeyInput('BACKSPACE');
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        handleSpellingKeyInput('ENTER');
+      } else if (/^[a-zA-Z]$/.test(e.key)) {
+        e.preventDefault();
+        handleSpellingKeyInput(e.key.toUpperCase());
+      }
+    });
+
+    /********************************************************************
+     * 7. HUD, END SUMMARY & PARENT CONTROLS LOGIC
+     ********************************************************************/
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const starsDisplay = document.getElementById('starsDisplay');
+    const totalTimeDisplay = document.getElementById('totalTimeDisplay');
+    const timerTextDisplay = document.getElementById('timerTextDisplay');
+    const timerTextMobile = document.getElementById('timerTextMobile');
+    const timerBarFill = document.getElementById('timerBarFill');
+    const welcomeIntervalText = document.getElementById('welcomeIntervalText');
+
+    function updateHUD() {
+      scoreDisplay.textContent = state.score;
+      starsDisplay.textContent = state.mathStars;
+      totalTimeDisplay.textContent = formatTimeMMSS(state.totalTimePlayed);
+
+      const secLeft = Math.ceil(Math.max(0, state.activeTimeRemaining));
+      timerTextDisplay.textContent = `${secLeft}s`;
+      timerTextMobile.textContent = `${secLeft}s`;
+
+      const pct = Math.max(0, Math.min(100, (state.activeTimeRemaining / settings.pauseIntervalSec) * 100));
+      timerBarFill.style.width = `${pct}%`;
+
+      if (welcomeIntervalText) {
+        welcomeIntervalText.textContent = settings.pauseIntervalSec;
+      }
+    }
+
+    // End Session Summary Modal Elements & Logic
+    const endSummaryModal = document.getElementById('endSummaryModal');
+    const summaryTotalTime = document.getElementById('summaryTotalTime');
+    const summaryMathCount = document.getElementById('summaryMathCount');
+    const summaryWordCount = document.getElementById('summaryWordCount');
+    const summaryFruitScore = document.getElementById('summaryFruitScore');
+    const summarySolvedBadge = document.getElementById('summarySolvedBadge');
+    const solvedMathListContainer = document.getElementById('solvedMathListContainer');
+
+    function openEndSummaryModal() {
+      // Ensure session has started or allow viewing anytime
+      state.pausedForSummary = true;
+      state.isPointerDown = false;
+      state.lastPointerPos = null;
+      state.bladePoints = [];
+
+      // Close Parent Settings if open
+      document.getElementById('settingsModal').classList.add('hidden');
+      state.pausedForSettings = false;
+
+      sound.init();
+      sound.playMathSuccess();
+
+      // Populate top 4 summary cards
+      summaryTotalTime.textContent = formatTimeMMSS(state.totalTimePlayed);
+      summaryMathCount.textContent = state.mathStars;
+      if (summaryWordCount) {
+        summaryWordCount.textContent = state.wordsSpelledCount;
+      }
+      summaryFruitScore.textContent = state.score;
+      summarySolvedBadge.textContent = `${state.solvedMathHistory.length} Completed`;
+
+      // Populate scrollable list of solved math equations & spelled words
+      solvedMathListContainer.innerHTML = '';
+      if (state.solvedMathHistory.length === 0) {
+        const emptyDiv = document.createElement('div');
+        emptyDiv.className = 'py-8 px-4 text-center text-slate-500 font-semibold text-base sm:text-lg';
+        emptyDiv.innerHTML = `
+          <div class="text-4xl mb-2">🌱</div>
+          <div>No math &amp; spelling challenges completed yet in this session!</div>
+          <div class="text-xs sm:text-sm text-slate-400 mt-1">Tap <strong>Keep Playing</strong> to slice fruits and solve your first challenge!</div>
+        `;
+        solvedMathListContainer.appendChild(emptyDiv);
+      } else {
+        state.solvedMathHistory.forEach((item) => {
+          const row = document.createElement('div');
+          row.className = 'flex flex-wrap items-center justify-between gap-3 bg-gradient-to-r from-sky-50/90 via-white to-violet-50/90 border-2 border-sky-200 rounded-2xl px-4 py-3 shadow-sm';
+
+          const tryBadgeText = item.triesUsed === 1 ? '1st Try ⭐' : '2nd Try ⭐';
+          const tryBadgeClass = item.triesUsed === 1
+            ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+            : 'bg-amber-100 text-amber-800 border-amber-300';
+
+          row.innerHTML = `
+            <div class="flex items-center gap-3">
+              <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-sky-500 text-white font-bold text-xs sm:text-sm shadow-sm">
+                #${item.number}
+              </span>
+              <span class="text-2xl sm:text-3xl" role="img" aria-label="Fruit">${item.fruitEmoji}</span>
+              <div class="text-left">
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="text-lg sm:text-xl font-bold text-slate-800 tracking-wide">${item.equation}</span>
+                  <span class="text-xs sm:text-sm font-bold bg-violet-100 text-violet-800 border border-violet-200 px-2.5 py-0.5 rounded-full">
+                    ${item.wordEmoji || '🔤'} ${item.spelledWord || ''}
+                  </span>
+                </div>
+                <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">${item.opType} • Completed at ${item.timeSolved}</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs sm:text-sm font-bold px-3 py-1 rounded-full border ${tryBadgeClass}">
+                ${tryBadgeText}
+              </span>
+            </div>
+          `;
+          solvedMathListContainer.appendChild(row);
+        });
+      }
+
+      endSummaryModal.classList.remove('hidden');
+    }
+
+    document.getElementById('endSessionBtn').addEventListener('click', openEndSummaryModal);
+
+    // Keep Playing Button: Resume exact current session where he left off
+    document.getElementById('keepPlayingBtn').addEventListener('click', () => {
+      sound.playCountPlink(3);
+      endSummaryModal.classList.add('hidden');
+      state.pausedForSummary = false;
+      if (!state.started) {
+        document.getElementById('startModal').classList.add('hidden');
+        state.started = true;
+      }
+      updateHUD();
+    });
+
+    // New Session Button: Reset timer, score, stars, and solved math list to start fresh
+    document.getElementById('newSessionBtn').addEventListener('click', () => {
+      sound.playMathSuccess();
+      endSummaryModal.classList.add('hidden');
+      mathModal.classList.add('hidden');
+      document.getElementById('startModal').classList.add('hidden');
+
+      state.started = true;
+      state.pausedForMath = false;
+      state.pausedForSettings = false;
+      state.pausedForSummary = false;
+      state.challengeStep = 'math';
+      state.mathTurnCounter = 0;
+      state.score = 0;
+      state.mathStars = 0;
+      state.wordsSpelledCount = 0;
+      state.totalTimePlayed = 0;
+      state.solvedMathHistory = [];
+      state.activeTimeRemaining = settings.pauseIntervalSec;
+      state.fruits = [];
+      state.slicedHalves = [];
+      state.particles = [];
+      state.floatingTexts = [];
+      state.bladePoints = [];
+      state.currentMath = null;
+      state.currentSpelling = null;
+
+      updateHUD();
+    });
+
+    // Start Screen Button
+    const startPlayBtn = document.getElementById('startPlayBtn');
+    if (startPlayBtn) {
+      startPlayBtn.addEventListener('click', () => {
+        sound.init();
+        sound.playMathSuccess();
+        document.getElementById('startModal').classList.add('hidden');
+        state.started = true;
+        state.activeTimeRemaining = settings.pauseIntervalSec;
+        updateHUD();
+      });
+    }
+
+    // Sound Toggle Button
+    const soundToggleBtn = document.getElementById('soundToggleBtn');
+    const soundIcon = document.getElementById('soundIcon');
+    soundToggleBtn.addEventListener('click', () => {
+      sound.enabled = !sound.enabled;
+      soundIcon.textContent = sound.enabled ? '🔊' : '🔇';
+      if (sound.enabled) sound.playCountPlink(2);
+    });
+
+    // Parent Settings Modal Controls
+    const settingsModal = document.getElementById('settingsModal');
+    document.getElementById('parentSettingsBtn').addEventListener('click', () => {
+      state.pausedForSettings = true;
+      refreshSettingsUI();
+      settingsModal.classList.remove('hidden');
+    });
+
+    document.getElementById('closeSettingsBtn').addEventListener('click', () => {
+      settingsModal.classList.add('hidden');
+      state.pausedForSettings = false;
+    });
+
+    function refreshSettingsUI() {
+      // Timer frequency buttons (15s, 30s, 45s)
+      document.querySelectorAll('.setting-timer-btn').forEach(btn => {
+        const active = Number(btn.dataset.timer) === settings.pauseIntervalSec;
+        btn.className = `setting-timer-btn tactile-btn py-3 px-3 rounded-2xl border-2 font-bold text-sm sm:text-base ${
+          active ? 'bg-emerald-500 text-white border-emerald-600 shadow-sm' : 'bg-slate-50 text-slate-700 border-slate-200'
+        }`;
+      });
+
+      // Range buttons
+      document.querySelectorAll('.setting-range-btn').forEach(btn => {
+        const active = Number(btn.dataset.range) === settings.mathRange;
+        btn.className = `setting-range-btn tactile-btn py-3 px-3 rounded-2xl border-2 font-bold text-sm sm:text-base ${
+          active ? 'bg-sky-500 text-white border-sky-600 shadow-sm' : 'bg-slate-50 text-slate-700 border-slate-200'
+        }`;
+      });
+
+      // Operation buttons
+      document.querySelectorAll('.setting-op-btn').forEach(btn => {
+        const active = btn.dataset.op === settings.mathOp;
+        btn.className = `setting-op-btn tactile-btn py-3 px-3 rounded-2xl border-2 font-bold text-sm sm:text-base ${
+          active ? 'bg-sky-500 text-white border-sky-600 shadow-sm' : 'bg-slate-50 text-slate-700 border-slate-200'
+        }`;
+      });
+
+      // Speed buttons
+      document.querySelectorAll('.setting-speed-btn').forEach(btn => {
+        const active = btn.dataset.speed === settings.speed;
+        btn.className = `setting-speed-btn tactile-btn py-3 px-4 rounded-2xl border-2 font-bold text-sm sm:text-base ${
+          active ? 'bg-amber-500 text-white border-amber-600 shadow-sm' : 'bg-slate-50 text-slate-700 border-slate-200'
+        }`;
+      });
+
+      // Bomb buttons
+      document.querySelectorAll('.setting-bomb-btn').forEach(btn => {
+        const active = btn.dataset.bomb === settings.bombFreq;
+        btn.className = `setting-bomb-btn tactile-btn py-3 px-3 rounded-2xl border-2 font-bold text-sm sm:text-base ${
+          active ? 'bg-amber-500 text-white border-amber-600 shadow-sm' : 'bg-slate-50 text-slate-700 border-slate-200'
+        }`;
+      });
+
+      // Visual Helpers button
+      const vhBtn = document.getElementById('toggleVisualHelpersBtn');
+      vhBtn.textContent = settings.visualHelpers
+        ? '🍓 Visual Counting Dots: ON'
+        : '🍓 Visual Counting Dots: OFF';
+      vhBtn.className = `tactile-btn py-3 px-4 rounded-2xl border-2 font-bold text-sm ${
+        settings.visualHelpers
+          ? 'border-emerald-400 bg-emerald-50 text-emerald-800'
+          : 'border-slate-300 bg-slate-100 text-slate-600'
+      }`;
+    }
+
+    document.querySelectorAll('.setting-timer-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        settings.pauseIntervalSec = Number(btn.dataset.timer);
+        state.activeTimeRemaining = settings.pauseIntervalSec;
+        updateHUD();
+        refreshSettingsUI();
+      });
+    });
+
+    document.querySelectorAll('.setting-range-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        settings.mathRange = Number(btn.dataset.range);
+        refreshSettingsUI();
+      });
+    });
+
+    document.querySelectorAll('.setting-op-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        settings.mathOp = btn.dataset.op;
+        refreshSettingsUI();
+      });
+    });
+
+    document.querySelectorAll('.setting-speed-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        settings.speed = btn.dataset.speed;
+        refreshSettingsUI();
+      });
+    });
+
+    document.querySelectorAll('.setting-bomb-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        settings.bombFreq = btn.dataset.bomb;
+        refreshSettingsUI();
+      });
+    });
+
+    document.getElementById('toggleVisualHelpersBtn').addEventListener('click', () => {
+      settings.visualHelpers = !settings.visualHelpers;
+      refreshSettingsUI();
+    });
+
+    document.getElementById('triggerMathNowBtn').addEventListener('click', () => {
+      settingsModal.classList.add('hidden');
+      state.pausedForSettings = false;
+      state.started = true;
+      document.getElementById('startModal').classList.add('hidden');
+      triggerMathPause();
+    });
+
+    /********************************************************************
+     * 8. MAIN ANIMATION & PHYSICS LOOP
+     ********************************************************************/
+    let lastFrameTime = performance.now();
+
+    function updatePhysics(dt) {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+
+      // Drift background clouds gently
+      state.clouds.forEach(c => {
+        c.x += c.speed * dt;
+        if (c.x > 1.15) c.x = -0.15;
+      });
+
+      // Prune old blade trail points (> 180ms old)
+      const now = performance.now();
+      state.bladePoints = state.bladePoints.filter(p => now - p.time < 180);
+
+      // Track Total Time Played whenever the session has started and is not in Settings or End Summary
+      if (state.started && !state.pausedForSettings && !state.pausedForSummary) {
+        state.totalTimePlayed += dt;
+        totalTimeDisplay.textContent = formatTimeMMSS(state.totalTimePlayed);
+      }
+
+      // Pause active fruit slicing physics if in Math Modal, Settings, End Summary, or Start Screen
+      if (!state.started || state.pausedForMath || state.pausedForSettings || state.pausedForSummary) {
+        return;
+      }
+
+      // Countdown 15-second active gameplay timer
+      state.activeTimeRemaining -= dt;
+      updateHUD();
+
+      if (state.activeTimeRemaining <= 0) {
+        state.activeTimeRemaining = 0;
+        triggerMathPause();
+        return;
+      }
+
+      // Spawn waves of fruits periodically
+      state.spawnCooldown -= dt;
+      if (state.spawnCooldown <= 0) {
+        spawnWave();
+        state.spawnCooldown = settings.speed === 'slow'
+          ? 1.55 + Math.random() * 0.65
+          : 1.15 + Math.random() * 0.55;
+      }
+
+      // Update whole fruits & bombs
+      for (let i = state.fruits.length - 1; i >= 0; i--) {
+        const f = state.fruits[i];
+        f.x += f.vx * dt;
+        f.y += f.vy * dt;
+        f.vy += f.gravity * dt;
+        f.rotation += f.vRot * dt;
+        f.sparkPhase += dt;
+
+        // Remove safely once fallen below screen (no penalty for missed fruit!)
+        if (f.y > h + 110 && f.vy > 0) {
+          state.fruits.splice(i, 1);
+        }
+      }
+
+      // Update sliced fruit halves
+      for (let i = state.slicedHalves.length - 1; i >= 0; i--) {
+        const sh = state.slicedHalves[i];
+        sh.x += sh.vx * dt;
+        sh.y += sh.vy * dt;
+        sh.vy += sh.gravity * dt;
+        sh.rotation += sh.vRot * dt;
+        sh.alpha -= dt * 0.55;
+
+        if (sh.y > h + 100 || sh.alpha <= 0) {
+          state.slicedHalves.splice(i, 1);
+        }
+      }
+
+      // Update juice & smoke particles
+      for (let i = state.particles.length - 1; i >= 0; i--) {
+        const p = state.particles[i];
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        if (!p.isSmoke) {
+          p.vy += 260 * dt;
+        } else {
+          p.radius += 12 * dt;
+        }
+        p.alpha -= p.decay * dt;
+        if (p.alpha <= 0) {
+          state.particles.splice(i, 1);
+        }
+      }
+
+      // Update floating score texts (+1 / Poof!)
+      for (let i = state.floatingTexts.length - 1; i >= 0; i--) {
+        const ft = state.floatingTexts[i];
+        ft.y += ft.vy * dt;
+        ft.alpha -= dt * 0.9;
+        if (ft.alpha <= 0) {
+          state.floatingTexts.splice(i, 1);
+        }
+      }
+    }
+
+    function renderScene() {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+
+      // 1. Calming Pastel Sky & Soft Meadow Background
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
+      skyGrad.addColorStop(0, '#e0f2fe');
+      skyGrad.addColorStop(0.65, '#fef9c3');
+      skyGrad.addColorStop(1, '#dcfce7');
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, w, h);
+
+      // 2. Soft Drifting Clouds
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+      state.clouds.forEach(c => {
+        const cx = c.x * w;
+        const cy = c.y * h;
+        const r = 34 * c.scale;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.arc(cx + r * 0.8, cy + 4, r * 0.75, 0, Math.PI * 2);
+        ctx.arc(cx - r * 0.8, cy + 6, r * 0.7, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // 3. Rolling Gentle Meadow Hills at Bottom
+      ctx.fillStyle = '#bbf7d0';
+      ctx.beginPath();
+      ctx.moveTo(0, h);
+      ctx.quadraticCurveTo(w * 0.3, h - 75, w * 0.65, h - 30);
+      ctx.quadraticCurveTo(w * 0.85, h - 10, w, h - 55);
+      ctx.lineTo(w, h);
+      ctx.closePath();
+      ctx.fill();
+
+      // 4. Juice Splash & Soft Smoke Particles
+      state.particles.forEach(p => {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.alpha);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      });
+
+      // 5. Sliced Fruit Halves
+      state.slicedHalves.forEach(sh => {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, sh.alpha);
+        ctx.translate(sh.x, sh.y);
+        ctx.rotate(sh.rotation);
+        drawFruitGraphic(ctx, sh.fruitType, sh.radius, sh.halfSide);
+        ctx.restore();
+      });
+
+      // 6. Active Whole Fruits & Friendly Bombs
+      state.fruits.forEach(f => {
+        ctx.save();
+        ctx.translate(f.x, f.y);
+        ctx.rotate(f.rotation);
+        if (f.isBomb) {
+          drawFriendlyBomb(ctx, f.radius, f.sparkPhase);
+        } else {
+          drawFruitGraphic(ctx, f.fruitType, f.radius, 0);
+        }
+        ctx.restore();
+      });
+
+      // 7. Floating Score Popups (+1 / Poof!)
+      state.floatingTexts.forEach(ft => {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, ft.alpha);
+        ctx.font = '700 32px Fredoka, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = '#ffffff';
+        ctx.strokeText(ft.text, ft.x, ft.y);
+        ctx.fillStyle = ft.color;
+        ctx.fillText(ft.text, ft.x, ft.y);
+        ctx.restore();
+      });
+
+      // 8. Glowing Rainbow/Sky Finger Blade Trail
+      if (state.bladePoints.length > 1) {
+        const now = performance.now();
+        for (let i = 1; i < state.bladePoints.length; i++) {
+          const p0 = state.bladePoints[i - 1];
+          const p1 = state.bladePoints[i];
+          const age = (now - p1.time) / 180;
+          const life = Math.max(0, 1 - age);
+
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(p0.x, p0.y);
+          ctx.lineTo(p1.x, p1.y);
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+
+          // Outer soft glow
+          ctx.lineWidth = life * 22;
+          ctx.strokeStyle = `rgba(56, 189, 248, ${life * 0.45})`;
+          ctx.stroke();
+
+          // Inner bright core
+          ctx.lineWidth = life * 9;
+          ctx.strokeStyle = `rgba(255, 255, 255, ${life * 0.95})`;
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+    }
+
+    function gameLoop(now) {
+      const dt = Math.min(0.05, (now - lastFrameTime) / 1000);
+      lastFrameTime = now;
+
+      updatePhysics(dt);
+      renderScene();
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    window.onload = function () {
+      lastFrameTime = performance.now();
+      requestAnimationFrame(gameLoop);
+    };
+  </script>
+</body>
+</html>
