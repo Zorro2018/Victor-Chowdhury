@@ -1,6 +1,38 @@
 <!doctype html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-C8TZNCC93Z"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-C8TZNCC93Z');
+  // Key actions on the site, reported to Google Analytics as events
+  (function () {
+    var ev = function (name, params) { try { gtag('event', name, params || {}); } catch (e) {} };
+    document.addEventListener('click', function (e) {
+      var t = e.target.closest ? e.target.closest('a,button') : null;
+      if (!t) return;
+      var href = t.getAttribute('href') || '';
+      if (/\.pdf(\?|#|$)/i.test(href)) ev('resume_download', { file_name: href.split('/').pop() });
+      else if (/victorgames/.test(href)) ev('game_link_click');
+      else if (/linkedin\.com/i.test(href)) ev('linkedin_click');
+      else if (/^mailto:/i.test(href)) ev('email_click');
+      if (t.id === 'chatLauncher') ev('chat_open');
+      if (t.id === 'startPlayBtn') ev('game_start');
+      if (t.id === 'newSessionBtn') ev('game_new_session');
+    }, true);
+    document.addEventListener('submit', function (e) {
+      var names = { contactForm: 'contact_form_submit', chatLeadForm: 'chat_lead_submit',
+        chatBookForm: 'call_booking_submit', premiumForm: 'premium_unlock_submit',
+        chatForm: 'chat_message_sent', jobFitForm: 'job_fit_check' };
+      var id = e.target && e.target.id;
+      if (names[id]) ev(names[id]);
+    }, true);
+  })();
+</script>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Privacy Policy</title>
@@ -27,6 +59,7 @@
     <li><strong>Chat messages</strong> you send to the AI are stored so Victor can read them and follow up.</li>
     <li><strong>Contact and booking details</strong> you choose to share (name, email, company, role, a note, and a requested meeting time) are stored so Victor can respond and send a calendar invite.</li>
     <li><strong>Basic visit data</strong> (approximate location derived from IP address, and referrer) is recorded for site analytics and abuse prevention.</li>
+    <li><strong>Google Analytics</strong> measures how the site is used (pages viewed, approximate city, device type, how you arrived, and actions like opening the chat or downloading the resume). It uses cookies and does not receive your name or email. You can opt out with Google's <a href="https://tools.google.com/dlpage/gaoptout">browser add-on</a> or by blocking cookies.</li>
   </ul>
   <p>Chat messages are processed by Google's Gemini API to generate responses. Confirmation emails are sent through Resend. This information is never sold or shared for advertising.</p>
 

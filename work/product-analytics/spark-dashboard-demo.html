@@ -1,6 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-C8TZNCC93Z"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-C8TZNCC93Z');
+  // Key actions on the site, reported to Google Analytics as events
+  (function () {
+    var ev = function (name, params) { try { gtag('event', name, params || {}); } catch (e) {} };
+    document.addEventListener('click', function (e) {
+      var t = e.target.closest ? e.target.closest('a,button') : null;
+      if (!t) return;
+      var href = t.getAttribute('href') || '';
+      if (/\.pdf(\?|#|$)/i.test(href)) ev('resume_download', { file_name: href.split('/').pop() });
+      else if (/victorgames/.test(href)) ev('game_link_click');
+      else if (/linkedin\.com/i.test(href)) ev('linkedin_click');
+      else if (/^mailto:/i.test(href)) ev('email_click');
+      if (t.id === 'chatLauncher') ev('chat_open');
+      if (t.id === 'startPlayBtn') ev('game_start');
+      if (t.id === 'newSessionBtn') ev('game_new_session');
+    }, true);
+    document.addEventListener('submit', function (e) {
+      var names = { contactForm: 'contact_form_submit', chatLeadForm: 'chat_lead_submit',
+        chatBookForm: 'call_booking_submit', premiumForm: 'premium_unlock_submit',
+        chatForm: 'chat_message_sent', jobFitForm: 'job_fit_check' };
+      var id = e.target && e.target.id;
+      if (names[id]) ev(names[id]);
+    }, true);
+  })();
+</script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Spark Dashboard -- Portable Demo</title>
