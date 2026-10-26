@@ -20,8 +20,8 @@ const CORS_HEADERS = {
 };
 const SITE = "https://www.victorbuildsai.com";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const MAX_BOOKINGS_PER_IP_PER_DAY = 3;
-const MAX_UPCOMING_PER_EMAIL = 2;
+const MAX_BOOKINGS_PER_IP_PER_DAY = 5;
+const MAX_UPCOMING_PER_EMAIL = 5;
 
 // deno-lint-ignore no-explicit-any
 type Supa = any;
@@ -102,7 +102,7 @@ async function handleBook(supabase: Supa, body: Record<string, unknown>, ip: str
     supabase.from("site_bookings").select("id", { count: "exact", head: true }).eq("email", email).gte("start_at", new Date().toISOString()),
   ]);
   if ((ipCount ?? 0) >= MAX_BOOKINGS_PER_IP_PER_DAY || (upcomingForEmail ?? 0) >= MAX_UPCOMING_PER_EMAIL) {
-    return json({ error: "You already have time booked with Victor. Reply to your invite if you need to change it." }, 429);
+    return json({ error: "You've reached the limit of 5 bookings with Victor. Reply to one of your invites if you need more time." }, 429);
   }
 
   const token = await accessToken(supabase);
