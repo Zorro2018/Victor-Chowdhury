@@ -830,17 +830,20 @@
   </div>
 </section>
 
-<!-- BOOK TIME WITH ME -- live slots from Victor's Google Calendar via the
-     book-time Supabase Edge Function. Booking is instant: a confirmed event
-     with a Meet link lands on Victor's calendar and Google emails the invite
-     to the visitor; Victor also gets an email with their details. -->
+<!-- BOOK TIME WITH ME -- Lives inside the footer under "Let's talk". Outlook-style day bar. Visitors pick a length, then
+     drag or tap their meeting onto any free spot of the day; busy blocks from
+     Victor's Google Calendar show as "Busy" (times only, never titles). Backed
+     by the book-time Supabase Edge Function. Booking is instant: a confirmed
+     event with a Meet link lands on Victor's calendar, Google emails the invite
+     to the visitor, and Victor gets an email with their details. -->
 <style>
   #book .bt-chip { text-align: center; white-space: nowrap; border: 1px solid #E4E7ED; background: #fff; color: #1B2230; border-radius: 999px; padding: 0.45rem 0.95rem; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all .15s ease; }
   #book .bt-chip:hover { border-color: #0F7B6C; color: #0F7B6C; }
   #book .bt-chip[aria-pressed="true"] { background: #16233F; border-color: #16233F; color: #fff; }
   #book .bt-days { display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.5rem; scroll-snap-type: x proximity; scrollbar-width: thin; }
   #book .bt-day { flex: 0 0 auto; width: 4.6rem; scroll-snap-align: start; border: 1px solid #E4E7ED; background: #fff; border-radius: 0.8rem; padding: 0.55rem 0.3rem; text-align: center; cursor: pointer; transition: all .15s ease; }
-  #book .bt-day:hover { border-color: #0F7B6C; }
+  #book .bt-day:hover:not(:disabled) { border-color: #0F7B6C; }
+  #book .bt-day:disabled { opacity: .45; cursor: default; }
   #book .bt-day .w { font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: #5A667C; font-weight: 700; }
   #book .bt-day .d { font-family: 'Source Serif 4', Georgia, serif; font-size: 1.45rem; font-weight: 700; color: #16233F; line-height: 1.15; }
   #book .bt-day .m { font-size: 0.7rem; color: #5A667C; }
@@ -849,25 +852,44 @@
   #book .bt-day[aria-pressed="true"] .w, #book .bt-day[aria-pressed="true"] .m { color: #9AA6C0; }
   #book .bt-day[aria-pressed="true"] .d { color: #fff; }
   #book .bt-day[aria-pressed="true"] .n { color: #FFC220; }
-  #book .bt-times { display: grid; grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr)); gap: 0.5rem; }
-  #book .bt-time { border: 1px solid #0F7B6C; color: #0F7B6C; background: #fff; border-radius: 0.6rem; padding: 0.6rem 0.4rem; font-weight: 700; font-size: 0.88rem; cursor: pointer; font-variant-numeric: tabular-nums; transition: all .15s ease; }
-  #book .bt-time:hover { background: #D5E9E5; }
+
+  /* Day bar */
+  #book .bt-bar { position: relative; height: 76px; border: 1px solid #E4E7ED; border-radius: 0.8rem; background: #fff; overflow: hidden; touch-action: none; cursor: copy; user-select: none; -webkit-user-select: none; }
+  #book .bt-grid { position: absolute; top: 0; bottom: 0; width: 1px; background: #EEF1F5; pointer-events: none; }
+  #book .bt-grid.half { background: transparent; border-left: 1px dashed #F1F3F6; }
+  #book .bt-busy { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(135deg, #E9ECF1 0 6px, #F3F5F8 6px 12px); border-left: 1px solid #DCE1E8; border-right: 1px solid #DCE1E8; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; color: #7A8597; letter-spacing: .04em; text-transform: uppercase; pointer-events: none; overflow: hidden; white-space: nowrap; }
+  #book .bt-off { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(135deg, #F4F5F7 0 4px, #FAFBFC 4px 8px); pointer-events: none; }
+  #book .bt-ghost { position: absolute; top: 8px; bottom: 8px; border: 2px dashed #0F7B6C; border-radius: 0.55rem; background: rgba(15,123,108,.06); pointer-events: none; display: none; }
+  #book .bt-sel { position: absolute; top: 8px; bottom: 8px; border-radius: 0.55rem; background: #0F7B6C; color: #fff; box-shadow: 0 6px 16px -6px rgba(15,123,108,.6); display: flex; align-items: center; justify-content: center; font-size: 0.74rem; font-weight: 700; cursor: grab; outline: none; overflow: hidden; white-space: nowrap; transition: left .08s ease; }
+  #book .bt-sel.dragging { cursor: grabbing; transition: none; }
+  #book .bt-sel:focus-visible { box-shadow: 0 0 0 3px #D5E9E5, 0 6px 16px -6px rgba(15,123,108,.6); }
+  #book .bt-sel::before, #book .bt-sel::after { content: ''; position: absolute; top: 50%; transform: translateY(-50%); width: 3px; height: 18px; border-radius: 2px; background: rgba(255,255,255,.55); }
+  #book .bt-sel::before { left: 5px; } #book .bt-sel::after { right: 5px; }
+  #book .bt-axis { position: relative; height: 22px; margin-top: 4px; }
+  #book .bt-axis span { position: absolute; transform: translateX(-50%); font-size: 0.7rem; color: #5A667C; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  #book .bt-axis span.first { transform: none; } #book .bt-axis span.last { transform: translateX(-100%); }
+  #book .bt-sw { display: inline-block; width: 14px; height: 10px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; }
+  #book .bt-nudge { width: 2.5rem; height: 2.5rem; border: 1px solid #E4E7ED; border-radius: 0.6rem; background: #fff; font-weight: 700; color: #16233F; cursor: pointer; }
+  #book .bt-nudge:hover:not(:disabled) { border-color: #0F7B6C; color: #0F7B6C; }
+  #book .bt-nudge:disabled { opacity: .35; cursor: default; }
+
   #book .bt-input { width: 100%; padding: 0.7rem 0.9rem; border: 1px solid #E4E7ED; border-radius: 0.6rem; font-size: 0.9rem; outline: none; background: #fff; font-family: inherit; }
   #book .bt-input:focus { border-color: #0F7B6C; box-shadow: 0 0 0 3px #D5E9E5; }
-  #book .bt-chip:focus-visible, #book .bt-day:focus-visible, #book .bt-time:focus-visible { outline: 2px solid #0F7B6C; outline-offset: 2px; }
-  #book .bt-skel { height: 2.6rem; border-radius: 0.6rem; background: linear-gradient(90deg,#EEF1F5 25%,#F7F8FA 50%,#EEF1F5 75%); background-size: 200% 100%; animation: btShimmer 1.2s infinite; }
+  #book .bt-chip:focus-visible, #book .bt-day:focus-visible, #book .bt-nudge:focus-visible { outline: 2px solid #0F7B6C; outline-offset: 2px; }
+  #book .bt-skel { border-radius: 0.6rem; background: linear-gradient(90deg,#EEF1F5 25%,#F7F8FA 50%,#EEF1F5 75%); background-size: 200% 100%; animation: btShimmer 1.2s infinite; }
   @keyframes btShimmer { to { background-position: -200% 0; } }
   #book .bt-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 </style>
-<section id="book" class="bg-[#F7F8FA] border-b border-gray-200">
-  <div class="max-w-6xl mx-auto px-6 py-20">
-    <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">Book time</div>
-    <h2 class="serif font-bold text-3xl text-navy mb-3">Book time with me</h2>
-    <p class="text-slate2 max-w-2xl mb-8">Pick a length and a time that works for you. These are my live open slots, and you'll get a calendar invite with a Google Meet link as soon as you confirm.</p>
-
-    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden grid lg:grid-cols-[280px_1fr]">
+<!-- FOOTER / CONTACT -->
+<footer id="book" class="bg-navy text-white">
+  <div class="max-w-6xl mx-auto px-6 py-16 text-center">
+    <h2 class="serif font-bold text-3xl mb-4">Let's talk data, AI, or product.</h2>
+    <p class="text-gray-300 mb-8 max-w-xl mx-auto">Open to conversations on AI strategy, product analytics, and building teams that ship. Grab time on my calendar, or leave a note below.</p>
+    <div class="bg-white text-ink text-left border border-white/10 rounded-2xl shadow-xl overflow-hidden grid lg:grid-cols-[260px_1fr] mb-14">
       <!-- Options -->
       <div class="p-6 lg:p-7 border-b lg:border-b-0 lg:border-r border-gray-200">
+        <h3 class="serif font-bold text-2xl text-navy mb-1">Book time with me</h3>
+        <p class="text-sm text-slate2 mb-5">Pick a length, then drag your meeting onto any open spot. Grey blocks are times I'm busy.</p>
         <div class="text-[11px] tracking-[0.14em] uppercase text-slate2 font-bold mb-2">Length</div>
         <div class="grid grid-cols-4 lg:grid-cols-2 gap-2 mb-6" id="btDurations" role="group" aria-label="Meeting length"></div>
         <label for="btTz" class="block text-[11px] tracking-[0.14em] uppercase text-slate2 font-bold mb-2">Your time zone</label>
@@ -886,13 +908,39 @@
         <div id="btPick">
           <div class="text-[11px] tracking-[0.14em] uppercase text-slate2 font-bold mb-2">Day</div>
           <div class="bt-days mb-6" id="btDays" role="group" aria-label="Day"></div>
-          <div class="text-[11px] tracking-[0.14em] uppercase text-slate2 font-bold mb-2" id="btDayLabel">Times</div>
-          <div class="bt-times" id="btTimes"></div>
+
+          <div id="btDayArea">
+            <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 mb-2">
+              <div class="text-[11px] tracking-[0.14em] uppercase text-slate2 font-bold" id="btDayLabel">Your meeting</div>
+              <div class="text-xs text-slate2">Drag or tap to place it.</div>
+            </div>
+            <div class="bt-bar" id="btBar" aria-label="Day timeline">
+              <div class="bt-ghost" id="btGhost"></div>
+              <div class="bt-sel" id="btSel" role="slider" tabindex="0" aria-label="Meeting start time"></div>
+            </div>
+            <div class="bt-axis" id="btAxis" aria-hidden="true"></div>
+            <div class="flex flex-wrap gap-4 text-xs text-slate2 mt-1 mb-5">
+              <span><span class="bt-sw" style="background:#0F7B6C"></span>Your meeting</span>
+              <span><span class="bt-sw" style="background:repeating-linear-gradient(135deg,#E2E6EC 0 3px,#F3F5F8 3px 6px);border:1px solid #DCE1E8"></span>Busy</span>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-4 border-t border-gray-100 pt-5">
+              <div>
+                <div class="serif font-bold text-navy text-xl" id="btSelTime"></div>
+                <div class="text-xs text-slate2" id="btSelSub"></div>
+              </div>
+              <div class="flex items-center gap-2">
+                <button type="button" class="bt-nudge" id="btEarlier" aria-label="15 minutes earlier">&minus;15</button>
+                <button type="button" class="bt-nudge" id="btLater" aria-label="15 minutes later">+15</button>
+                <button type="button" id="btContinue" class="ml-1 px-5 py-2.5 rounded-lg bg-navy hover:bg-navy-2 text-white font-semibold text-sm transition disabled:opacity-50">Continue &rarr;</button>
+              </div>
+            </div>
+          </div>
           <p id="btEmpty" class="hidden text-sm text-slate2"></p>
         </div>
 
         <form id="bookTimeForm" class="hidden" novalidate>
-          <button type="button" id="btBack" class="text-sm font-semibold text-accent hover:underline mb-4">&larr; Choose a different time</button>
+          <button type="button" id="btBack" class="text-sm font-semibold text-accent hover:underline mb-4">&larr; Change the time</button>
           <div class="rounded-xl bg-accent-soft px-4 py-3 mb-5">
             <div class="serif font-bold text-navy text-lg" id="btWhen"></div>
             <div class="text-xs text-slate2" id="btWhenSub"></div>
@@ -919,175 +967,8 @@
         </div>
       </div>
     </div>
-  </div>
-</section>
-<script>
-(function () {
-  var ENDPOINT = 'https://wownxeielqhubwfzqqor.supabase.co/functions/v1/book-time';
-  var DURATIONS = [15, 30, 45, 60];
-  var $ = function (id) { return document.getElementById(id); };
-  var S = { duration: 30, tz: 'America/Chicago', slots: [], byDay: {}, day: null, slot: null, req: 0, loaded: false };
-  try { S.tz = Intl.DateTimeFormat().resolvedOptions().timeZone || S.tz; } catch (e) {}
 
-  function post(body) {
-    return fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { j._status = r.status; return j; }); });
-  }
-  function fmt(d, o) { o.timeZone = S.tz; return new Intl.DateTimeFormat('en-US', o).format(d); }
-  function dayKey(d) { return new Intl.DateTimeFormat('en-CA', { timeZone: S.tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d); }
-  function zoneName() {
-    try { return new Intl.DateTimeFormat('en-US', { timeZone: S.tz, timeZoneName: 'long' }).formatToParts(new Date())
-      .filter(function (p) { return p.type === 'timeZoneName'; })[0].value; } catch (e) { return S.tz; }
-  }
-  function msg(t) { var m = $('btMsg'); if (!t) { m.classList.add('hidden'); return; } m.textContent = t; m.classList.remove('hidden'); }
-  function show(step) {
-    $('btPick').classList.toggle('hidden', step !== 'pick');
-    $('bookTimeForm').classList.toggle('hidden', step !== 'form');
-    $('btDone').classList.toggle('hidden', step !== 'done');
-  }
-
-  // Length chips
-  function renderDurations() {
-    var el = $('btDurations'); el.innerHTML = '';
-    DURATIONS.forEach(function (d) {
-      var b = document.createElement('button'); b.type = 'button'; b.className = 'bt-chip';
-      b.textContent = d + ' min'; b.setAttribute('aria-pressed', String(d === S.duration));
-      b.onclick = function () { if (d === S.duration) return; S.duration = d; renderDurations(); show('pick'); load(); };
-      el.appendChild(b);
-    });
-  }
-
-  // Time zone picker
-  (function () {
-    var zones = Intl.supportedValuesOf ? Intl.supportedValuesOf('timeZone') : [];
-    ['America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'Europe/London', 'Asia/Kolkata', S.tz]
-      .forEach(function (z) { if (zones.indexOf(z) < 0) zones.push(z); });
-    zones.sort().forEach(function (z) { var o = document.createElement('option'); o.value = z; o.textContent = z.replace(/_/g, ' '); $('btTz').appendChild(o); });
-    $('btTz').value = S.tz;
-    $('btTz').onchange = function () { S.tz = this.value; group(); render(); };
-  })();
-
-  function skeleton() {
-    $('btDays').innerHTML = ''; $('btTimes').innerHTML = ''; $('btEmpty').classList.add('hidden');
-    for (var i = 0; i < 6; i++) { var s = document.createElement('div'); s.className = 'bt-skel'; s.style.width = '4.6rem'; s.style.height = '5.2rem'; s.style.flex = '0 0 auto'; $('btDays').appendChild(s); }
-    for (var j = 0; j < 8; j++) { var t = document.createElement('div'); t.className = 'bt-skel'; $('btTimes').appendChild(t); }
-  }
-
-  function load() {
-    var id = ++S.req; msg(''); skeleton();
-    return post({ action: 'slots', duration: S.duration }).then(function (r) {
-      if (id !== S.req) return;
-      if (!r.connected) { S.slots = []; group(); render('Online booking is paused right now. Please use the contact form below and I\'ll get back to you.'); return; }
-      S.slots = (r.slots || []).map(function (s) { return new Date(s); });
-      group(); render();
-    }).catch(function () {
-      if (id !== S.req) return;
-      S.slots = []; group(); render('Couldn\'t load my calendar just now. Please refresh, or use the contact form below.');
-    });
-  }
-
-  function group() {
-    S.byDay = {};
-    S.slots.forEach(function (d) { var k = dayKey(d); (S.byDay[k] = S.byDay[k] || []).push(d); });
-    if (!S.day || !S.byDay[S.day]) S.day = Object.keys(S.byDay).sort()[0] || null;
-  }
-
-  function render(emptyText) {
-    var keys = Object.keys(S.byDay).sort();
-    var days = $('btDays'); days.innerHTML = '';
-    keys.forEach(function (k) {
-      var d = S.byDay[k][0];
-      var b = document.createElement('button'); b.type = 'button'; b.className = 'bt-day';
-      b.setAttribute('aria-pressed', String(k === S.day));
-      b.setAttribute('aria-label', fmt(d, { weekday: 'long', month: 'long', day: 'numeric' }) + ', ' + S.byDay[k].length + ' times');
-      b.innerHTML = '<div class="w"></div><div class="d"></div><div class="m"></div><div class="n"></div>';
-      b.children[0].textContent = fmt(d, { weekday: 'short' });
-      b.children[1].textContent = fmt(d, { day: 'numeric' });
-      b.children[2].textContent = fmt(d, { month: 'short' });
-      b.children[3].textContent = S.byDay[k].length + ' open';
-      b.onclick = function () { S.day = k; render(); };
-      days.appendChild(b);
-    });
-    var times = $('btTimes'); times.innerHTML = '';
-    var empty = $('btEmpty');
-    if (!keys.length) {
-      $('btDayLabel').textContent = 'Times';
-      empty.textContent = emptyText || 'No open times in the next few weeks for this length. Try a shorter meeting, or use the contact form below.';
-      empty.classList.remove('hidden'); return;
-    }
-    empty.classList.add('hidden');
-    $('btDayLabel').textContent = fmt(S.byDay[S.day][0], { weekday: 'long', month: 'long', day: 'numeric' }) + ' · ' + zoneName();
-    S.byDay[S.day].forEach(function (d) {
-      var b = document.createElement('button'); b.type = 'button'; b.className = 'bt-time';
-      b.textContent = fmt(d, { hour: 'numeric', minute: '2-digit' });
-      b.onclick = function () { choose(d); };
-      times.appendChild(b);
-    });
-  }
-
-  function whenText(d) {
-    var e = new Date(d.getTime() + S.duration * 60000);
-    return fmt(d, { weekday: 'long', month: 'long', day: 'numeric' }) + ' · ' + fmt(d, { hour: 'numeric', minute: '2-digit' }) + ' – ' + fmt(e, { hour: 'numeric', minute: '2-digit' });
-  }
-  function choose(d) {
-    S.slot = d; msg('');
-    $('btWhen').textContent = whenText(d);
-    $('btWhenSub').textContent = S.duration + ' min · Google Meet · ' + zoneName();
-    show('form'); $('btName').focus({ preventScroll: true });
-  }
-  $('btBack').onclick = function () { msg(''); show('pick'); };
-  $('btAgain').onclick = function () { $('bookTimeForm').reset(); show('pick'); load(); };
-
-  $('bookTimeForm').addEventListener('submit', function (ev) {
-    ev.preventDefault();
-    var p = {
-      action: 'book', duration: S.duration, start: S.slot.toISOString(), timezone: S.tz,
-      name: $('btName').value.trim(), email: $('btEmail').value.trim(), company: $('btCompany').value.trim(),
-      role: $('btRole').value.trim(), job_link: $('btLink').value.trim(), notes: $('btNotes').value.trim(),
-      website: $('btWebsite').value
-    };
-    if (!p.name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.email)) { msg('Please add your name and a valid email.'); return; }
-    if (p.job_link && !/^https?:\/\//i.test(p.job_link)) { msg('The job link should start with https://'); return; }
-    var btn = $('btSubmit'); btn.disabled = true; btn.textContent = 'Booking…'; msg('');
-    post(p).then(function (r) {
-      btn.disabled = false; btn.textContent = 'Confirm booking';
-      if (r._status === 409) {
-        S.slots = (r.slots || []).map(function (s) { return new Date(s); }); group(); render(); show('pick');
-        msg('Sorry, that time was just taken. Here are the latest open times.'); return;
-      }
-      if (!r.ok) { msg(r.error || 'Something went wrong. Please try again.'); return; }
-      $('btDoneWhen').textContent = whenText(new Date(r.start)) + ' (' + zoneName() + ')';
-      var meet = $('btDoneMeet'); meet.textContent = '';
-      if (r.meet_link) {
-        meet.append('Google Meet: ');
-        var a = document.createElement('a'); a.href = r.meet_link; a.target = '_blank'; a.rel = 'noopener';
-        a.className = 'text-accent font-semibold underline'; a.textContent = r.meet_link.replace(/^https?:\/\//, ''); meet.appendChild(a);
-      }
-      $('btDoneEmail').textContent = p.email;
-      show('done');
-    }).catch(function () {
-      btn.disabled = false; btn.textContent = 'Confirm booking';
-      msg('Couldn\'t reach the booking service. Please try again, or use the contact form below.');
-    });
-  });
-
-  renderDurations();
-  // Load slots when the section first comes near the screen (keeps page load light)
-  var sec = $('book');
-  if ('IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (es) {
-      if (es.some(function (e) { return e.isIntersecting; }) && !S.loaded) { S.loaded = true; io.disconnect(); load(); }
-    }, { rootMargin: '600px' });
-    io.observe(sec);
-  } else { S.loaded = true; load(); }
-})();
-</script>
-
-<!-- FOOTER / CONTACT -->
-<footer class="bg-navy text-white">
-  <div class="max-w-6xl mx-auto px-6 py-16 text-center">
-    <h2 class="serif font-bold text-3xl mb-4">Let's talk data, AI, or product.</h2>
-    <p class="text-gray-300 mb-8 max-w-xl mx-auto">Open to conversations on AI strategy, product analytics, and building teams that ship. Reach out any time.</p>
+    <div class="text-[11px] tracking-[0.2em] uppercase text-gray-400 font-bold mb-4">Prefer to send a note?</div>
 
     <!-- Inline contact form -- posts straight to Supabase, no page reload -->
     <form id="contactForm" class="max-w-md mx-auto mb-10 text-left" novalidate>
@@ -1130,6 +1011,280 @@
     <div class="text-[11px] text-gray-600 mt-2">This site logs basic visit analytics (approximate location from IP, browser type) for the owner's own reference.</div>
   </div>
 </footer>
+<script>
+(function () {
+  var ENDPOINT = 'https://wownxeielqhubwfzqqor.supabase.co/functions/v1/book-time';
+  var DURATIONS = [15, 30, 45, 60];
+  var Q = 15 * 60000; // quarter hour
+  var $ = function (id) { return document.getElementById(id); };
+  var S = { duration: 30, tz: 'America/Chicago', days: [], valid: {}, day: null, start: null, req: 0, loaded: false };
+  try { S.tz = Intl.DateTimeFormat().resolvedOptions().timeZone || S.tz; } catch (e) {}
+
+  function post(body) {
+    return fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { j._status = r.status; return j; }); });
+  }
+  function fmt(d, o) { o.timeZone = S.tz; return new Intl.DateTimeFormat('en-US', o).format(d); }
+  function tm(ms) { return fmt(new Date(ms), { hour: 'numeric', minute: '2-digit' }); }
+  function zoneName() {
+    try { return new Intl.DateTimeFormat('en-US', { timeZone: S.tz, timeZoneName: 'long' }).formatToParts(new Date())
+      .filter(function (p) { return p.type === 'timeZoneName'; })[0].value; } catch (e) { return S.tz; }
+  }
+  function msg(t) { var m = $('btMsg'); if (!t) { m.classList.add('hidden'); return; } m.textContent = t; m.classList.remove('hidden'); }
+  function show(step) {
+    $('btPick').classList.toggle('hidden', step !== 'pick');
+    $('bookTimeForm').classList.toggle('hidden', step !== 'form');
+    $('btDone').classList.toggle('hidden', step !== 'done');
+  }
+
+  // ---------- options
+  function renderDurations() {
+    var el = $('btDurations'); el.innerHTML = '';
+    DURATIONS.forEach(function (d) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'bt-chip';
+      b.textContent = d + ' min'; b.setAttribute('aria-pressed', String(d === S.duration));
+      b.onclick = function () { if (d === S.duration) return; S.duration = d; renderDurations(); show('pick'); load(true); };
+      el.appendChild(b);
+    });
+  }
+  (function () {
+    var zones = Intl.supportedValuesOf ? Intl.supportedValuesOf('timeZone') : [];
+    ['America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'Europe/London', 'Asia/Kolkata', S.tz]
+      .forEach(function (z) { if (zones.indexOf(z) < 0) zones.push(z); });
+    zones.sort().forEach(function (z) { var o = document.createElement('option'); o.value = z; o.textContent = z.replace(/_/g, ' '); $('btTz').appendChild(o); });
+    $('btTz').value = S.tz;
+    $('btTz').onchange = function () { S.tz = this.value; renderDays(); renderBar(); };
+  })();
+
+  // ---------- data
+  function skeleton() {
+    $('btDays').innerHTML = ''; $('btEmpty').classList.add('hidden'); $('btDayArea').classList.add('hidden');
+    for (var i = 0; i < 6; i++) { var s = document.createElement('div'); s.className = 'bt-skel'; s.style.cssText = 'width:4.6rem;height:5.2rem;flex:0 0 auto'; $('btDays').appendChild(s); }
+  }
+  function load(keepDay) {
+    var id = ++S.req; msg(''); var prevDay = keepDay ? S.day : null; var prevStart = S.start; skeleton();
+    return post({ action: 'slots', duration: S.duration }).then(function (r) {
+      if (id !== S.req) return;
+      if (!r.connected) { setData([], []); empty('Online booking is paused right now. Please use the contact form below and I\'ll get back to you.'); return; }
+      setData(r.days || [], r.slots || [], prevDay, prevStart);
+    }).catch(function () {
+      if (id !== S.req) return;
+      setData([], []); empty('Couldn\'t load my calendar just now. Please refresh, or use the contact form below.');
+    });
+  }
+  function setData(days, slots, prevDay, prevStart) {
+    S.days = days.map(function (d) {
+      return { date: d.date, start: Date.parse(d.start), open: Date.parse(d.open), close: Date.parse(d.close), full: d.full,
+        busy: d.busy.map(function (b) { return [Date.parse(b[0]), Date.parse(b[1])]; }), valid: [] };
+    });
+    slots.forEach(function (s) {
+      var t = Date.parse(s);
+      for (var i = 0; i < S.days.length; i++) { var d = S.days[i]; if (t >= d.start && t < d.close) { d.valid.push(t); break; } }
+    });
+    var firstOpen = S.days.filter(function (d) { return d.valid.length; })[0];
+    var keep = prevDay && S.days.filter(function (d) { return d.date === prevDay && d.valid.length; })[0];
+    S.day = keep ? keep.date : (firstOpen ? firstOpen.date : null);
+    S.start = null;
+    if (keep && prevStart) S.start = nearest(keep, prevStart);
+    if (!S.day) { renderDays(); empty('No open time in the next few weeks for this length. Try a shorter meeting, or use the contact form below.'); return; }
+    renderDays(); renderBar();
+  }
+  function empty(t) { $('btDayArea').classList.add('hidden'); $('btEmpty').textContent = t; $('btEmpty').classList.remove('hidden'); }
+  function cur() { for (var i = 0; i < S.days.length; i++) if (S.days[i].date === S.day) return S.days[i]; return null; }
+  function nearest(d, t) {
+    var best = null, bd = Infinity;
+    d.valid.forEach(function (v) { var dd = Math.abs(v - t); if (dd < bd) { bd = dd; best = v; } });
+    return best;
+  }
+
+  // ---------- day chips
+  function freeHours(d) {
+    if (d.full) return 0;
+    var free = d.close - d.open;
+    d.busy.forEach(function (b) { free -= Math.max(0, Math.min(b[1], d.close) - Math.max(b[0], d.open)); });
+    return Math.max(0, free) / 3600000;
+  }
+  function renderDays() {
+    var el = $('btDays'); el.innerHTML = '';
+    S.days.forEach(function (d) {
+      var mid = new Date(d.start + 4 * 3600000);
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'bt-day';
+      var open = d.valid.length > 0;
+      b.disabled = !open;
+      b.setAttribute('aria-pressed', String(d.date === S.day));
+      b.innerHTML = '<div class="w"></div><div class="d"></div><div class="m"></div><div class="n"></div>';
+      b.children[0].textContent = fmt(mid, { weekday: 'short' });
+      b.children[1].textContent = fmt(mid, { day: 'numeric' });
+      b.children[2].textContent = fmt(mid, { month: 'short' });
+      var h = freeHours(d);
+      b.children[3].textContent = !open ? 'Full' : (h >= 1 ? (Math.round(h * 2) / 2) + 'h free' : Math.round(h * 60) + 'm free');
+      b.setAttribute('aria-label', fmt(mid, { weekday: 'long', month: 'long', day: 'numeric' }) + (open ? ', ' + b.children[3].textContent : ', fully booked'));
+      if (open) b.onclick = function () { S.day = d.date; S.start = null; renderDays(); renderBar(); };
+      el.appendChild(b);
+    });
+  }
+
+  // ---------- day bar
+  var bar = $('btBar'), sel = $('btSel'), ghost = $('btGhost');
+  function pct(d, t) { return (t - d.start) / (d.close - d.start) * 100; }
+  function renderBar() {
+    var d = cur(); if (!d) return;
+    $('btDayArea').classList.remove('hidden'); $('btEmpty').classList.add('hidden');
+    if (S.start == null || d.valid.indexOf(S.start) < 0) S.start = d.valid[0];
+    // clear old layers
+    Array.prototype.slice.call(bar.querySelectorAll('.bt-grid,.bt-busy,.bt-off')).forEach(function (n) { n.remove(); });
+    var frag = document.createDocumentFragment();
+    var hours = (d.close - d.start) / 3600000;
+    for (var i = 1; i < hours * 2; i++) {
+      var g = document.createElement('div'); g.className = 'bt-grid' + (i % 2 ? ' half' : '');
+      g.style.left = (i / (hours * 2) * 100) + '%'; frag.appendChild(g);
+    }
+    if (d.open > d.start) { var off = document.createElement('div'); off.className = 'bt-off'; off.style.left = '0'; off.style.width = pct(d, d.open) + '%'; frag.appendChild(off); }
+    d.busy.forEach(function (b) {
+      var el = document.createElement('div'); el.className = 'bt-busy';
+      el.style.left = pct(d, b[0]) + '%'; el.style.width = (pct(d, b[1]) - pct(d, b[0])) + '%';
+      el.title = 'Busy ' + tm(b[0]) + ' – ' + tm(b[1]);
+      if (b[1] - b[0] >= 45 * 60000) el.textContent = 'Busy';
+      frag.appendChild(el);
+    });
+    bar.insertBefore(frag, ghost);
+    // axis: a label every hour on wide screens, every 2 hours on narrow
+    var axis = $('btAxis'); axis.innerHTML = '';
+    var stepH = bar.clientWidth < 520 ? 2 : 1;
+    for (var h = 0; h <= hours; h += stepH) {
+      var s = document.createElement('span');
+      s.style.left = (h / hours * 100) + '%';
+      s.className = h === 0 ? 'first' : (h + stepH > hours ? 'last' : '');
+      s.textContent = fmt(new Date(d.start + h * 3600000), { hour: 'numeric', minute: '2-digit' }).replace(':00', '');
+      axis.appendChild(s);
+    }
+    var mid = new Date(d.start + 4 * 3600000);
+    $('btDayLabel').textContent = fmt(mid, { weekday: 'long', month: 'long', day: 'numeric' }) + ' · ' + zoneName();
+    placeSel();
+  }
+  function placeSel() {
+    var d = cur(); if (!d || S.start == null) return;
+    sel.style.left = pct(d, S.start) + '%';
+    sel.style.width = (pct(d, S.start + S.duration * 60000) - pct(d, S.start)) + '%';
+    var label = tm(S.start) + ' – ' + tm(S.start + S.duration * 60000);
+    sel.textContent = sel.getBoundingClientRect().width > 84 ? label.replace(/ (AM|PM)(?= \u2013)/, '') : '';
+    sel.title = label;
+    sel.setAttribute('aria-valuetext', label);
+    $('btSelTime').textContent = label;
+    $('btSelSub').textContent = S.duration + ' min · Google Meet';
+    var i = d.valid.indexOf(S.start);
+    $('btEarlier').disabled = i <= 0; $('btLater').disabled = i < 0 || i >= d.valid.length - 1;
+  }
+  function timeAt(clientX, anchorMs) {
+    var d = cur(), r = bar.getBoundingClientRect();
+    var t = d.start + Math.min(1, Math.max(0, (clientX - r.left) / r.width)) * (d.close - d.start) - (anchorMs || 0);
+    return Math.round(t / Q) * Q;
+  }
+  function centerAnchor() { return S.duration * 60000 / 2; }
+
+  // hover preview (mouse only)
+  bar.addEventListener('pointermove', function (e) {
+    if (drag || e.pointerType !== 'mouse' || e.target === sel) { ghost.style.display = 'none'; return; }
+    var d = cur(); if (!d) return;
+    var t = nearest(d, timeAt(e.clientX, centerAnchor()));
+    if (t == null) return;
+    ghost.style.display = 'block'; ghost.style.left = pct(d, t) + '%';
+    ghost.style.width = (pct(d, t + S.duration * 60000) - pct(d, t)) + '%';
+  });
+  bar.addEventListener('pointerleave', function () { ghost.style.display = 'none'; });
+
+  // tap / click / drag
+  var drag = null;
+  bar.addEventListener('pointerdown', function (e) {
+    var d = cur(); if (!d) return;
+    e.preventDefault();
+    var onSel = e.target === sel;
+    var anchor = onSel ? (timeAt(e.clientX) - S.start) : centerAnchor();
+    if (!onSel) { var t = nearest(d, timeAt(e.clientX, anchor)); if (t != null) { S.start = t; placeSel(); } anchor = timeAt(e.clientX) - S.start; }
+    drag = { anchor: anchor };
+    sel.classList.add('dragging'); ghost.style.display = 'none';
+    try { bar.setPointerCapture(e.pointerId); } catch (err) {}
+  });
+  bar.addEventListener('pointermove', function (e) {
+    if (!drag) return;
+    var t = nearest(cur(), timeAt(e.clientX, drag.anchor));
+    if (t != null && t !== S.start) { S.start = t; placeSel(); }
+  });
+  function endDrag() { if (!drag) return; drag = null; sel.classList.remove('dragging'); sel.focus({ preventScroll: true }); }
+  bar.addEventListener('pointerup', endDrag);
+  bar.addEventListener('pointercancel', endDrag);
+
+  function nudge(dir) {
+    var d = cur(); if (!d) return;
+    var i = d.valid.indexOf(S.start) + dir;
+    if (i >= 0 && i < d.valid.length) { S.start = d.valid[i]; placeSel(); }
+  }
+  $('btEarlier').onclick = function () { nudge(-1); };
+  $('btLater').onclick = function () { nudge(1); };
+  sel.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { e.preventDefault(); nudge(-1); }
+    else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { e.preventDefault(); nudge(1); }
+    else if (e.key === 'Enter') { e.preventDefault(); $('btContinue').click(); }
+  });
+  window.addEventListener('resize', function () { if (!$('btDayArea').classList.contains('hidden')) renderBar(); });
+
+  // ---------- details + booking
+  function whenText(ms, dur) {
+    return fmt(new Date(ms), { weekday: 'long', month: 'long', day: 'numeric' }) + ' · ' + tm(ms) + ' – ' + tm(ms + dur * 60000);
+  }
+  $('btContinue').onclick = function () {
+    if (S.start == null) return;
+    msg('');
+    $('btWhen').textContent = whenText(S.start, S.duration);
+    $('btWhenSub').textContent = S.duration + ' min · Google Meet · ' + zoneName();
+    show('form'); $('btName').focus({ preventScroll: true });
+  };
+  $('btBack').onclick = function () { msg(''); show('pick'); renderBar(); };
+  $('btAgain').onclick = function () { $('bookTimeForm').reset(); show('pick'); load(false); };
+
+  $('bookTimeForm').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var p = {
+      action: 'book', duration: S.duration, start: new Date(S.start).toISOString(), timezone: S.tz,
+      name: $('btName').value.trim(), email: $('btEmail').value.trim(), company: $('btCompany').value.trim(),
+      role: $('btRole').value.trim(), job_link: $('btLink').value.trim(), notes: $('btNotes').value.trim(),
+      website: $('btWebsite').value
+    };
+    if (!p.name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.email)) { msg('Please add your name and a valid email.'); return; }
+    if (p.job_link && !/^https?:\/\//i.test(p.job_link)) { msg('The job link should start with https://'); return; }
+    var btn = $('btSubmit'); btn.disabled = true; btn.textContent = 'Booking…'; msg('');
+    post(p).then(function (r) {
+      btn.disabled = false; btn.textContent = 'Confirm booking';
+      if (r._status === 409) {
+        show('pick'); load(true).then(function () { msg('Sorry, that time was just taken. I\'ve moved you to the nearest open spot.'); });
+        return;
+      }
+      if (!r.ok) { msg(r.error || 'Something went wrong. Please try again.'); return; }
+      $('btDoneWhen').textContent = whenText(Date.parse(r.start), r.duration || S.duration) + ' (' + zoneName() + ')';
+      var meet = $('btDoneMeet'); meet.textContent = '';
+      if (r.meet_link) {
+        meet.append('Google Meet: ');
+        var a = document.createElement('a'); a.href = r.meet_link; a.target = '_blank'; a.rel = 'noopener';
+        a.className = 'text-accent font-semibold underline'; a.textContent = r.meet_link.replace(/^https?:\/\//, ''); meet.appendChild(a);
+      }
+      $('btDoneEmail').textContent = p.email;
+      show('done');
+    }).catch(function () {
+      btn.disabled = false; btn.textContent = 'Confirm booking';
+      msg('Couldn\'t reach the booking service. Please try again, or use the contact form below.');
+    });
+  });
+
+  renderDurations();
+  var sec = $('book');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) {
+      if (es.some(function (e) { return e.isIntersecting; }) && !S.loaded) { S.loaded = true; io.disconnect(); load(false); }
+    }, { rootMargin: '600px' });
+    io.observe(sec);
+  } else { S.loaded = true; load(false); }
+})();
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>

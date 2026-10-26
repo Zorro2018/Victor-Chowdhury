@@ -10,7 +10,7 @@
 // POST { action: "book", duration, start, name, email, company, role, job_link, notes, timezone, website }
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
-  accessToken, busyBlocks, buildSlots, ctDayKey, describeSlot, DURATIONS, gapi, horizonEnd, OWNER_EMAIL, TZ,
+  accessToken, busyBlocks, buildSlots, ctDayKey, dayWindows, describeSlot, DURATIONS, gapi, horizonEnd, OWNER_EMAIL, TZ,
 } from "./gcal.ts";
 
 const CORS_HEADERS = {
@@ -47,7 +47,7 @@ function durationOf(v: unknown): number {
   return DURATIONS.includes(n) ? n : 30;
 }
 
-async function computeSlots(supabase: Supa, token: string, duration: number): Promise<string[]> {
+async function loadCalendar(supabase: Supa, token: string) {
   const now = new Date();
   const end = horizonEnd(now);
   const [busy, { data: booked }] = await Promise.all([
@@ -59,6 +59,11 @@ async function computeSlots(supabase: Supa, token: string, duration: number): Pr
     const k = ctDayKey(new Date(b.start_at));
     perDay[k] = (perDay[k] ?? 0) + 1;
   }
+  return { now, busy, perDay };
+}
+
+async function computeSlots(supabase: Supa, token: string, duration: number): Promise<string[]> {
+  const { now, busy, perDay } = await loadCalendar(supabase, token);
   return buildSlots(now, duration, busy, perDay);
 }
 
@@ -66,8 +71,12 @@ async function handleSlots(supabase: Supa, body: Record<string, unknown>) {
   const duration = durationOf(body.duration);
   const token = await accessToken(supabase);
   if (!token) return json({ connected: false, slots: [] });
-  const slots = await computeSlots(supabase, token, duration);
-  return json({ connected: true, timezone: TZ, duration, durations: DURATIONS, slots });
+  const { now, busy, perDay } = await loadCalendar(supabase, token);
+  return json({
+    connected: true, timezone: TZ, duration, durations: DURATIONS,
+    slots: buildSlots(now, duration, busy, perDay),
+    days: dayWindows(now, busy, perDay),
+  });
 }
 
 async function handleBook(supabase: Supa, body: Record<string, unknown>, ip: string) {

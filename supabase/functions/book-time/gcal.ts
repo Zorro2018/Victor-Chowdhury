@@ -7,7 +7,7 @@ export const OWNER_EMAIL = "victorchowdhury1988@gmail.com";
 export const DURATIONS = [15, 30, 45, 60];
 export const DAY_START_HOUR = 8;     // 8:00 AM CT
 export const DAY_END_HOUR = 18;      // 6:00 PM CT (meetings end by then)
-export const BUFFER_MINUTES = 15;    // kept clear around existing events
+export const BUFFER_MINUTES = 0;     // minutes kept clear around existing events (0 = back-to-back allowed)
 export const MIN_NOTICE_HOURS = 12;
 export const HORIZON_BUSINESS_DAYS = 15; // about 3 weeks
 export const MAX_SITE_BOOKINGS_PER_DAY = 3;
@@ -109,12 +109,12 @@ export async function busyBlocks(token: string, from: Date, to: Date): Promise<B
 }
 
 /**
- * Pure slot builder (no network): weekday start times between DAY_START_HOUR and
+ * Pure slot builder (no network): every quarter-hour weekday start time between DAY_START_HOUR and
  * DAY_END_HOUR CT, at least MIN_NOTICE_HOURS out, clear of busy blocks padded by
  * BUFFER_MINUTES, skipping days that already hit MAX_SITE_BOOKINGS_PER_DAY.
  */
 export function buildSlots(now: Date, duration: number, busy: BusyBlock[], bookingsPerDay: Record<string, number>): string[] {
-  const step = duration <= 15 ? 15 : 30;
+  const step = 15; // any quarter-hour start, so visitors can place a meeting anywhere free
   const earliest = now.getTime() + MIN_NOTICE_HOURS * 3600_000;
   const pad = BUFFER_MINUTES * 60_000;
   const durMs = duration * 60_000;
@@ -141,4 +141,49 @@ export function buildSlots(now: Date, duration: number, busy: BusyBlock[], booki
 
 export function horizonEnd(now: Date): Date {
   return new Date(now.getTime() + 32 * 86_400_000);
+}
+
+export type DayWindow = { date: string; start: string; open: string; close: string; busy: [string, string][]; full: boolean };
+
+/**
+ * One entry per business day in the horizon, for the day-bar picker: the bookable
+ * window (DAY_START_HOUR..DAY_END_HOUR CT, trimmed by MIN_NOTICE_HOURS) and the
+ * busy blocks inside it, merged. Times only -- never event titles or details.
+ */
+export function dayWindows(now: Date, busy: BusyBlock[], bookingsPerDay: Record<string, number>): DayWindow[] {
+  const earliest = now.getTime() + MIN_NOTICE_HOURS * 3600_000;
+  const pad = BUFFER_MINUTES * 60_000;
+  const today = ctParts(now);
+  const out: DayWindow[] = [];
+  let businessDays = 0;
+  for (let i = 0; i < 31 && businessDays < HORIZON_BUSINESS_DAYS; i++) {
+    const noon = ctToUtc(today.y, today.mo, today.d, 12, 0);
+    const dayAt = new Date(noon.getTime() + i * 86_400_000);
+    const day = ctParts(dayAt);
+    if (day.wd === "Sat" || day.wd === "Sun") continue;
+    businessDays++;
+    const dayOpen = ctToUtc(day.y, day.mo, day.d, DAY_START_HOUR, 0).getTime();
+    const close = ctToUtc(day.y, day.mo, day.d, DAY_END_HOUR, 0).getTime();
+    // round the notice cut-off up to the next quarter hour
+    const open = Math.max(dayOpen, Math.ceil(earliest / 900_000) * 900_000);
+    if (open >= close) continue;
+    const blocks = busy
+      .map((b) => [Math.max(b.start - pad, open), Math.min(b.end + pad, close)] as [number, number])
+      .filter(([s, e]) => e > s)
+      .sort((a, b) => a[0] - b[0]);
+    const merged: [number, number][] = [];
+    for (const b of blocks) {
+      const last = merged[merged.length - 1];
+      if (last && b[0] <= last[1]) last[1] = Math.max(last[1], b[1]); else merged.push([b[0], b[1]]);
+    }
+    out.push({
+      date: ctDayKey(dayAt),
+      start: new Date(dayOpen).toISOString(),
+      open: new Date(open).toISOString(),
+      close: new Date(close).toISOString(),
+      busy: merged.map(([s, e]) => [new Date(s).toISOString(), new Date(e).toISOString()]),
+      full: (bookingsPerDay[ctDayKey(dayAt)] ?? 0) >= MAX_SITE_BOOKINGS_PER_DAY,
+    });
+  }
+  return out;
 }
