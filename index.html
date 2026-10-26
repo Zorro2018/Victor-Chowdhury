@@ -26,7 +26,7 @@
     document.addEventListener('submit', function (e) {
       var names = { contactForm: 'contact_form_submit', chatLeadForm: 'chat_lead_submit',
         chatBookForm: 'call_booking_submit', premiumForm: 'premium_unlock_submit',
-        chatForm: 'chat_message_sent', jobFitForm: 'job_fit_check' };
+        chatForm: 'chat_message_sent', jobFitForm: 'job_fit_check', bookTimeForm: 'book_time_submit' };
       var id = e.target && e.target.id;
       if (names[id]) ev(names[id]);
     }, true);
@@ -362,6 +362,7 @@
       <a href="#recognition" class="nav-link hover:text-accent">Recognition</a>
       <a href="#timeline" class="nav-link hover:text-accent">Career</a>
       <a href="#testimonials" class="nav-link hover:text-accent">Recommendations</a>
+      <a href="#book" class="whitespace-nowrap px-4 py-2 rounded-full border border-navy text-navy hover:bg-navy hover:text-white transition">Book Time</a>
       <a href="https://linkedin.com/in/victorchowdhury" target="_blank" rel="noopener"
          class="px-4 py-2 rounded-full bg-navy text-white hover:bg-navy-2 transition">LinkedIn</a>
     </div>
@@ -386,6 +387,7 @@
       <a href="#recognition" class="nav-link-mobile py-2 hover:text-accent">Recognition</a>
       <a href="#timeline" class="nav-link-mobile py-2 hover:text-accent">Career</a>
       <a href="#testimonials" class="nav-link-mobile py-2 hover:text-accent">Recommendations</a>
+      <a href="#book" class="nav-link-mobile py-2 hover:text-accent">Book Time</a>
       <a href="https://linkedin.com/in/victorchowdhury" target="_blank" rel="noopener"
          class="mt-2 px-4 py-2.5 rounded-full bg-navy text-white text-center hover:bg-navy-2 transition">LinkedIn</a>
     </div>
@@ -2054,6 +2056,259 @@
     </div>
   </div>
 </section>
+
+<!-- BOOK TIME WITH ME -- live slots from Victor's Google Calendar via the
+     book-time Supabase Edge Function. Booking is instant: a confirmed event
+     with a Meet link lands on Victor's calendar and Google emails the invite
+     to the visitor; Victor also gets an email with their details. -->
+<style>
+  #book .bt-chip { text-align: center; white-space: nowrap; border: 1px solid #E4E7ED; background: #fff; color: #1B2230; border-radius: 999px; padding: 0.45rem 0.95rem; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all .15s ease; }
+  #book .bt-chip:hover { border-color: #0F7B6C; color: #0F7B6C; }
+  #book .bt-chip[aria-pressed="true"] { background: #16233F; border-color: #16233F; color: #fff; }
+  #book .bt-days { display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.5rem; scroll-snap-type: x proximity; scrollbar-width: thin; }
+  #book .bt-day { flex: 0 0 auto; width: 4.6rem; scroll-snap-align: start; border: 1px solid #E4E7ED; background: #fff; border-radius: 0.8rem; padding: 0.55rem 0.3rem; text-align: center; cursor: pointer; transition: all .15s ease; }
+  #book .bt-day:hover { border-color: #0F7B6C; }
+  #book .bt-day .w { font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: #5A667C; font-weight: 700; }
+  #book .bt-day .d { font-family: 'Source Serif 4', Georgia, serif; font-size: 1.45rem; font-weight: 700; color: #16233F; line-height: 1.15; }
+  #book .bt-day .m { font-size: 0.7rem; color: #5A667C; }
+  #book .bt-day .n { font-size: 0.66rem; color: #0F7B6C; font-weight: 700; margin-top: 0.15rem; }
+  #book .bt-day[aria-pressed="true"] { background: #16233F; border-color: #16233F; }
+  #book .bt-day[aria-pressed="true"] .w, #book .bt-day[aria-pressed="true"] .m { color: #9AA6C0; }
+  #book .bt-day[aria-pressed="true"] .d { color: #fff; }
+  #book .bt-day[aria-pressed="true"] .n { color: #FFC220; }
+  #book .bt-times { display: grid; grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr)); gap: 0.5rem; }
+  #book .bt-time { border: 1px solid #0F7B6C; color: #0F7B6C; background: #fff; border-radius: 0.6rem; padding: 0.6rem 0.4rem; font-weight: 700; font-size: 0.88rem; cursor: pointer; font-variant-numeric: tabular-nums; transition: all .15s ease; }
+  #book .bt-time:hover { background: #D5E9E5; }
+  #book .bt-input { width: 100%; padding: 0.7rem 0.9rem; border: 1px solid #E4E7ED; border-radius: 0.6rem; font-size: 0.9rem; outline: none; background: #fff; font-family: inherit; }
+  #book .bt-input:focus { border-color: #0F7B6C; box-shadow: 0 0 0 3px #D5E9E5; }
+  #book .bt-chip:focus-visible, #book .bt-day:focus-visible, #book .bt-time:focus-visible { outline: 2px solid #0F7B6C; outline-offset: 2px; }
+  #book .bt-skel { height: 2.6rem; border-radius: 0.6rem; background: linear-gradient(90deg,#EEF1F5 25%,#F7F8FA 50%,#EEF1F5 75%); background-size: 200% 100%; animation: btShimmer 1.2s infinite; }
+  @keyframes btShimmer { to { background-position: -200% 0; } }
+  #book .bt-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+</style>
+<section id="book" class="bg-[#F7F8FA] border-b border-gray-200">
+  <div class="max-w-6xl mx-auto px-6 py-20">
+    <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">Book time</div>
+    <h2 class="serif font-bold text-3xl text-navy mb-3">Book time with me</h2>
+    <p class="text-slate2 max-w-2xl mb-8">Pick a length and a time that works for you. These are my live open slots, and you'll get a calendar invite with a Google Meet link as soon as you confirm.</p>
+
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden grid lg:grid-cols-[280px_1fr]">
+      <!-- Options -->
+      <div class="p-6 lg:p-7 border-b lg:border-b-0 lg:border-r border-gray-200">
+        <div class="text-[11px] tracking-[0.14em] uppercase text-slate2 font-bold mb-2">Length</div>
+        <div class="grid grid-cols-4 lg:grid-cols-2 gap-2 mb-6" id="btDurations" role="group" aria-label="Meeting length"></div>
+        <label for="btTz" class="block text-[11px] tracking-[0.14em] uppercase text-slate2 font-bold mb-2">Your time zone</label>
+        <select id="btTz" class="bt-input mb-6"></select>
+        <ul class="text-sm text-slate2 space-y-2">
+          <li class="flex gap-2"><span class="text-accent font-bold">&#10003;</span>Google Meet link included</li>
+          <li class="flex gap-2"><span class="text-accent font-bold">&#10003;</span>Invite goes straight to your inbox</li>
+          <li class="flex gap-2"><span class="text-accent font-bold">&#10003;</span>Weekdays, 8 AM to 6 PM Central</li>
+        </ul>
+      </div>
+
+      <!-- Steps -->
+      <div class="p-6 lg:p-7 min-w-0">
+        <div id="btMsg" class="hidden mb-4 rounded-lg px-4 py-3 text-sm bg-[#FDF2E9] text-[#9A4A12]"></div>
+
+        <div id="btPick">
+          <div class="text-[11px] tracking-[0.14em] uppercase text-slate2 font-bold mb-2">Day</div>
+          <div class="bt-days mb-6" id="btDays" role="group" aria-label="Day"></div>
+          <div class="text-[11px] tracking-[0.14em] uppercase text-slate2 font-bold mb-2" id="btDayLabel">Times</div>
+          <div class="bt-times" id="btTimes"></div>
+          <p id="btEmpty" class="hidden text-sm text-slate2"></p>
+        </div>
+
+        <form id="bookTimeForm" class="hidden" novalidate>
+          <button type="button" id="btBack" class="text-sm font-semibold text-accent hover:underline mb-4">&larr; Choose a different time</button>
+          <div class="rounded-xl bg-accent-soft px-4 py-3 mb-5">
+            <div class="serif font-bold text-navy text-lg" id="btWhen"></div>
+            <div class="text-xs text-slate2" id="btWhenSub"></div>
+          </div>
+          <div class="grid sm:grid-cols-2 gap-3 mb-3">
+            <input id="btName" class="bt-input" autocomplete="name" placeholder="Your name *" required>
+            <input id="btEmail" class="bt-input" type="email" autocomplete="email" placeholder="Your email *" required>
+            <input id="btCompany" class="bt-input" autocomplete="organization" placeholder="Company">
+            <input id="btRole" class="bt-input" placeholder="Role you're hiring for">
+          </div>
+          <input id="btLink" class="bt-input mb-3" type="url" placeholder="Link to the job posting (optional)">
+          <textarea id="btNotes" class="bt-input mb-4 resize-y" rows="3" placeholder="Anything I should know beforehand? (optional)"></textarea>
+          <div class="bt-hp" aria-hidden="true"><label>Website <input id="btWebsite" tabindex="-1" autocomplete="off"></label></div>
+          <button type="submit" id="btSubmit" class="px-6 py-3 rounded-lg bg-navy hover:bg-navy-2 text-white font-semibold text-sm transition disabled:opacity-60">Confirm booking</button>
+        </form>
+
+        <div id="btDone" class="hidden text-center py-8">
+          <div class="w-14 h-14 rounded-full bg-accent text-white grid place-items-center mx-auto mb-4 text-2xl">&#10003;</div>
+          <h3 class="serif font-bold text-2xl text-navy mb-2">You're booked</h3>
+          <p class="text-slate2" id="btDoneWhen"></p>
+          <p class="text-slate2 mt-1" id="btDoneMeet"></p>
+          <p class="text-slate2 mt-1">A calendar invite is on its way to <strong class="text-ink" id="btDoneEmail"></strong>.</p>
+          <button type="button" id="btAgain" class="mt-5 text-sm font-semibold text-accent hover:underline">Book another time</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<script>
+(function () {
+  var ENDPOINT = 'https://wownxeielqhubwfzqqor.supabase.co/functions/v1/book-time';
+  var DURATIONS = [15, 30, 45, 60];
+  var $ = function (id) { return document.getElementById(id); };
+  var S = { duration: 30, tz: 'America/Chicago', slots: [], byDay: {}, day: null, slot: null, req: 0, loaded: false };
+  try { S.tz = Intl.DateTimeFormat().resolvedOptions().timeZone || S.tz; } catch (e) {}
+
+  function post(body) {
+    return fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { j._status = r.status; return j; }); });
+  }
+  function fmt(d, o) { o.timeZone = S.tz; return new Intl.DateTimeFormat('en-US', o).format(d); }
+  function dayKey(d) { return new Intl.DateTimeFormat('en-CA', { timeZone: S.tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d); }
+  function zoneName() {
+    try { return new Intl.DateTimeFormat('en-US', { timeZone: S.tz, timeZoneName: 'long' }).formatToParts(new Date())
+      .filter(function (p) { return p.type === 'timeZoneName'; })[0].value; } catch (e) { return S.tz; }
+  }
+  function msg(t) { var m = $('btMsg'); if (!t) { m.classList.add('hidden'); return; } m.textContent = t; m.classList.remove('hidden'); }
+  function show(step) {
+    $('btPick').classList.toggle('hidden', step !== 'pick');
+    $('bookTimeForm').classList.toggle('hidden', step !== 'form');
+    $('btDone').classList.toggle('hidden', step !== 'done');
+  }
+
+  // Length chips
+  function renderDurations() {
+    var el = $('btDurations'); el.innerHTML = '';
+    DURATIONS.forEach(function (d) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'bt-chip';
+      b.textContent = d + ' min'; b.setAttribute('aria-pressed', String(d === S.duration));
+      b.onclick = function () { if (d === S.duration) return; S.duration = d; renderDurations(); show('pick'); load(); };
+      el.appendChild(b);
+    });
+  }
+
+  // Time zone picker
+  (function () {
+    var zones = Intl.supportedValuesOf ? Intl.supportedValuesOf('timeZone') : [];
+    ['America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'Europe/London', 'Asia/Kolkata', S.tz]
+      .forEach(function (z) { if (zones.indexOf(z) < 0) zones.push(z); });
+    zones.sort().forEach(function (z) { var o = document.createElement('option'); o.value = z; o.textContent = z.replace(/_/g, ' '); $('btTz').appendChild(o); });
+    $('btTz').value = S.tz;
+    $('btTz').onchange = function () { S.tz = this.value; group(); render(); };
+  })();
+
+  function skeleton() {
+    $('btDays').innerHTML = ''; $('btTimes').innerHTML = ''; $('btEmpty').classList.add('hidden');
+    for (var i = 0; i < 6; i++) { var s = document.createElement('div'); s.className = 'bt-skel'; s.style.width = '4.6rem'; s.style.height = '5.2rem'; s.style.flex = '0 0 auto'; $('btDays').appendChild(s); }
+    for (var j = 0; j < 8; j++) { var t = document.createElement('div'); t.className = 'bt-skel'; $('btTimes').appendChild(t); }
+  }
+
+  function load() {
+    var id = ++S.req; msg(''); skeleton();
+    return post({ action: 'slots', duration: S.duration }).then(function (r) {
+      if (id !== S.req) return;
+      if (!r.connected) { S.slots = []; group(); render('Online booking is paused right now. Please use the contact form below and I\'ll get back to you.'); return; }
+      S.slots = (r.slots || []).map(function (s) { return new Date(s); });
+      group(); render();
+    }).catch(function () {
+      if (id !== S.req) return;
+      S.slots = []; group(); render('Couldn\'t load my calendar just now. Please refresh, or use the contact form below.');
+    });
+  }
+
+  function group() {
+    S.byDay = {};
+    S.slots.forEach(function (d) { var k = dayKey(d); (S.byDay[k] = S.byDay[k] || []).push(d); });
+    if (!S.day || !S.byDay[S.day]) S.day = Object.keys(S.byDay).sort()[0] || null;
+  }
+
+  function render(emptyText) {
+    var keys = Object.keys(S.byDay).sort();
+    var days = $('btDays'); days.innerHTML = '';
+    keys.forEach(function (k) {
+      var d = S.byDay[k][0];
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'bt-day';
+      b.setAttribute('aria-pressed', String(k === S.day));
+      b.setAttribute('aria-label', fmt(d, { weekday: 'long', month: 'long', day: 'numeric' }) + ', ' + S.byDay[k].length + ' times');
+      b.innerHTML = '<div class="w"></div><div class="d"></div><div class="m"></div><div class="n"></div>';
+      b.children[0].textContent = fmt(d, { weekday: 'short' });
+      b.children[1].textContent = fmt(d, { day: 'numeric' });
+      b.children[2].textContent = fmt(d, { month: 'short' });
+      b.children[3].textContent = S.byDay[k].length + ' open';
+      b.onclick = function () { S.day = k; render(); };
+      days.appendChild(b);
+    });
+    var times = $('btTimes'); times.innerHTML = '';
+    var empty = $('btEmpty');
+    if (!keys.length) {
+      $('btDayLabel').textContent = 'Times';
+      empty.textContent = emptyText || 'No open times in the next few weeks for this length. Try a shorter meeting, or use the contact form below.';
+      empty.classList.remove('hidden'); return;
+    }
+    empty.classList.add('hidden');
+    $('btDayLabel').textContent = fmt(S.byDay[S.day][0], { weekday: 'long', month: 'long', day: 'numeric' }) + ' · ' + zoneName();
+    S.byDay[S.day].forEach(function (d) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'bt-time';
+      b.textContent = fmt(d, { hour: 'numeric', minute: '2-digit' });
+      b.onclick = function () { choose(d); };
+      times.appendChild(b);
+    });
+  }
+
+  function whenText(d) {
+    var e = new Date(d.getTime() + S.duration * 60000);
+    return fmt(d, { weekday: 'long', month: 'long', day: 'numeric' }) + ' · ' + fmt(d, { hour: 'numeric', minute: '2-digit' }) + ' – ' + fmt(e, { hour: 'numeric', minute: '2-digit' });
+  }
+  function choose(d) {
+    S.slot = d; msg('');
+    $('btWhen').textContent = whenText(d);
+    $('btWhenSub').textContent = S.duration + ' min · Google Meet · ' + zoneName();
+    show('form'); $('btName').focus({ preventScroll: true });
+  }
+  $('btBack').onclick = function () { msg(''); show('pick'); };
+  $('btAgain').onclick = function () { $('bookTimeForm').reset(); show('pick'); load(); };
+
+  $('bookTimeForm').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var p = {
+      action: 'book', duration: S.duration, start: S.slot.toISOString(), timezone: S.tz,
+      name: $('btName').value.trim(), email: $('btEmail').value.trim(), company: $('btCompany').value.trim(),
+      role: $('btRole').value.trim(), job_link: $('btLink').value.trim(), notes: $('btNotes').value.trim(),
+      website: $('btWebsite').value
+    };
+    if (!p.name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.email)) { msg('Please add your name and a valid email.'); return; }
+    if (p.job_link && !/^https?:\/\//i.test(p.job_link)) { msg('The job link should start with https://'); return; }
+    var btn = $('btSubmit'); btn.disabled = true; btn.textContent = 'Booking…'; msg('');
+    post(p).then(function (r) {
+      btn.disabled = false; btn.textContent = 'Confirm booking';
+      if (r._status === 409) {
+        S.slots = (r.slots || []).map(function (s) { return new Date(s); }); group(); render(); show('pick');
+        msg('Sorry, that time was just taken. Here are the latest open times.'); return;
+      }
+      if (!r.ok) { msg(r.error || 'Something went wrong. Please try again.'); return; }
+      $('btDoneWhen').textContent = whenText(new Date(r.start)) + ' (' + zoneName() + ')';
+      var meet = $('btDoneMeet'); meet.textContent = '';
+      if (r.meet_link) {
+        meet.append('Google Meet: ');
+        var a = document.createElement('a'); a.href = r.meet_link; a.target = '_blank'; a.rel = 'noopener';
+        a.className = 'text-accent font-semibold underline'; a.textContent = r.meet_link.replace(/^https?:\/\//, ''); meet.appendChild(a);
+      }
+      $('btDoneEmail').textContent = p.email;
+      show('done');
+    }).catch(function () {
+      btn.disabled = false; btn.textContent = 'Confirm booking';
+      msg('Couldn\'t reach the booking service. Please try again, or use the contact form below.');
+    });
+  });
+
+  renderDurations();
+  // Load slots when the section first comes near the screen (keeps page load light)
+  var sec = $('book');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) {
+      if (es.some(function (e) { return e.isIntersecting; }) && !S.loaded) { S.loaded = true; io.disconnect(); load(); }
+    }, { rootMargin: '600px' });
+    io.observe(sec);
+  } else { S.loaded = true; load(); }
+})();
+</script>
 
 <!-- FOOTER / CONTACT -->
 <footer class="bg-navy text-white">
