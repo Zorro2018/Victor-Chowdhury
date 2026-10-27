@@ -329,6 +329,9 @@
   }
 
   /* ---- Concept A (profile + tabs) ---- */
+  .accent-top { position: relative; overflow: hidden; }
+  .accent-top::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: linear-gradient(90deg, #0F7B6C, #0c665a); }
+  .accent-top.accent-gold::before { background: linear-gradient(90deg, #FFC220, #E8A317); }
   .carousel-card.cred-card { flex: 0 0 270px; }
   @media (max-width: 640px) { .carousel-card.cred-card { flex: 0 0 240px; } }
   .pcard { background: #fff; border: 1px solid #E5E7EB; border-radius: 1rem; padding: 1.5rem 1.75rem; }
@@ -422,16 +425,27 @@
               </div>
             </div>
             <!-- Worked with: credibility at a glance -->
-            <div style="flex: 0 1 280px;">
+            <div style="flex: 0 1 320px;">
+              <div class="flex gap-5">
+              <div>
               <div class="text-[11px] tracking-[0.14em] uppercase text-slate2 font-bold mb-2.5">Worked with</div>
-              <ul class="grid grid-cols-5 gap-2" aria-label="Organizations Victor has worked with">
-                {% for org, domain in [('Walmart','walmart.com'), ("Sam's Club",'samsclub.com'), ('Nike','nike.com'), ('Wipro','wipro.com'), ('Cornell','cornell.edu')] %}
+              <ul class="flex gap-2.5" aria-label="Organizations Victor has worked with">
+                {% for org, domain in [('Walmart','walmart.com'), ("Sam's Club",'samsclub.com'), ('Nike','nike.com'), ('Wipro','wipro.com')] %}
                 <li class="flex flex-col items-center gap-1.5" title="{{ org }}">
                   {{ logo(domain, 'w-11 h-11', 'p-1.5') }}
                   <span class="text-[11px] font-semibold text-slate2 leading-none whitespace-nowrap">{{ org }}</span>
                 </li>
                 {% endfor %}
               </ul>
+              </div>
+              <div class="pl-5 border-l border-gray-200">
+                <div class="text-[11px] tracking-[0.14em] uppercase text-slate2 font-bold mb-2.5 whitespace-nowrap">Studied at</div>
+                <div class="flex flex-col items-center gap-1.5 w-fit" title="Cornell University">
+                  {{ logo('cornell.edu', 'w-11 h-11', 'p-1.5') }}
+                  <span class="text-[11px] font-semibold text-slate2 leading-none whitespace-nowrap">Cornell</span>
+                </div>
+              </div>
+              </div>
             </div>
           </div>
           <div class="flex flex-wrap items-start gap-2.5 mt-5 mb-6">
@@ -487,7 +501,7 @@
           <h2 class="pcard-title">Impact, by the numbers</h2>
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {% for item in impact %}
-            <div class="border border-gray-200 rounded-xl p-4 hover:border-accent transition">
+            <div class="accent-top bg-white border border-gray-200 rounded-xl p-4 pt-5 hover:border-accent hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
               <div class="impact-metric serif font-black text-[22px] sm:text-[26px] text-accent leading-none mb-2">{{ item.metric }}</div>
               <div class="font-bold text-sm text-ink leading-snug">{{ item.label }}</div>
               <div class="text-[10px] tracking-[0.1em] uppercase text-slate2 font-bold mt-1 mb-2">{{ item.tag }}</div>
@@ -588,7 +602,7 @@
             <p class="text-[15px] text-slate2 leading-relaxed mb-4">{{ b.intro }}</p>
             <div class="space-y-3">
               {% for a in b.anecdotes %}
-              <div class="border border-gray-200 rounded-xl p-4 sm:p-5">
+              <div class="accent-top bg-white border border-gray-200 rounded-xl p-4 pt-5 sm:p-5 sm:pt-6 hover:border-accent hover:shadow-lg transition-all duration-300">
                 <div class="text-[10px] tracking-[0.12em] uppercase text-accent font-bold mb-1">{{ a.tag }}</div>
                 <h3 class="serif font-bold text-[17px] text-navy leading-snug mb-1.5">{{ a.title }}</h3>
                 <p class="text-sm text-[#3A4459] leading-relaxed">{{ a.body }}</p>
@@ -616,10 +630,10 @@
             {% for s in work_samples %}
             {% if s.premium %}
             <button type="button" data-kind="sample" data-premium="{{ s.premium }}" data-premium-title="{{ s.title }}" aria-label="Premium: {{ s.title }} - unlock to view"
-                    class="work-item premium-card group w-full text-left flex flex-row gap-3 sm:gap-4 bg-white border border-[#E8B923] rounded-xl !p-3 sm:!p-4 hover:border-accent transition">
+                    class="work-item premium-card accent-top accent-gold group w-full text-left flex flex-row gap-3 sm:gap-4 bg-white border border-[#E8B923] rounded-xl !p-3 !pt-4 sm:!p-4 sm:!pt-5 hover:shadow-lg hover:border-accent transition">
             {% else %}
             <a href="{{ s.url }}" target="_blank" rel="noopener" data-kind="sample"
-               class="work-item group flex flex-row gap-3 sm:gap-4 bg-white border border-gray-200 rounded-xl p-3 sm:p-4 hover:border-accent transition">
+               class="work-item accent-top group flex flex-row gap-3 sm:gap-4 bg-white border border-gray-200 rounded-xl p-3 pt-4 sm:p-4 sm:pt-5 hover:border-accent hover:shadow-lg transition-all duration-300">
             {% endif %}
               <div class="relative w-28 sm:w-56 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
                 {% if s.premium %}<span class="premium-badge">&#9733; Premium</span>{% elif s.badge %}<span class="sample-badge">&#10024; {{ s.badge }}</span>{% endif %}
@@ -635,7 +649,7 @@
             {% endfor %}
             {% for a in articles %}
             <a href="{{ a.url }}" target="_blank" rel="noopener" data-kind="article"
-               class="work-item group flex flex-row gap-3 sm:gap-4 bg-white border border-gray-200 rounded-xl p-3 sm:p-4 hover:border-accent transition">
+               class="work-item accent-top group flex flex-row gap-3 sm:gap-4 bg-white border border-gray-200 rounded-xl p-3 pt-4 sm:p-4 sm:pt-5 hover:border-accent hover:shadow-lg transition-all duration-300">
               <div class="relative w-28 sm:w-56 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
                 <span class="absolute top-2 left-2 z-[2] bg-navy text-[#FFC220] text-[10px] font-black tracking-[0.12em] uppercase px-2 py-1 rounded">Article</span>
                 <img src="{{ a.thumbnail }}" alt="{{ a.title }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300">
@@ -768,7 +782,12 @@
           <p class="text-sm text-slate2 mb-4">{{ mini_logo('linkedin.com') }}From LinkedIn, shown as received.</p>
           <div class="space-y-3">
             {% for t in testimonials %}
-            <div class="border border-gray-200 rounded-xl p-4 sm:p-5">
+            <div class="bg-white border border-[#CFE0F5] hover:border-[#0A66C2] hover:shadow-lg rounded-xl overflow-hidden transition-all duration-300">
+              <div class="bg-gradient-to-r from-[#0A66C2] to-[#0E76D0] px-4 py-2 flex items-center gap-2">
+                {{ logo('linkedin.com', 'w-5 h-5', 'p-0.5') }}
+                <span class="text-white text-[10px] tracking-[0.15em] uppercase font-bold">LinkedIn Recommendation</span>
+              </div>
+              <div class="p-4 sm:p-5">
               <div class="flex items-start gap-3">
                 <div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0" style="background:#0A66C2">{{ t.name[0] }}</div>
                 <div class="min-w-0">
@@ -779,6 +798,7 @@
               </div>
               <p class="rec-quote text-[15px] text-[#2C3548] leading-relaxed mt-3">{{ t.quote }}</p>
               <button type="button" class="rec-toggle see-more mt-1 hidden">See more</button>
+              </div>
             </div>
             {% endfor %}
           </div>
