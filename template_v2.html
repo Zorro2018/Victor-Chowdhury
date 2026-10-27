@@ -1504,8 +1504,10 @@
         try { history.replaceState(null, '', id === 'overview' ? location.pathname + location.search : '#' + id); } catch (e) {}
       }
       if (opts.scroll && bar) {
-        // Bring the tab bar to the top (just under the sticky nav) if the reader is below it
-        const top = bar.parentElement.getBoundingClientRect().top + window.scrollY - 57;
+        // Put the new tab's content right under the sticky nav + tab bar. Measure
+        // from the profile card above the bar: the bar itself may be stuck.
+        const card = bar.parentElement.previousElementSibling;
+        const top = card.getBoundingClientRect().bottom + window.scrollY - 57;
         if (window.scrollY > top || opts.force) window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
       }
       if (changed) { try { gtag('event', 'profile_tab_view', { tab: id }); } catch (e) {} }
