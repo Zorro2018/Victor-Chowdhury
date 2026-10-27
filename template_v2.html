@@ -329,6 +329,8 @@
   }
 
   /* ---- Concept A (profile + tabs) ---- */
+  .carousel-card.cred-card { flex: 0 0 270px; }
+  @media (max-width: 640px) { .carousel-card.cred-card { flex: 0 0 240px; } }
   .pcard { background: #fff; border: 1px solid #E5E7EB; border-radius: 1rem; padding: 1.5rem 1.75rem; }
   @media (max-width: 640px) { .pcard { padding: 1.1rem 1.1rem; } }
   .pcard-title { font-size: 1.25rem; font-weight: 700; color: #16233F; margin-bottom: 1rem; }
@@ -351,6 +353,12 @@
 <!-- SCROLL PROGRESS BAR -->
 <div id="scrollProgress"></div>
 
+{% macro logo(domain, box='w-12 h-12', pad='p-1.5') -%}
+<span class="{{ box }} {{ pad }} rounded-lg bg-white border border-gray-200 flex items-center justify-center flex-shrink-0 overflow-hidden"><img src="https://www.google.com/s2/favicons?domain={{ domain }}&amp;sz=128" alt="" aria-hidden="true" loading="lazy" referrerpolicy="no-referrer" class="w-full h-full object-contain"></span>
+{%- endmacro %}
+{% macro mini_logo(domain) -%}
+<img src="https://www.google.com/s2/favicons?domain={{ domain }}&amp;sz=64" alt="" aria-hidden="true" loading="lazy" referrerpolicy="no-referrer" class="inline-block w-4 h-4 object-contain align-[-3px] mr-1">
+{%- endmacro %}
 <!-- NAV -->
 <nav class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-200">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
@@ -414,8 +422,8 @@
               </div>
             </div>
             <div class="flex flex-col gap-3 text-sm font-semibold text-ink" style="flex: 0 1 260px;">
-              <div class="flex items-center gap-3"><span class="w-9 h-9 rounded-lg bg-[#E8EEF9] text-navy flex items-center justify-center text-xs font-black flex-shrink-0">WM</span>Walmart &middot; 6 roles since 2017</div>
-              <div class="flex items-center gap-3"><span class="w-9 h-9 rounded-lg bg-[#FBEDED] text-[#B31B1B] flex items-center justify-center text-xs font-black flex-shrink-0">CU</span>Cornell &middot; Product Mgmt &amp; ML</div>
+              <div class="flex items-center gap-3">{{ logo('walmart.com', 'w-9 h-9', 'p-1') }}Walmart &middot; 6 roles since 2017</div>
+              <div class="flex items-center gap-3">{{ logo('cornell.edu', 'w-9 h-9', 'p-1') }}Cornell &middot; Product Mgmt &amp; ML</div>
             </div>
           </div>
           <div class="flex flex-wrap items-start gap-2.5 mt-5 mb-6">
@@ -515,7 +523,7 @@
 
           <!-- Walmart: grouped roles, LinkedIn style -->
           <div class="flex gap-4">
-            <span class="w-12 h-12 rounded-lg bg-[#E8EEF9] text-navy flex items-center justify-center text-sm font-black flex-shrink-0">WM</span>
+            {{ logo('walmart.com') }}
             <div class="min-w-0 flex-1">
               <div class="font-bold text-[16px] text-ink">Walmart</div>
               <div class="text-[13px] text-slate2">6 roles &middot; Jan 2017 to present &middot; Bentonville, Arkansas</div>
@@ -524,7 +532,7 @@
                 <li class="relative{% if loop.index > 3 %} role-more hidden{% endif %}">
                   <span class="absolute -left-[27px] top-1.5 w-3 h-3 rounded-full {{ 'bg-accent' if loop.first else 'bg-[#C3CAD5]' }} border-2 border-white"></span>
                   <div class="font-bold text-[15px] text-ink leading-snug">{{ job.title }}</div>
-                  <div class="text-[13px] text-slate2">{% if job.org != 'Walmart' %}{{ job.org }} &middot; {% endif %}{{ job.dates }}</div>
+                  <div class="text-[13px] text-slate2">{% if job.org != 'Walmart' %}{% if "Sam's Club" in job.org %}{{ mini_logo('samsclub.com') }}{% endif %}{{ job.org }} &middot; {% endif %}{{ job.dates }}</div>
                   <p class="text-sm text-[#2C3548] leading-relaxed mt-1.5">{{ job.blurb }}</p>
                 </li>
                 {% endfor %}
@@ -537,16 +545,16 @@
 
           <!-- Wipro -->
           <div class="flex gap-4">
-            <span class="w-12 h-12 rounded-lg bg-[#F1ECFA] text-[#4B2C8A] flex items-center justify-center text-sm font-black flex-shrink-0">WI</span>
+            {{ logo('wipro.com') }}
             <div class="min-w-0 flex-1">
-              <div class="font-bold text-[16px] text-ink">Wipro &middot; Nike account</div>
+              <div class="font-bold text-[16px] text-ink">Wipro <span class="font-semibold text-slate2 text-[14px]">&middot; client: {{ mini_logo('nike.com') }}Nike</span></div>
               <div class="text-[13px] text-slate2">2 roles &middot; Sep 2010 to Jan 2017 &middot; India and Portland, Oregon</div>
               <ol class="mt-4 border-l-2 border-[#D5DBE3] pl-5 space-y-5">
                 {% for job in timeline if 'Wipro' in job.org %}
                 <li class="relative">
                   <span class="absolute -left-[27px] top-1.5 w-3 h-3 rounded-full bg-[#C3CAD5] border-2 border-white"></span>
                   <div class="font-bold text-[15px] text-ink leading-snug">{{ job.title }}</div>
-                  <div class="text-[13px] text-slate2">{{ job.org|replace('Wipro · ', '') }} &middot; {{ job.dates }}</div>
+                  <div class="text-[13px] text-slate2">{% if 'Nike' in job.org %}{{ mini_logo('nike.com') }}{% endif %}{{ job.org|replace('Wipro · ', '') }} &middot; {{ job.dates }}</div>
                   <p class="text-sm text-[#2C3548] leading-relaxed mt-1.5">{{ job.blurb }}</p>
                 </li>
                 {% endfor %}
@@ -643,8 +651,8 @@
           <div class="space-y-4">
             {% for e in education %}
             <div class="flex gap-4">
-              {% set is_cornell = 'Cornell' in e.org %}
-              <span class="w-12 h-12 rounded-lg flex items-center justify-center text-sm font-black flex-shrink-0 {{ 'bg-[#FBEDED] text-[#B31B1B]' if is_cornell else 'bg-[#EEF1F5] text-navy' }}">{{ 'CU' if is_cornell else e.org[:1] }}</span>
+              {% set edu_domain = 'cornell.edu' if 'Cornell' in e.org else ('symbiosis.ac.in' if 'Symbiosis' in e.org else 'wbut.ac.in') %}
+              {{ logo(edu_domain) }}
               <div class="min-w-0">
                 <div class="font-bold text-[15px] text-ink">{{ e.org.split(' · ')[0] }}</div>
                 <div class="text-sm text-[#2C3548]">{{ e.title }}</div>
@@ -655,50 +663,82 @@
           </div>
         </div>
 
-        <div class="pcard">
-          <h2 class="pcard-title">Licenses &amp; certifications</h2>
-          <div class="space-y-3">
-            {% for c in certificates %}
-            <a href="{{ c.url }}" target="_blank" rel="noopener" class="group flex flex-row gap-3 sm:gap-4 border border-gray-200 rounded-xl p-3 sm:p-4 hover:border-accent transition">
-              <div class="w-24 sm:w-36 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
-                <img src="{{ c.thumbnail }}" alt="{{ c.title }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300">
+        <div class="pcard !px-0 overflow-hidden">
+          <div class="px-5 sm:px-7 flex items-baseline justify-between gap-3">
+            <h2 class="pcard-title !mb-1">Licenses &amp; certifications</h2>
+            <span class="text-[13px] text-slate2 whitespace-nowrap">{{ certificates|length }} credentials</span>
+          </div>
+          <p class="px-5 sm:px-7 text-sm text-slate2 mb-2">Click any card to verify with the issuer. Hover to pause.</p>
+          <div class="carousel-wrap">
+            <button type="button" class="carousel-nav prev" id="certsPrev" aria-label="Scroll certificates left">&larr;</button>
+            <button type="button" class="carousel-nav next" id="certsNext" aria-label="Scroll certificates right">&rarr;</button>
+            <div class="carousel-viewport" id="certsViewport">
+              <div class="carousel-track" id="certsTrack">
+              {% for c in certificates %}
+              {% set issuer = {'cornell':'cornell.edu','mitx':'edx.org','tableau':'tableau.com','alteryx':'alteryx.com','dataiku':'dataiku.com','google':'analytics.google.com','microsoft':'microsoft.com'}[c.brand] if c.brand in ['cornell','mitx','tableau','alteryx','dataiku','google','microsoft'] else '' %}
+              <a href="{{ c.url }}" target="_blank" rel="noopener"
+                 class="carousel-card cred-card group block bg-white border rounded-xl overflow-hidden {{ 'border-[#B31B1B]/30 hover:border-[#B31B1B]' if c.brand == 'cornell' else 'border-gray-200 hover:border-accent' }}">
+                <div class="relative aspect-[16/10] overflow-hidden bg-gray-100 border-b border-gray-200">
+                  <img src="{{ c.thumbnail }}" alt="{{ c.title }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300">
+                  {% if c.brand == 'cornell' %}<div class="absolute top-0 inset-x-0 bg-[#B31B1B] text-white text-[10px] font-bold tracking-[0.2em] uppercase text-center py-1.5 shadow-sm">Cornell University</div>{% endif %}
+                </div>
+                <div class="p-4">
+                  <div class="flex items-center gap-2.5 mb-2">
+                    {% if issuer %}{{ logo(issuer, 'w-8 h-8', 'p-1') }}{% endif %}
+                    <div class="text-[10px] tracking-[0.12em] uppercase font-bold leading-tight {{ 'text-[#B31B1B]' if c.brand == 'cornell' else 'text-accent' }}">{{ c.tag }}</div>
+                  </div>
+                  <h3 class="serif font-bold text-[16px] text-navy mb-1.5 leading-snug group-hover:text-accent transition">{{ c.title }}</h3>
+                  <p class="text-[13px] text-[#3A4459] leading-relaxed mb-2 line-clamp-3">{{ c.description }}</p>
+                  <div class="text-xs font-bold {{ 'text-[#B31B1B]' if c.brand == 'cornell' else 'text-accent' }}">Show credential &#8599;</div>
+                </div>
+              </a>
+              {% endfor %}
               </div>
-              <div class="min-w-0 flex-1">
-                <div class="text-[10px] tracking-[0.12em] uppercase font-bold mb-1 {{ 'text-[#B31B1B]' if c.brand == 'cornell' else 'text-accent' }}">{{ c.tag }}</div>
-                <h3 class="serif font-bold text-[17px] text-navy leading-snug group-hover:text-accent transition">{{ c.title }}</h3>
-                <p class="text-sm text-[#3A4459] leading-relaxed mt-1.5 line-clamp-3">{{ c.description }}</p>
-                <div class="text-xs font-bold mt-2 {{ 'text-[#B31B1B]' if c.brand == 'cornell' else 'text-accent' }}">Show credential &#8599;</div>
-              </div>
-            </a>
-            {% endfor %}
+            </div>
           </div>
         </div>
 
-        <div class="pcard">
-          <h2 class="pcard-title">Honors &amp; awards</h2>
-          <div class="space-y-3">
-            {% for a in awards %}
-            <div class="flex flex-row gap-3 sm:gap-4 border border-gray-200 rounded-xl p-3 sm:p-4">
-              <button type="button" class="award-photo w-24 sm:w-36 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-[#F4F6FA] cursor-zoom-in"
-                      data-caption="{{ a.title }} · {{ a.org }}{% if a.year %} · {{ a.year }}{% endif %}" aria-label="View larger: {{ a.title }}">
-                <img src="{{ a.image }}" alt="{{ a.alt }}" loading="lazy" class="w-full h-full object-contain p-2">
-              </button>
-              <div class="min-w-0 flex-1">
-                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mb-1">
-                  <span class="text-[10px] tracking-[0.12em] uppercase font-bold text-accent">{{ a.org }}</span>
-                  {% if a.year %}<span class="text-xs font-semibold text-slate2">{{ a.year }}</span>{% endif %}
-                </div>
-                <h3 class="serif font-bold text-[17px] text-navy leading-snug">{{ a.title }}</h3>
-                <p class="text-sm text-[#3A4459] leading-relaxed mt-1.5 line-clamp-3">{{ a.description }}</p>
-              </div>
-            </div>
-            {% endfor %}
-            <div class="flex flex-row gap-3 sm:gap-4 border border-gray-200 rounded-xl p-3 sm:p-4">
-              <div class="w-24 sm:w-36 self-start flex-shrink-0 aspect-[16/10] rounded-lg bg-navy text-[#FFC220] flex items-center justify-center serif font-bold text-sm sm:text-lg">Patent</div>
-              <div class="min-w-0 flex-1">
-                <div class="text-[10px] tracking-[0.12em] uppercase font-bold text-accent mb-1">Walmart &middot; 2019</div>
-                <h3 class="serif font-bold text-[17px] text-navy leading-snug">{{ recognition.patent }}</h3>
-                <p class="text-sm text-[#3A4459] leading-relaxed mt-1.5">Other honors: {{ recognition.honors }}</p>
+        <div class="pcard !px-0 overflow-hidden">
+          <div class="px-5 sm:px-7 flex items-baseline justify-between gap-3">
+            <h2 class="pcard-title !mb-1">Honors &amp; awards</h2>
+            <span class="text-[13px] text-slate2 whitespace-nowrap">{{ awards|length + 1 }} honors</span>
+          </div>
+          <p class="px-5 sm:px-7 text-sm text-slate2 mb-2">From Walmart, Sam's Club, Nike and Wipro. Tap a photo to see it full size.</p>
+          <div class="carousel-wrap">
+            <button type="button" class="carousel-nav prev" id="awardsPrev" aria-label="Scroll awards left">&larr;</button>
+            <button type="button" class="carousel-nav next" id="awardsNext" aria-label="Scroll awards right">&rarr;</button>
+            <div class="carousel-viewport" id="awardsViewport">
+              <div class="carousel-track" id="awardsTrack">
+              {% for a in awards %}
+              {% set org_domain = 'samsclub.com' if "Sam's Club" in a.org else ('nike.com' if 'Nike' in a.org else ('wipro.com' if 'Wipro' in a.org else 'walmart.com')) %}
+              <figure class="carousel-card cred-card group bg-white border border-gray-200 hover:border-accent rounded-xl overflow-hidden flex flex-col m-0">
+                <button type="button" class="award-photo block w-full bg-[#F4F6FA] cursor-zoom-in border-b border-gray-200" data-caption="{{ a.title }} · {{ a.org }}{% if a.year %} · {{ a.year }}{% endif %}" aria-label="View larger: {{ a.title }}">
+                  <img src="{{ a.image }}" alt="{{ a.alt }}" loading="lazy" class="w-full aspect-[16/10] object-contain p-3 transition duration-300 group-hover:scale-105">
+                </button>
+                <figcaption class="p-4 flex flex-col flex-1">
+                  <div class="flex items-center gap-2.5 mb-2">
+                    {{ logo(org_domain, 'w-8 h-8', 'p-1') }}
+                    <div class="min-w-0">
+                      <div class="text-[10px] tracking-[0.12em] uppercase font-bold text-accent leading-tight">{{ a.org }}</div>
+                      {% if a.year %}<div class="text-[11px] font-semibold text-slate2">{{ a.year }}</div>{% endif %}
+                    </div>
+                  </div>
+                  <h3 class="serif font-bold text-[16px] text-navy mb-1.5 leading-snug">{{ a.title }}</h3>
+                  <p class="text-[13px] text-[#3A4459] leading-relaxed line-clamp-3">{{ a.description }}</p>
+                </figcaption>
+              </figure>
+              {% endfor %}
+              <figure class="carousel-card cred-card bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col m-0">
+                <div class="w-full aspect-[16/10] bg-navy text-[#FFC220] flex items-center justify-center serif font-bold text-2xl border-b border-gray-200">Patent filed</div>
+                <figcaption class="p-4 flex flex-col flex-1">
+                  <div class="flex items-center gap-2.5 mb-2">
+                    {{ logo('walmart.com', 'w-8 h-8', 'p-1') }}
+                    <div class="text-[10px] tracking-[0.12em] uppercase font-bold text-accent leading-tight">Walmart &middot; 2019</div>
+                  </div>
+                  <h3 class="serif font-bold text-[16px] text-navy mb-1.5 leading-snug">{{ recognition.patent }}</h3>
+                  <p class="text-[13px] text-[#3A4459] leading-relaxed line-clamp-3">Other honors: {{ recognition.honors }}</p>
+                </figcaption>
+              </figure>
               </div>
             </div>
           </div>
@@ -717,7 +757,7 @@
             <h2 class="pcard-title !mb-0">Recommendations</h2>
             <span class="text-[13px] text-slate2">Received &middot; {{ testimonials|length }}</span>
           </div>
-          <p class="text-sm text-slate2 mb-4">From LinkedIn, shown as received.</p>
+          <p class="text-sm text-slate2 mb-4">{{ mini_logo('linkedin.com') }}From LinkedIn, shown as received.</p>
           <div class="space-y-3">
             {% for t in testimonials %}
             <div class="border border-gray-200 rounded-xl p-4 sm:p-5">
@@ -1540,6 +1580,15 @@
       setTimeout(() => show(current, { scroll: true, force: true, updateHash: false, scrollTab: false }), 50);
     }
   })();
+
+  initFilmstripCarousel({ viewportId: 'certsViewport', trackId: 'certsTrack', prevId: 'certsPrev', nextId: 'certsNext',
+    cardSelector: '.carousel-card', pxPerSecond: 24, loop: false });
+  initFilmstripCarousel({ viewportId: 'awardsViewport', trackId: 'awardsTrack', prevId: 'awardsPrev', nextId: 'awardsNext',
+    cardSelector: '.carousel-card', pxPerSecond: 22, loop: false });
+  // Carousels measure themselves on resize; a hidden tab measures as zero, so nudge them when one opens
+  document.querySelectorAll('.profile-tab, [data-tab-link]').forEach(el => el.addEventListener('click', () => requestAnimationFrame(() => window.dispatchEvent(new Event('resize')))));
+  window.addEventListener('hashchange', () => requestAnimationFrame(() => window.dispatchEvent(new Event('resize'))));
+  requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
 
   // "See more" toggles (About paragraphs, earlier roles)
   document.querySelectorAll('.see-more[data-more]').forEach(btn => {
