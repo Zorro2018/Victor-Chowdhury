@@ -31,11 +31,10 @@ from pathlib import Path
 import sys
 
 ROOT = Path(__file__).parent
-# `python3 build_portable.py --preview` builds the Concept A redesign
-# (template_v2.html, served at /preview) into preview.html instead.
-PREVIEW = "--preview" in sys.argv
-SITE_URL = "http://127.0.0.1:8420/preview" if PREVIEW else "http://127.0.0.1:8420/"
-OUT_PATH = ROOT / ("preview.html" if PREVIEW else "index.html")
+# The live site is template.html. The pre-redesign site is frozen as
+# legacy/index.html (not rebuilt by this script).
+SITE_URL = "http://127.0.0.1:8420/"
+OUT_PATH = ROOT / "index.html"
 
 # Extensions that get base64-inlined. PDFs are excluded on purpose -- see
 # the module docstring -- and instead rewritten to a bare relative link.
@@ -77,7 +76,7 @@ def inline_static_assets(html: str) -> str:
 
 
 if __name__ == "__main__":
-    template_path = ROOT / ("template_v2.html" if PREVIEW else "template.html")
+    template_path = ROOT / "template.html"
     assert OUT_PATH.resolve() != template_path.resolve(), (
         "OUT_PATH must never be template.html -- refusing to run."
     )

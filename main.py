@@ -68,12 +68,12 @@ def _context() -> dict:
     }
 
 
-@app.get("/preview", response_class=HTMLResponse)
-def preview(request: Request):
-    """Concept A redesign (profile card + tabs), served side by side with the
-    live page until it's approved. build_portable.py --preview writes it to
-    preview.html."""
-    return templates.TemplateResponse(request, "template_v2.html", _context())
+@app.get("/legacy", response_class=HTMLResponse)
+def legacy(request: Request):
+    """The pre-redesign one-page site (Oct 2026), kept for reference. Its
+    published copy is the frozen legacy/index.html; this route only renders
+    template_legacy.html locally."""
+    return templates.TemplateResponse(request, "template_legacy.html", _context())
 
 
 @app.get("/", response_class=HTMLResponse)

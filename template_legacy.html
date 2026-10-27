@@ -35,7 +35,6 @@
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex">
 <title>{{ profile.name }} | {{ profile.tagline }}</title>
 <meta name="description" content="{{ profile.subhead }}">
 
@@ -255,7 +254,6 @@
   @media (prefers-reduced-motion: reduce) { #chatNudge.show { animation: none; } }
 
   /* Premium work samples */
-  .work-item .premium-badge, .work-item .sample-badge { transform: scale(0.8); transform-origin: top left; top: 6px; left: 6px; }
   .premium-card { font: inherit; color: inherit; cursor: pointer; padding: 0; box-shadow: 0 0 0 1px rgba(232,185,35,0.35); }
   .premium-badge { position: absolute; top: 10px; left: 10px; z-index: 2; background: linear-gradient(135deg,#FFC220,#E8A317); color: #16233F;
     font-size: 0.68rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px;
@@ -327,28 +325,6 @@
     font-size: 0.65rem; font-weight: 700; letter-spacing: 0.04em;
     color: #4FBFAE; margin-top: 0.4rem;
   }
-
-  /* ---- Concept A (profile + tabs) ---- */
-  .accent-top { position: relative; overflow: hidden; }
-  .accent-top::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: linear-gradient(90deg, #0F7B6C, #0c665a); }
-  .accent-top.accent-gold::before { background: linear-gradient(90deg, #FFC220, #E8A317); }
-  .carousel-card.cred-card { flex: 0 0 270px; }
-  @media (max-width: 640px) { .carousel-card.cred-card { flex: 0 0 240px; } }
-  .pcard { background: #fff; border: 1px solid #E5E7EB; border-radius: 1rem; padding: 1.5rem 1.75rem; }
-  @media (max-width: 640px) { .pcard { padding: 1.1rem 1.1rem; } }
-  .pcard-title { font-size: 1.25rem; font-weight: 700; color: #16233F; margin-bottom: 1rem; }
-  .profile-tab { flex: 0 0 auto; padding: 0.95rem 0.9rem 0.8rem; border-bottom: 3px solid transparent; font-weight: 600; font-size: 0.95rem; color: #5A667C; white-space: nowrap; background: none; cursor: pointer; }
-  .profile-tab:hover { color: #16233F; }
-  .profile-tab[aria-selected="true"] { color: #0F7B6C; border-bottom-color: #0F7B6C; }
-  .profile-tab:focus-visible { outline: 2px solid #0F7B6C; outline-offset: -4px; border-radius: 6px; }
-  .see-more { font-size: 0.875rem; font-weight: 700; color: #0F7B6C; background: none; border: 0; padding: 0; cursor: pointer; }
-  .see-more:hover { text-decoration: underline; }
-  .work-filter { flex: 0 0 auto; white-space: nowrap; padding: 0.4rem 0.85rem; border-radius: 999px; border: 1px solid #C9CFD8; font-size: 0.78rem; font-weight: 600; color: #1B2230; background: #fff; cursor: pointer; }
-  .work-filter.on { background: #16233F; border-color: #16233F; color: #fff; }
-  .clamp-4 { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
-  .rail-slot { display: block; text-align: center; padding: 0.5rem 0.4rem; border: 1px solid #0F7B6C; border-radius: 0.6rem; color: #0F7B6C; font-weight: 700; font-size: 0.85rem; line-height: 1.25; }
-  .rail-slot:hover { background: #D5E9E5; }
-  aside .bt-skel { border-radius: 0.6rem; background: linear-gradient(90deg,#EEF1F5 25%,#F7F8FA 50%,#EEF1F5 75%); background-size: 200% 100%; animation: btShimmer 1.2s infinite; }
 </style>
 </head>
 <body class="bg-white text-ink">
@@ -356,36 +332,27 @@
 <!-- SCROLL PROGRESS BAR -->
 <div id="scrollProgress"></div>
 
-{% macro logo(domain, box='w-12 h-12', pad='p-1.5') -%}
-<span class="{{ box }} {{ pad }} rounded-lg bg-white border border-gray-200 flex items-center justify-center flex-shrink-0 overflow-hidden"><img src="https://www.google.com/s2/favicons?domain={{ domain }}&amp;sz=128" alt="" aria-hidden="true" loading="lazy" referrerpolicy="no-referrer" class="w-full h-full object-contain"></span>
-{%- endmacro %}
-{% macro work_tags(title) -%}
-{%- set rules = [
-  ('AISLE1:', 'ai dashboards care'), ('Smart Woffie', 'ai care'), ('Agent Performance', 'dashboards care'),
-  ('Promo & Appeasement', 'dashboards care'), ('CES Weekly Update', 'exec care'), ('Call Complexity Scorecard', 'dashboards care'),
-  ('Call Complexity vs', 'ai dashboards care'), ('AISLEONE CRM', 'dashboards care'), ('Store Summary', 'exec retail dashboards'),
-  ('Data to Story', 'exec retail'), ('Intelligent Retail Lab', 'ai retail'), ('Fuel Pricing', 'retail'),
-  ('Fruit Slicer', 'personal ai'), ('Claude vs.', 'ai'), ('Stop Being Overwhelmed', 'leadership')
-] -%}
-{%- for kw, tg in rules if kw in title %}{{ tg }} {% endfor -%}
-{%- endmacro %}
-{% macro mini_logo(domain) -%}
-<img src="https://www.google.com/s2/favicons?domain={{ domain }}&amp;sz=64" alt="" aria-hidden="true" loading="lazy" referrerpolicy="no-referrer" class="inline-block w-4 h-4 object-contain align-[-3px] mr-1">
-{%- endmacro %}
 <!-- NAV -->
-<nav class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-200">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
-    <a href="#overview" data-tab-link="overview" class="serif font-bold text-lg text-navy whitespace-nowrap">{{ profile.name }}</a>
+<nav class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-gray-200">
+  <div class="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+    <a href="#top" class="serif font-bold text-lg text-navy">{{ profile.name }}</a>
     <div class="hidden lg:flex items-center gap-5 text-sm font-medium text-slate2">
-      <a href="#overview" data-tab-link="overview" class="nav-link hover:text-accent">Overview</a>
-      <a href="#experience" data-tab-link="experience" class="nav-link hover:text-accent">Experience</a>
-      <a href="#work" data-tab-link="work" class="nav-link hover:text-accent">Work &amp; Writing</a>
-      <a href="#credentials" data-tab-link="credentials" class="nav-link hover:text-accent">Credentials</a>
-      <a href="#recommendations" data-tab-link="recommendations" class="nav-link hover:text-accent">Recommendations</a>
+      <a href="#impact" class="nav-link hover:text-accent">Impact</a>
+      <a href="#about" class="nav-link hover:text-accent">About</a>
+      <a href="#work" class="nav-link hover:text-accent">Experience</a>
+      <a href="#samples" class="nav-link hover:text-accent">Work Samples</a>
+      <a href="#articles" class="nav-link hover:text-accent">Articles</a>
+      <a href="#certificates" class="nav-link hover:text-accent">Certificates</a>
+      <a href="#recognition" class="nav-link hover:text-accent">Recognition</a>
+      <a href="#timeline" class="nav-link hover:text-accent">Career</a>
+      <a href="#testimonials" class="nav-link hover:text-accent">Recommendations</a>
       <a href="#book" class="whitespace-nowrap px-4 py-2 rounded-full border border-navy text-navy hover:bg-navy hover:text-white transition">Book Time</a>
       <a href="{{ profile.linkedin }}" target="_blank" rel="noopener"
          class="px-4 py-2 rounded-full bg-navy text-white hover:bg-navy-2 transition">LinkedIn</a>
     </div>
+    <!-- Mobile-only nav toggle -- lg:hidden guarantees this never shows on
+         desktop, regardless of JS state, so the existing lg:flex nav above
+         is completely unaffected. -->
     <button type="button" id="mobileNavToggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobileNavPanel"
             class="lg:hidden flex flex-col justify-center items-center gap-[5px] w-9 h-9 -mr-1">
       <span id="mnBar1" class="block w-6 h-[2px] bg-navy transition-transform duration-200"></span>
@@ -395,11 +362,15 @@
   </div>
   <div id="mobileNavPanel" class="lg:hidden hidden border-t border-gray-200 bg-white px-6 py-4">
     <div class="flex flex-col gap-1 text-sm font-medium text-slate2">
-      <a href="#overview" data-tab-link="overview" class="nav-link-mobile py-2 hover:text-accent">Overview</a>
-      <a href="#experience" data-tab-link="experience" class="nav-link-mobile py-2 hover:text-accent">Experience</a>
-      <a href="#work" data-tab-link="work" class="nav-link-mobile py-2 hover:text-accent">Work &amp; Writing</a>
-      <a href="#credentials" data-tab-link="credentials" class="nav-link-mobile py-2 hover:text-accent">Credentials</a>
-      <a href="#recommendations" data-tab-link="recommendations" class="nav-link-mobile py-2 hover:text-accent">Recommendations</a>
+      <a href="#impact" class="nav-link-mobile py-2 hover:text-accent">Impact</a>
+      <a href="#about" class="nav-link-mobile py-2 hover:text-accent">About</a>
+      <a href="#work" class="nav-link-mobile py-2 hover:text-accent">Experience</a>
+      <a href="#samples" class="nav-link-mobile py-2 hover:text-accent">Work Samples</a>
+      <a href="#articles" class="nav-link-mobile py-2 hover:text-accent">Articles</a>
+      <a href="#certificates" class="nav-link-mobile py-2 hover:text-accent">Certificates</a>
+      <a href="#recognition" class="nav-link-mobile py-2 hover:text-accent">Recognition</a>
+      <a href="#timeline" class="nav-link-mobile py-2 hover:text-accent">Career</a>
+      <a href="#testimonials" class="nav-link-mobile py-2 hover:text-accent">Recommendations</a>
       <a href="#book" class="nav-link-mobile py-2 hover:text-accent">Book Time</a>
       <a href="{{ profile.linkedin }}" target="_blank" rel="noopener"
          class="mt-2 px-4 py-2.5 rounded-full bg-navy text-white text-center hover:bg-navy-2 transition">LinkedIn</a>
@@ -407,422 +378,298 @@
   </div>
 </nav>
 
-<!-- PROFILE (Concept A: LinkedIn-style profile card + tabs) -->
-<main id="top" class="bg-[#F3F4F6]">
-  <div class="max-w-4xl mx-auto px-3 sm:px-6 pt-4 sm:pt-6 pb-16">
-
-    <!-- ===== Main column ===== -->
-    <div class="min-w-0">
-
-      <!-- Profile card -->
-      <div class="bg-white border border-gray-200 rounded-t-2xl overflow-hidden">
-        <!-- Banner: Data -> Model -> Insight -> Strategy -> Product -> AI -->
-        <div class="relative h-32 sm:h-44 bg-navy overflow-hidden">
-          <img src="/static/banner.jpg" alt="From data to models, insight, strategy, product and AI" class="absolute inset-0 w-full h-full object-cover object-center">
-        </div>
-        <div class="px-5 sm:px-8">
-          <img src="/static/headshot.jpg" alt="Victor Chowdhury" width="144" height="144" class="-mt-14 sm:-mt-[72px] w-28 h-28 sm:w-36 sm:h-36 rounded-full border-[5px] border-white bg-white object-cover relative shadow-sm">
-          <div class="flex flex-wrap justify-between gap-6 mt-3">
-            <div class="min-w-0" style="flex: 1 1 380px;">
-              <h1 class="serif font-bold text-2xl sm:text-[32px] leading-tight text-navy">{{ profile.name }}</h1>
-              <div class="text-[17px] text-ink mt-1">{{ profile.tagline }}, turning enterprise data into decisions.</div>
-              <p class="text-[15px] text-slate2 leading-relaxed mt-2 max-w-2xl">{{ profile.subhead }}</p>
-              <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate2 mt-3">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z"></path><circle cx="12" cy="9" r="2.5"></circle></svg>
-                <span>{{ profile.location }} &middot; open to relocating</span>
-                <span class="opacity-40">&middot;</span>
-                <span>{{ profile.years_industry }} years in industry &middot; {{ profile.years_walmart }} at Walmart</span>
-              </div>
-            </div>
-            <!-- Worked with: credibility at a glance -->
-            <div style="flex: 0 1 320px;">
-              <div class="flex gap-5">
-              <div>
-              <div class="text-[11px] tracking-[0.14em] uppercase text-slate2 font-bold mb-2.5">Worked with</div>
-              <ul class="flex gap-2.5" aria-label="Organizations Victor has worked with">
-                {% for org, domain in [('Walmart','walmart.com'), ("Sam's Club",'samsclub.com'), ('Nike','nike.com'), ('Wipro','wipro.com')] %}
-                <li class="flex flex-col items-center gap-1.5" title="{{ org }}">
-                  {{ logo(domain, 'w-11 h-11', 'p-1.5') }}
-                  <span class="text-[11px] font-semibold text-slate2 leading-none whitespace-nowrap">{{ org }}</span>
-                </li>
-                {% endfor %}
-              </ul>
-              </div>
-              <div class="pl-5 border-l border-gray-200">
-                <div class="text-[11px] tracking-[0.14em] uppercase text-slate2 font-bold mb-2.5 whitespace-nowrap">Studied at</div>
-                <div class="flex flex-col items-center gap-1.5 w-fit" title="Cornell University">
-                  {{ logo('cornell.edu', 'w-11 h-11', 'p-1.5') }}
-                  <span class="text-[11px] font-semibold text-slate2 leading-none whitespace-nowrap">Cornell</span>
-                </div>
-              </div>
-              </div>
-            </div>
-          </div>
-          <div class="flex flex-wrap items-start gap-2.5 mt-5 mb-6">
-            <a href="#book" class="tt px-5 py-2.5 rounded-full bg-accent hover:bg-[#0c665a] text-white font-bold text-sm transition"
-               data-tip="Pick a time on Victor's live calendar">Book time with me</a>
-            <a href="/static/Victor_Chowdhury_CV_Data_AI.pdf" download="Victor Chowdhury Resume.pdf"
-               class="tt px-5 py-2.5 rounded-full border border-accent text-accent hover:bg-accent-soft font-bold text-sm transition"
-               data-tip="Downloads the resume">Download r&eacute;sum&eacute;</a>
-            <div class="flex flex-col items-center">
-              <button type="button" id="jobFitLauncher"
-                      class="tt px-5 py-2.5 rounded-full border border-navy text-navy hover:bg-navy hover:text-white font-bold text-sm transition"
-                      data-tip="Paste a job link or description and get an instant AI-scored fit percentage against Victor's profile">Check my fit &rarr;</button>
-              <span class="ai-badge">&#10024; Powered by AI</span>
-            </div>
-            <a href="/static/Victor-Chowdhury.vcf" download
-               class="tt px-5 py-2.5 rounded-full border border-gray-300 text-ink hover:bg-gray-50 font-semibold text-sm transition"
-               data-tip="Downloads a contact card (.vcf) you can save straight into your phone or email contacts">Save contact</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Sticky tab bar -->
-      <div class="sticky top-[57px] z-30 bg-white border border-t-0 border-gray-200 rounded-b-2xl mb-4 shadow-[0_6px_12px_-10px_rgba(22,35,63,0.35)]">
-        <div class="flex overflow-x-auto px-2 sm:px-4" role="tablist" aria-label="Profile sections" style="scrollbar-width:none;">
-          <button type="button" role="tab" class="profile-tab" data-tab="overview" aria-controls="overview">Overview</button>
-          <button type="button" role="tab" class="profile-tab" data-tab="experience" aria-controls="experience">Experience</button>
-          <button type="button" role="tab" class="profile-tab" data-tab="work" aria-controls="work">Work &amp; writing</button>
-          <button type="button" role="tab" class="profile-tab" data-tab="credentials" aria-controls="credentials">Credentials</button>
-          <button type="button" role="tab" class="profile-tab" data-tab="recommendations" aria-controls="recommendations">Recommendations</button>
-        </div>
-      </div>
-
-      <!-- ================= OVERVIEW ================= -->
-      <section id="overview" role="tabpanel" class="tab-panel space-y-4">
-        <div class="pcard">
-          <h2 class="pcard-title">About</h2>
-          <div class="text-[15px] leading-relaxed text-[#2C3548] space-y-4">
-            {% for para in about %}
-            <p{% if not loop.first %} class="about-more hidden"{% endif %}>{{ para }}</p>
-            {% endfor %}
-          </div>
-          {% if about|length > 1 %}<button type="button" class="see-more mt-2" data-more=".about-more" data-less-label="Show less">See more</button>{% endif %}
-          <div class="text-[11px] tracking-[0.14em] uppercase text-slate2 font-bold mt-6 mb-2">What I bring</div>
-          <div class="flex flex-wrap gap-2">
-            {% for c in capabilities %}
-            <span class="px-3 py-1.5 rounded-full bg-[#EEF1F5] text-[13px] font-semibold text-[#2C3548]{% if loop.index > 10 %} skill-more hidden{% endif %}">{{ c }}</span>
-            {% endfor %}
-            {% if capabilities|length > 10 %}<button type="button" class="see-more px-3 py-1.5 rounded-full border border-dashed border-[#9AA5B5] !text-[13px]" data-more=".skill-more" data-less-label="Show fewer">+{{ capabilities|length - 10 }} more</button>{% endif %}
-          </div>
-        </div>
-
-        <div class="pcard">
-          <h2 class="pcard-title">Impact, by the numbers</h2>
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            {% for item in impact %}
-            <div class="accent-top bg-white border border-gray-200 rounded-xl p-4 pt-5 hover:border-accent hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-              <div class="impact-metric serif font-black text-[22px] sm:text-[26px] text-accent leading-none mb-2">{{ item.metric }}</div>
-              <div class="font-bold text-sm text-ink leading-snug">{{ item.label }}</div>
-              <div class="text-[10px] tracking-[0.1em] uppercase text-slate2 font-bold mt-1 mb-2">{{ item.tag }}</div>
-              <div class="hidden sm:block text-xs text-slate2 leading-relaxed">{{ item.detail }}</div>
-            </div>
-            {% endfor %}
-          </div>
-        </div>
-
-        <div class="pcard">
-          <div class="flex items-baseline justify-between gap-3 mb-4">
-            <h2 class="pcard-title !mb-0">Featured</h2>
-            <a href="#work" data-tab-link="work" class="text-sm font-semibold text-accent hover:underline whitespace-nowrap">All {{ work_samples|length + articles|length }} samples &amp; articles &rarr;</a>
-          </div>
-          <div class="grid sm:grid-cols-3 gap-3">
-            {% for s in work_samples if ('AISLE1:' in s.title) or ('Smart Woffie' in s.title) or ('Agent Performance' in s.title) %}
-            {% if s.premium %}
-            <button type="button" data-premium="{{ s.premium }}" data-premium-title="{{ s.title }}" aria-label="Premium: {{ s.title }} - unlock to view"
-                    class="premium-card group block text-left bg-white border border-[#E8B923] rounded-xl overflow-hidden hover:border-accent transition">
-            {% else %}
-            <a href="{{ s.url }}" target="_blank" rel="noopener" class="group block bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-accent transition">
-            {% endif %}
-              <div class="aspect-[16/10] overflow-hidden bg-gray-100 border-b border-gray-200 relative">
-                {% if s.premium %}<span class="premium-badge">&#9733; Premium</span>{% endif %}
-                <img src="{{ s.thumbnail }}" alt="{{ s.title }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300">
-              </div>
-              <div class="p-3.5">
-                <div class="text-[10px] tracking-[0.12em] uppercase text-accent font-bold mb-1">{{ s.tag }}</div>
-                <div class="font-bold text-sm text-navy leading-snug group-hover:text-accent transition">{{ s.title }}</div>
-              </div>
-            {% if s.premium %}</button>{% else %}</a>{% endif %}
-            {% endfor %}
-          </div>
-        </div>
-      </section>
-
-      <!-- ================= EXPERIENCE ================= -->
-      <section id="experience" role="tabpanel" class="tab-panel space-y-4" hidden>
-        <div class="pcard">
-          <h2 class="pcard-title">Experience</h2>
-
-          <!-- Walmart: grouped roles, LinkedIn style -->
-          <div class="flex gap-4">
-            {{ logo('walmart.com') }}
-            <div class="min-w-0 flex-1">
-              <div class="font-bold text-[16px] text-ink">Walmart</div>
-              <div class="text-[13px] text-slate2">6 roles &middot; Jan 2017 to present &middot; Bentonville, Arkansas</div>
-              <ol class="mt-4 border-l-2 border-[#D5DBE3] pl-5 space-y-5">
-                {% for job in timeline if 'Wipro' not in job.org %}
-                <li class="relative{% if loop.index > 3 %} role-more hidden{% endif %}">
-                  <span class="absolute -left-[27px] top-1.5 w-3 h-3 rounded-full {{ 'bg-accent' if loop.first else 'bg-[#C3CAD5]' }} border-2 border-white"></span>
-                  <div class="font-bold text-[15px] text-ink leading-snug">{{ job.title }}</div>
-                  <div class="text-[13px] text-slate2">{% if job.org != 'Walmart' %}{% if "Sam's Club" in job.org %}{{ mini_logo('samsclub.com') }}{% endif %}{{ job.org }} &middot; {% endif %}{{ job.dates }}</div>
-                  <p class="text-sm text-[#2C3548] leading-relaxed mt-1.5">{{ job.blurb }}</p>
-                </li>
-                {% endfor %}
-              </ol>
-              <button type="button" class="see-more mt-3" data-more=".role-more" data-less-label="Show fewer roles">Show 3 earlier Walmart roles</button>
-            </div>
-          </div>
-
-          <div class="h-px bg-gray-200 my-6"></div>
-
-          <!-- Wipro -->
-          <div class="flex gap-4">
-            {{ logo('wipro.com') }}
-            <div class="min-w-0 flex-1">
-              <div class="font-bold text-[16px] text-ink">Wipro <span class="font-semibold text-slate2 text-[14px]">&middot; client: {{ mini_logo('nike.com') }}Nike</span></div>
-              <div class="text-[13px] text-slate2">2 roles &middot; Sep 2010 to Jan 2017 &middot; India and Portland, Oregon</div>
-              <ol class="mt-4 border-l-2 border-[#D5DBE3] pl-5 space-y-5">
-                {% for job in timeline if 'Wipro' in job.org %}
-                <li class="relative">
-                  <span class="absolute -left-[27px] top-1.5 w-3 h-3 rounded-full bg-[#C3CAD5] border-2 border-white"></span>
-                  <div class="font-bold text-[15px] text-ink leading-snug">{{ job.title }}</div>
-                  <div class="text-[13px] text-slate2">{% if 'Nike' in job.org %}{{ mini_logo('nike.com') }}{% endif %}{{ job.org|replace('Wipro · ', '') }} &middot; {{ job.dates }}</div>
-                  <p class="text-sm text-[#2C3548] leading-relaxed mt-1.5">{{ job.blurb }}</p>
-                </li>
-                {% endfor %}
-              </ol>
-            </div>
-          </div>
-        </div>
-
-        <!-- The four lenses, as stacked LinkedIn-style entries -->
-        <div class="pcard">
-          <h2 class="pcard-title !mb-1">Highlights by area</h2>
-          <p class="text-sm text-slate2 mb-4">The same career through the four lenses people usually ask about.</p>
-          <div class="flex flex-wrap gap-2 mb-5" role="tablist">
-            {% for b in buckets %}
-            <button class="bucket-btn px-4 py-2 rounded-full border border-gray-300 text-sm font-semibold text-navy hover:border-navy transition {{ 'active' if loop.first else '' }}"
-                    data-target="bucket-{{ b.id }}" onclick="showBucket('{{ b.id }}')">
-              {{ b.label }} <span class="bucket-count text-xs text-slate2">&middot; {{ b.anecdotes|length }}</span>
-            </button>
-            {% endfor %}
-          </div>
-          {% for b in buckets %}
-          <div id="bucket-{{ b.id }}" class="bucket-panel {{ 'active' if loop.first else '' }}">
-            <p class="text-[15px] text-slate2 leading-relaxed mb-4">{{ b.intro }}</p>
-            <div class="space-y-3">
-              {% for a in b.anecdotes %}
-              <div class="accent-top bg-white border border-gray-200 rounded-xl p-4 pt-5 sm:p-5 sm:pt-6 hover:border-accent hover:shadow-lg transition-all duration-300">
-                <div class="text-[10px] tracking-[0.12em] uppercase text-accent font-bold mb-1">{{ a.tag }}</div>
-                <h3 class="serif font-bold text-[17px] text-navy leading-snug mb-1.5">{{ a.title }}</h3>
-                <p class="text-sm text-[#3A4459] leading-relaxed">{{ a.body }}</p>
-              </div>
-              {% endfor %}
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-      </section>
-
-      <!-- ================= WORK & WRITING ================= -->
-      <section id="work" role="tabpanel" class="tab-panel" hidden>
-        <div class="pcard">
-          <h2 class="pcard-title !mb-3">Work &amp; writing</h2>
-          <div class="flex gap-2 overflow-x-auto sm:flex-wrap pb-1 mb-3 -mx-1 px-1" role="group" aria-label="Filter work" style="scrollbar-width:none;">
-            <button type="button" class="work-filter on" data-filter="all">All</button>
-            <button type="button" class="work-filter" data-filter="ai">AI &amp; agents</button>
-            <button type="button" class="work-filter" data-filter="dashboards">Dashboards</button>
-            <button type="button" class="work-filter" data-filter="care">Customer care</button>
-            <button type="button" class="work-filter" data-filter="retail">Retail &amp; operations</button>
-            <button type="button" class="work-filter" data-filter="exec">Executive storytelling</button>
-            <button type="button" class="work-filter" data-filter="sample">Work samples</button>
-            <button type="button" class="work-filter" data-filter="article">Articles</button>
-            <button type="button" class="work-filter" data-filter="personal">Personal projects</button>
-          </div>
-          <p class="text-sm text-slate2 mb-4">Live, interactive artifacts and write-ups. Demos use illustrative data to protect Walmart's.</p>
-          <div class="space-y-3">
-            {% for s in work_samples %}
-            {% if s.premium %}
-            <button type="button" data-kind="sample" data-tags="{{ work_tags(s.title) }}" data-premium="{{ s.premium }}" data-premium-title="{{ s.title }}" aria-label="Premium: {{ s.title }} - unlock to view"
-                    class="work-item premium-card accent-top accent-gold group w-full text-left flex flex-row gap-3 sm:gap-4 bg-white border border-[#E8B923] rounded-xl !p-3 !pt-4 sm:!p-4 sm:!pt-5 hover:shadow-lg hover:border-accent transition">
-            {% else %}
-            <a href="{{ s.url }}" target="_blank" rel="noopener" data-kind="sample" data-tags="{{ work_tags(s.title) }}"
-               class="work-item accent-top group flex flex-row gap-3 sm:gap-4 bg-white border border-gray-200 rounded-xl p-3 pt-4 sm:p-4 sm:pt-5 hover:border-accent hover:shadow-lg transition-all duration-300">
-            {% endif %}
-              <div class="relative w-28 sm:w-56 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
-                {% if s.premium %}<span class="premium-badge">&#9733; Premium</span>{% elif s.badge %}<span class="sample-badge">&#10024; {{ s.badge }}</span>{% endif %}
-                <img src="{{ s.thumbnail }}" alt="{{ s.title }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300">
-              </div>
-              <div class="min-w-0 flex-1">
-                <div class="text-[10px] tracking-[0.12em] uppercase text-accent font-bold mb-1">{{ s.tag }}</div>
-                <h3 class="serif font-bold text-[17px] text-navy leading-snug group-hover:text-accent transition">{{ s.title }}</h3>
-                <p class="text-sm text-[#3A4459] leading-relaxed mt-1.5 line-clamp-3">{{ s.description }}</p>
-                {% if s.premium %}<div class="text-xs font-bold text-[#B7791F] mt-2">&#128274; Unlock to view &rarr;</div>{% else %}<div class="text-xs font-bold text-accent mt-2">{{ s.cta or "View live" }} &rarr;</div>{% endif %}
-              </div>
-            {% if s.premium %}</button>{% else %}</a>{% endif %}
-            {% endfor %}
-            {% for a in articles %}
-            <a href="{{ a.url }}" target="_blank" rel="noopener" data-kind="article" data-tags="{{ work_tags(a.title) }}"
-               class="work-item accent-top group flex flex-row gap-3 sm:gap-4 bg-white border border-gray-200 rounded-xl p-3 pt-4 sm:p-4 sm:pt-5 hover:border-accent hover:shadow-lg transition-all duration-300">
-              <div class="relative w-28 sm:w-56 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
-                <span class="absolute top-2 left-2 z-[2] bg-navy text-[#FFC220] text-[10px] font-black tracking-[0.12em] uppercase px-2 py-1 rounded">Article</span>
-                <img src="{{ a.thumbnail }}" alt="{{ a.title }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300">
-              </div>
-              <div class="min-w-0 flex-1">
-                <div class="text-[10px] tracking-[0.12em] uppercase text-accent font-bold mb-1">{{ a.tag }}</div>
-                <h3 class="serif font-bold text-[17px] text-navy leading-snug group-hover:text-accent transition">{{ a.title }}</h3>
-                <p class="text-sm text-[#3A4459] leading-relaxed mt-1.5 line-clamp-3">{{ a.description }}</p>
-                <div class="text-xs font-bold text-accent mt-2">Read article &rarr;</div>
-              </div>
-            </a>
-            {% endfor %}
-          </div>
-        </div>
-      </section>
-
-      <!-- ================= CREDENTIALS ================= -->
-      <section id="credentials" role="tabpanel" class="tab-panel space-y-4" hidden>
-        <div class="pcard">
-          <h2 class="pcard-title">Education</h2>
-          <div class="space-y-4">
-            {% for e in education %}
-            <div class="flex gap-4">
-              {% set edu_domain = 'cornell.edu' if 'Cornell' in e.org else ('symbiosis.ac.in' if 'Symbiosis' in e.org else 'wbut.ac.in') %}
-              {{ logo(edu_domain) }}
-              <div class="min-w-0">
-                <div class="font-bold text-[15px] text-ink">{{ e.org.split(' · ')[0] }}</div>
-                <div class="text-sm text-[#2C3548]">{{ e.title }}</div>
-                <div class="text-[13px] text-slate2">{{ e.org.split(' · ')[1] if ' · ' in e.org else '' }}</div>
-              </div>
-            </div>
-            {% endfor %}
-          </div>
-        </div>
-
-        <div class="pcard !px-0 overflow-hidden">
-          <div class="px-5 sm:px-7 flex items-baseline justify-between gap-3">
-            <h2 class="pcard-title !mb-1">Licenses &amp; certifications</h2>
-            <span class="text-[13px] text-slate2 whitespace-nowrap">{{ certificates|length }} credentials</span>
-          </div>
-          <p class="px-5 sm:px-7 text-sm text-slate2 mb-2">Click any card to verify with the issuer. Hover to pause.</p>
-          <div class="carousel-wrap">
-            <button type="button" class="carousel-nav prev" id="certsPrev" aria-label="Scroll certificates left">&larr;</button>
-            <button type="button" class="carousel-nav next" id="certsNext" aria-label="Scroll certificates right">&rarr;</button>
-            <div class="carousel-viewport" id="certsViewport">
-              <div class="carousel-track" id="certsTrack">
-              {% for c in certificates %}
-              {% set issuer = {'cornell':'cornell.edu','mitx':'edx.org','tableau':'tableau.com','alteryx':'alteryx.com','dataiku':'dataiku.com','google':'analytics.google.com','microsoft':'microsoft.com'}[c.brand] if c.brand in ['cornell','mitx','tableau','alteryx','dataiku','google','microsoft'] else '' %}
-              <a href="{{ c.url }}" target="_blank" rel="noopener"
-                 class="carousel-card cred-card group block bg-white border rounded-xl overflow-hidden {{ 'border-[#B31B1B]/30 hover:border-[#B31B1B]' if c.brand == 'cornell' else 'border-gray-200 hover:border-accent' }}">
-                <div class="relative aspect-[16/10] overflow-hidden bg-gray-100 border-b border-gray-200">
-                  <img src="{{ c.thumbnail }}" alt="{{ c.title }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300">
-                  {% if c.brand == 'cornell' %}<div class="absolute top-0 inset-x-0 bg-[#B31B1B] text-white text-[10px] font-bold tracking-[0.2em] uppercase text-center py-1.5 shadow-sm">Cornell University</div>{% endif %}
-                </div>
-                <div class="p-4">
-                  <div class="flex items-center gap-2.5 mb-2">
-                    {% if issuer %}{{ logo(issuer, 'w-8 h-8', 'p-1') }}{% endif %}
-                    <div class="text-[10px] tracking-[0.12em] uppercase font-bold leading-tight {{ 'text-[#B31B1B]' if c.brand == 'cornell' else 'text-accent' }}">{{ c.tag }}</div>
-                  </div>
-                  <h3 class="serif font-bold text-[16px] text-navy mb-1.5 leading-snug group-hover:text-accent transition">{{ c.title }}</h3>
-                  <p class="text-[13px] text-[#3A4459] leading-relaxed mb-2 line-clamp-3">{{ c.description }}</p>
-                  <div class="text-xs font-bold {{ 'text-[#B31B1B]' if c.brand == 'cornell' else 'text-accent' }}">Show credential &#8599;</div>
-                </div>
-              </a>
-              {% endfor %}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="pcard !px-0 overflow-hidden">
-          <div class="px-5 sm:px-7 flex items-baseline justify-between gap-3">
-            <h2 class="pcard-title !mb-1">Honors &amp; awards</h2>
-            <span class="text-[13px] text-slate2 whitespace-nowrap">{{ awards|length + 1 }} honors</span>
-          </div>
-          <p class="px-5 sm:px-7 text-sm text-slate2 mb-2">From Walmart, Sam's Club, Nike and Wipro. Tap a photo to see it full size.</p>
-          <div class="carousel-wrap">
-            <button type="button" class="carousel-nav prev" id="awardsPrev" aria-label="Scroll awards left">&larr;</button>
-            <button type="button" class="carousel-nav next" id="awardsNext" aria-label="Scroll awards right">&rarr;</button>
-            <div class="carousel-viewport" id="awardsViewport">
-              <div class="carousel-track" id="awardsTrack">
-              {% for a in awards %}
-              {% set org_domain = 'samsclub.com' if "Sam's Club" in a.org else ('nike.com' if 'Nike' in a.org else ('wipro.com' if 'Wipro' in a.org else 'walmart.com')) %}
-              <figure class="carousel-card cred-card group bg-white border border-gray-200 hover:border-accent rounded-xl overflow-hidden flex flex-col m-0">
-                <button type="button" class="award-photo block w-full bg-[#F4F6FA] cursor-zoom-in border-b border-gray-200" data-caption="{{ a.title }} · {{ a.org }}{% if a.year %} · {{ a.year }}{% endif %}" aria-label="View larger: {{ a.title }}">
-                  <img src="{{ a.image }}" alt="{{ a.alt }}" loading="lazy" class="w-full aspect-[16/10] object-contain p-3 transition duration-300 group-hover:scale-105">
-                </button>
-                <figcaption class="p-4 flex flex-col flex-1">
-                  <div class="flex items-center gap-2.5 mb-2">
-                    {{ logo(org_domain, 'w-8 h-8', 'p-1') }}
-                    <div class="min-w-0">
-                      <div class="text-[10px] tracking-[0.12em] uppercase font-bold text-accent leading-tight">{{ a.org }}</div>
-                      {% if a.year %}<div class="text-[11px] font-semibold text-slate2">{{ a.year }}</div>{% endif %}
-                    </div>
-                  </div>
-                  <h3 class="serif font-bold text-[16px] text-navy mb-1.5 leading-snug">{{ a.title }}</h3>
-                  <p class="text-[13px] text-[#3A4459] leading-relaxed line-clamp-3">{{ a.description }}</p>
-                </figcaption>
-              </figure>
-              {% endfor %}
-              <figure class="carousel-card cred-card bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col m-0">
-                <div class="w-full aspect-[16/10] bg-navy text-[#FFC220] flex items-center justify-center serif font-bold text-2xl border-b border-gray-200">Patent filed</div>
-                <figcaption class="p-4 flex flex-col flex-1">
-                  <div class="flex items-center gap-2.5 mb-2">
-                    {{ logo('walmart.com', 'w-8 h-8', 'p-1') }}
-                    <div class="text-[10px] tracking-[0.12em] uppercase font-bold text-accent leading-tight">Walmart &middot; 2019</div>
-                  </div>
-                  <h3 class="serif font-bold text-[16px] text-navy mb-1.5 leading-snug">{{ recognition.patent }}</h3>
-                  <p class="text-[13px] text-[#3A4459] leading-relaxed line-clamp-3">Other honors: {{ recognition.honors }}</p>
-                </figcaption>
-              </figure>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="pcard">
-          <h2 class="pcard-title">Languages</h2>
-          <p class="text-sm text-[#2C3548]">{{ recognition.languages }}</p>
-        </div>
-      </section>
-
-      <!-- ================= RECOMMENDATIONS ================= -->
-      <section id="recommendations" role="tabpanel" class="tab-panel" hidden>
-        <div class="pcard">
-          <div class="flex items-baseline justify-between gap-3 mb-1">
-            <h2 class="pcard-title !mb-0">Recommendations</h2>
-            <span class="text-[13px] text-slate2">Received &middot; {{ testimonials|length }}</span>
-          </div>
-          <p class="text-sm text-slate2 mb-4">{{ mini_logo('linkedin.com') }}From LinkedIn, shown as received.</p>
-          <div class="space-y-3">
-            {% for t in testimonials %}
-            <div class="bg-white border border-[#CFE0F5] hover:border-[#0A66C2] hover:shadow-lg rounded-xl overflow-hidden transition-all duration-300">
-              <div class="bg-gradient-to-r from-[#0A66C2] to-[#0E76D0] px-4 py-2 flex items-center gap-2">
-                {{ logo('linkedin.com', 'w-5 h-5', 'p-0.5') }}
-                <span class="text-white text-[10px] tracking-[0.15em] uppercase font-bold">LinkedIn Recommendation</span>
-              </div>
-              <div class="p-4 sm:p-5">
-              <div class="flex items-start gap-3">
-                <div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0" style="background:#0A66C2">{{ t.name[0] }}</div>
-                <div class="min-w-0">
-                  <div class="font-bold text-[15px] text-ink leading-tight">{{ t.name }}</div>
-                  <div class="text-[13px] text-slate2 leading-snug">{{ t.title }}</div>
-                  <div class="text-xs text-[#0A66C2] font-semibold mt-0.5">{{ t.relationship }} &middot; {{ t.date }}</div>
-                </div>
-              </div>
-              <p class="rec-quote text-[15px] text-[#2C3548] leading-relaxed mt-3">{{ t.quote }}</p>
-              <button type="button" class="rec-toggle see-more mt-1 hidden">See more</button>
-              </div>
-            </div>
-            {% endfor %}
-          </div>
-        </div>
-      </section>
+<!-- HERO -->
+<header id="top" class="relative bg-navy text-white overflow-hidden">
+  <div class="absolute inset-0 opacity-[0.06]"
+       style="background-image:radial-gradient(circle at 25px 25px, white 2px, transparent 0);background-size:50px 50px;"></div>
+  <div class="hero-grain"></div>
+  <div class="hero-spotlight" id="heroSpotlight"></div>
+  <div class="max-w-6xl mx-auto px-6 pt-20 pb-24 relative">
+    <div class="inline-block text-[11px] tracking-[0.2em] uppercase text-accent-soft font-semibold bg-white/10 px-3 py-1 rounded-full mb-6">
+      {{ profile.current_role }}
     </div>
-
+    <h1 class="serif font-bold text-4xl md:text-6xl leading-[1.08] mb-6 max-w-3xl">
+      <span class="gradient-text">{{ profile.tagline }}</span>, turning enterprise data into decisions.
+    </h1>
+    <p class="text-lg md:text-xl text-gray-300 max-w-2xl leading-relaxed mb-8">{{ profile.subhead }}</p>
+    <div class="flex flex-wrap items-center gap-4 text-sm text-gray-300 mb-9">
+      <span>{{ profile.location }}</span>
+      <span class="opacity-40">&middot;</span>
+      <span>{{ profile.years_industry }} years in industry &middot; {{ profile.years_walmart }} at Walmart</span>
+    </div>
+    <div class="flex flex-wrap items-start gap-3">
+      <a href="https://outlook.office.com/mail/deeplink/compose?to={{ profile.email }}&subject=Let%27s%20Connect" target="_blank" rel="noopener"
+         class="tt px-5 py-3 rounded-lg bg-accent hover:bg-[#0c665a] transition font-semibold text-sm"
+         data-tip="Opens a new email to Victor, ready to send">Get in touch</a>
+      <a href="{{ profile.linkedin }}" target="_blank" rel="noopener"
+         class="tt px-5 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm"
+         data-tip="Opens Victor's LinkedIn profile in a new tab">View LinkedIn</a>
+      <a href="/static/Victor_Chowdhury_CV_Data_AI.pdf" download="Victor Chowdhury Resume.pdf"
+         class="tt px-5 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm"
+         data-tip="Downloads the resume">Download R&eacute;sum&eacute;</a>
+      <a href="/static/Victor-Chowdhury.vcf" download
+         class="tt px-5 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm"
+         data-tip="Downloads a contact card (.vcf) you can save straight into your phone or email contacts">Save My Contact</a>
+      <div class="flex flex-col items-center">
+        <button type="button" id="jobFitLauncher"
+                class="tt px-5 py-3 rounded-lg bg-accent hover:bg-[#0c665a] transition font-semibold text-sm"
+                data-tip="Paste a job link or description and get an instant AI-scored fit percentage against Victor's profile">Check My Fit &rarr;</button>
+        <span class="ai-badge">&#10024; Powered by AI</span>
+      </div>
+    </div>
   </div>
-</main>
+</header>
 
+<!-- IMPACT -->
+<section id="impact" class="max-w-6xl mx-auto px-6 py-20">
+  <div class="mb-10">
+    <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">Signature Work</div>
+    <h2 class="serif font-bold text-3xl text-navy">Impact, by the numbers</h2>
+  </div>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    {% for item in impact %}
+    <div class="group bg-white border border-gray-200 hover:border-accent rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+      <div class="h-1.5 bg-gradient-to-r from-accent to-[#0c665a]"></div>
+      <div class="p-5">
+        <div class="impact-metric serif font-black text-2xl md:text-3xl text-navy leading-none mb-2">{{ item.metric }}</div>
+        <div class="font-semibold text-sm text-ink mb-1">{{ item.label }}</div>
+        <div class="text-[10px] tracking-[0.1em] uppercase text-accent font-bold mb-3">{{ item.tag }}</div>
+        <div class="text-xs text-slate2 leading-relaxed">{{ item.detail }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="bg-[#F7F8FA] border-y border-gray-200">
+  <div class="max-w-6xl mx-auto px-6 py-20">
+    <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">About</div>
+    <h2 class="serif font-bold text-3xl text-navy mb-8">The pattern behind the roles</h2>
+    <div class="max-w-3xl space-y-5 text-[17px] leading-relaxed text-[#2C3548]">
+      {% for para in about %}
+      <p>{{ para }}</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE BUCKETS -->
+<section id="work" class="max-w-6xl mx-auto px-6 py-20">
+  <div class="mb-10">
+    <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">Experience, by Lens</div>
+    <h2 class="serif font-bold text-3xl text-navy mb-3">Four ways to look at the same career</h2>
+    <p class="text-slate2 max-w-2xl">The work overlaps constantly. An AI launch is also a product bet, a data platform is also a business-strategy call. These buckets are just the four lenses people usually ask about.</p>
+  </div>
+
+  <div class="flex flex-wrap gap-2 mb-8" role="tablist">
+    {% for b in buckets %}
+    <button class="bucket-btn px-5 py-2.5 rounded-full border border-gray-300 text-sm font-semibold text-navy hover:border-navy transition {{ 'active' if loop.first else '' }}"
+            data-target="bucket-{{ b.id }}" onclick="showBucket('{{ b.id }}')">
+      {{ b.label }} <span class="bucket-count text-xs text-slate2">&middot; {{ b.anecdotes|length }}</span>
+    </button>
+    {% endfor %}
+  </div>
+
+  {% for b in buckets %}
+  <div id="bucket-{{ b.id }}" class="bucket-panel {{ 'active' if loop.first else '' }}">
+    <p class="text-[15px] text-slate2 leading-relaxed mb-8 max-w-3xl border-l-2 border-accent pl-4">{{ b.intro }}</p>
+    <div class="grid md:grid-cols-2 gap-5">
+      {% for a in b.anecdotes %}
+      <div class="group bg-white border border-gray-200 hover:border-accent rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full flex flex-col">
+        <div class="h-1.5 bg-gradient-to-r from-accent to-[#0c665a]"></div>
+        <div class="p-6 flex flex-col flex-1">
+          <div class="text-[10px] tracking-[0.12em] uppercase text-accent font-bold mb-2">{{ a.tag }}</div>
+          <h3 class="serif font-bold text-lg text-navy mb-2 leading-snug">{{ a.title }}</h3>
+          <p class="text-sm text-[#3A4459] leading-relaxed">{{ a.body }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</section>
+
+<!-- WORK SAMPLES -->
+{% macro sample_card(s, duplicate=False) %}
+{% if s.premium %}
+<button type="button" data-premium="{{ s.premium }}" data-premium-title="{{ s.title }}"
+   class="premium-card carousel-card group block text-left bg-white border border-[#E8B923] rounded-xl overflow-hidden hover:border-accent"
+   {% if duplicate %}aria-hidden="true" tabindex="-1"{% else %}aria-label="Premium: {{ s.title }} - unlock to view"{% endif %}>
+{% else %}
+<a href="{{ s.url }}" target="_blank" rel="noopener"
+   class="carousel-card group block bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-accent{% if s.badge %} badge-card{% endif %}"
+   {% if duplicate %}aria-hidden="true" tabindex="-1"{% endif %}>
+{% endif %}
+  <div class="aspect-[16/10] overflow-hidden bg-gray-100 border-b border-gray-200 relative">
+    {% if s.premium %}<span class="premium-badge">&#9733; Premium</span>{% elif s.badge %}<span class="sample-badge">&#10024; {{ s.badge }}</span>{% endif %}
+    <img src="{{ s.thumbnail }}" alt="{{ s.title }}" loading="lazy"
+         class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300">
+  </div>
+  <div class="p-5">
+    <div class="text-[10px] tracking-[0.12em] uppercase text-accent font-bold mb-2">{{ s.tag }}</div>
+    <h3 class="serif font-bold text-lg text-navy mb-2 leading-snug group-hover:text-accent transition">{{ s.title }}</h3>
+    <p class="text-sm text-[#3A4459] leading-relaxed mb-3">{{ s.description }}</p>
+    {% if s.premium %}<div class="text-xs font-semibold text-[#B7791F]">&#128274; Unlock to view &rarr;</div>{% else %}<div class="text-xs font-semibold text-accent">{{ s.cta or "View live" }} &rarr;</div>{% endif %}
+  </div>
+{% if s.premium %}</button>{% else %}</a>{% endif %}
+{% endmacro %}
+<section id="samples" class="bg-[#F7F8FA] border-y border-gray-200 overflow-hidden">
+  <div class="max-w-6xl mx-auto px-6 pt-20">
+    <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">Work Samples</div>
+    <h2 class="serif font-bold text-3xl text-navy mb-3">See it, not just read about it</h2>
+    <p class="text-slate2 max-w-2xl mb-4">Live, interactive artifacts. Click through to explore the real thing. Hover any card to pause and take a closer look.</p>
+  </div>
+  <div class="carousel-wrap">
+    <button type="button" class="carousel-nav prev" id="samplesPrev" aria-label="Scroll work samples left">&larr;</button>
+    <button type="button" class="carousel-nav next" id="samplesNext" aria-label="Scroll work samples right">&rarr;</button>
+    <div class="carousel-viewport" id="samplesViewport">
+      <div class="carousel-track" id="samplesTrack">
+      {% for s in work_samples %}{{ sample_card(s) }}{% endfor %}
+      {% for s in work_samples %}{{ sample_card(s, duplicate=True) }}{% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ARTICLES -->
+{% macro article_card(a) %}
+<a href="{{ a.url }}" target="_blank" rel="noopener"
+   class="carousel-card group block bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg hover:border-accent transition">
+  <div class="aspect-[16/10] overflow-hidden bg-gray-100 border-b border-gray-200">
+    <img src="{{ a.thumbnail }}" alt="{{ a.title }}" loading="lazy"
+         class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300">
+  </div>
+  <div class="p-5">
+    <div class="text-[10px] tracking-[0.12em] uppercase text-accent font-bold mb-2">{{ a.tag }}</div>
+    <h3 class="serif font-bold text-lg text-navy mb-2 leading-snug group-hover:text-accent transition">{{ a.title }}</h3>
+    <p class="text-sm text-[#3A4459] leading-relaxed mb-3">{{ a.description }}</p>
+    <div class="text-xs font-semibold text-accent">Read article &rarr;</div>
+  </div>
+</a>
+{% endmacro %}
+<section id="articles" class="overflow-hidden">
+  <div class="max-w-6xl mx-auto px-6 pt-20">
+    <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">Articles</div>
+    <h2 class="serif font-bold text-3xl text-navy mb-3">Writing on data, AI, and how teams should work</h2>
+    <p class="text-slate2 max-w-2xl mb-4">Frameworks and points of view, written up so the thinking travels beyond one meeting.</p>
+  </div>
+  <div class="carousel-wrap">
+    <button type="button" class="carousel-nav prev" id="articlesPrev" aria-label="Scroll articles left">&larr;</button>
+    <button type="button" class="carousel-nav next" id="articlesNext" aria-label="Scroll articles right">&rarr;</button>
+    <div class="carousel-viewport" id="articlesViewport">
+      <div class="carousel-track" id="articlesTrack">
+      {% for a in articles %}{{ article_card(a) }}{% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CERTIFICATES -->
+{% macro cert_card(c, duplicate=False) %}
+<a href="{{ c.url }}" target="_blank" rel="noopener"
+   class="carousel-card group block bg-white border rounded-xl overflow-hidden {{ 'border-[#B31B1B]/30 hover:border-[#B31B1B]' if c.brand == 'cornell' else 'border-gray-200 hover:border-accent' }}"
+   {% if duplicate %}aria-hidden="true" tabindex="-1"{% endif %}>
+  <div class="relative aspect-[16/10] overflow-hidden bg-gray-100 border-b border-gray-200">
+    <img src="{{ c.thumbnail }}" alt="{{ c.title }}" loading="lazy"
+         class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300">
+
+    {% if c.brand == 'cornell' %}
+    <!-- University-credential ribbon -- visually separates Cornell degrees/certs
+         from the platform certifications below. -->
+    <div class="absolute top-0 inset-x-0 bg-[#B31B1B] text-white text-[10px] font-bold tracking-[0.2em] uppercase text-center py-1.5 shadow-sm">
+      Cornell University
+    </div>
+    {% else %}
+    <!-- Issuer badge -- small brand mark so the certifying platform is
+         recognizable at a glance without reading the tag text. -->
+    <div class="absolute bottom-2.5 right-2.5 w-9 h-9 rounded-full bg-white shadow-md ring-1 ring-black/5 flex items-center justify-center overflow-hidden">
+      {% if c.brand == 'mitx' %}
+      <span class="text-[11px] font-black tracking-tight"><span style="color:#E31C79">ed</span><span style="color:#1F2D5C">X</span></span>
+      {% elif c.brand == 'tableau' %}
+      <span class="grid grid-cols-2 gap-[2px]">
+        <span class="w-[7px] h-[7px] rounded-sm" style="background:#4E79A7"></span>
+        <span class="w-[7px] h-[7px] rounded-sm" style="background:#F28E2B"></span>
+        <span class="w-[7px] h-[7px] rounded-sm" style="background:#59A14F"></span>
+        <span class="w-[7px] h-[7px] rounded-sm" style="background:#E15759"></span>
+      </span>
+      {% elif c.brand == 'alteryx' %}
+      <span class="text-sm font-black lowercase" style="color:#0078C8">a</span>
+      {% elif c.brand == 'dataiku' %}
+      <span class="w-0 h-0 relative" style="border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:12px solid #FFC935">
+        <span class="absolute -top-[9px] left-1/2 -translate-x-1/2 w-[3px] h-[3px] rounded-full" style="background:#0D1B34"></span>
+      </span>
+      {% elif c.brand == 'google' %}
+      <span class="text-xs font-black"><span style="color:#4285F4">G</span><span style="color:#EA4335">A</span></span>
+      {% elif c.brand == 'microsoft' %}
+      <span class="grid grid-cols-2 gap-[2px]">
+        <span class="w-[7px] h-[7px]" style="background:#F25022"></span>
+        <span class="w-[7px] h-[7px]" style="background:#7FBA00"></span>
+        <span class="w-[7px] h-[7px]" style="background:#00A4EF"></span>
+        <span class="w-[7px] h-[7px]" style="background:#FFB900"></span>
+      </span>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+  <div class="p-5">
+    <div class="text-[10px] tracking-[0.12em] uppercase font-bold mb-2 {{ 'text-[#B31B1B]' if c.brand == 'cornell' else 'text-accent' }}">{{ c.tag }}</div>
+    <h3 class="serif font-bold text-lg text-navy mb-2 leading-snug group-hover:text-accent transition">{{ c.title }}</h3>
+    <p class="text-sm text-[#3A4459] leading-relaxed mb-3">{{ c.description }}</p>
+    <div class="text-xs font-semibold {{ 'text-[#B31B1B]' if c.brand == 'cornell' else 'text-accent' }}">Verify credential &rarr;</div>
+  </div>
+</a>
+{% endmacro %}
+<section id="certificates" class="bg-[#F7F8FA] border-y border-gray-200 overflow-hidden">
+  <div class="max-w-6xl mx-auto px-6 pt-20">
+    <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">Certificates</div>
+    <h2 class="serif font-bold text-3xl text-navy mb-3">Verified credentials</h2>
+    <p class="text-slate2 max-w-2xl mb-4">Click through to verify directly with the issuing institution. University credentials carry a Cornell banner; platform certifications carry the issuer's mark. Hover any card to pause and take a closer look.</p>
+  </div>
+  <div class="carousel-wrap">
+    <button type="button" class="carousel-nav prev" id="certsPrev" aria-label="Scroll certificates left">&larr;</button>
+    <button type="button" class="carousel-nav next" id="certsNext" aria-label="Scroll certificates right">&rarr;</button>
+    <div class="carousel-viewport" id="certsViewport">
+      <div class="carousel-track" id="certsTrack">
+      {% for c in certificates %}{{ cert_card(c) }}{% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RECOGNITION -- photos of awards, certificates and trophies (content.AWARDS).
+     Click a photo to open it full size in a lightbox. -->
+<section id="recognition" class="border-b border-gray-200 overflow-hidden">
+  <div class="max-w-6xl mx-auto px-6 pt-20">
+    <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">Recognition</div>
+    <h2 class="serif font-bold text-3xl text-navy mb-3">Awards &amp; appreciation</h2>
+    <p class="text-slate2 max-w-2xl mb-4">Recognition from Walmart, Sam's Club, Nike and Wipro, from clients as well as employers. Click any photo to see it full size; hover a card to pause and take a closer look.</p>
+  </div>
+  <div class="carousel-wrap">
+    <button type="button" class="carousel-nav prev" id="awardsPrev" aria-label="Scroll awards left">&larr;</button>
+    <button type="button" class="carousel-nav next" id="awardsNext" aria-label="Scroll awards right">&rarr;</button>
+    <div class="carousel-viewport" id="awardsViewport">
+      <div class="carousel-track" id="awardsTrack">
+      {% for a in awards %}
+      <figure class="carousel-card group bg-white border border-gray-200 hover:border-accent rounded-xl overflow-hidden flex flex-col m-0">
+        <button type="button" class="award-photo block w-full bg-[#F4F6FA] cursor-zoom-in border-b border-gray-200" data-caption="{{ a.title }} · {{ a.org }}{% if a.year %} · {{ a.year }}{% endif %}" aria-label="View larger: {{ a.title }}">
+          <img src="{{ a.image }}" alt="{{ a.alt }}" loading="lazy" class="w-full aspect-[16/10] object-contain p-3 transition duration-300 group-hover:scale-105">
+        </button>
+        <figcaption class="p-5 flex flex-col flex-1">
+          <div class="flex items-center justify-between gap-3 mb-2">
+            <span class="text-[11px] tracking-[0.12em] uppercase font-bold text-accent">{{ a.org }}</span>
+            {% if a.year %}<span class="text-xs font-semibold text-slate2">{{ a.year }}</span>{% endif %}
+          </div>
+          <h3 class="serif font-bold text-lg text-navy mb-2 leading-snug">{{ a.title }}</h3>
+          <p class="text-sm text-[#3A4459] leading-relaxed">{{ a.description }}</p>
+        </figcaption>
+      </figure>
+      {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
 <div id="awardLightbox" role="dialog" aria-modal="true" aria-label="Award photo" style="display:none;position:fixed;inset:0;z-index:80;background:rgba(10,16,32,0.88);align-items:center;justify-content:center;padding:1rem;">
   <figure style="max-width:min(1000px,100%);max-height:100%;display:flex;flex-direction:column;align-items:center;gap:.75rem;margin:0;">
     <img id="awardLightboxImg" src="" alt="" style="max-width:100%;max-height:82vh;border-radius:.6rem;background:#fff;box-shadow:0 30px 70px -15px rgba(0,0,0,.6);">
@@ -852,6 +699,120 @@
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && box.style.display === 'flex') close(); });
   })();
 </script>
+
+<!-- TIMELINE -->
+<section id="timeline" class="bg-navy text-white">
+  <div class="max-w-4xl mx-auto px-6 py-20">
+    <div class="text-[11px] tracking-[0.2em] uppercase text-accent-soft font-bold mb-2">Career</div>
+    <h2 class="serif font-bold text-3xl mb-10">The full arc</h2>
+    <div class="space-y-0">
+      {% for job in timeline %}
+      <div class="flex gap-5 pb-8 relative">
+        <div class="flex flex-col items-center">
+          <div class="w-3 h-3 rounded-full bg-accent mt-1.5 flex-shrink-0"></div>
+          {% if not loop.last %}<div class="w-px flex-1 bg-white/15 mt-1"></div>{% endif %}
+        </div>
+        <div class="pb-2">
+          <div class="text-xs font-semibold text-accent-soft mb-1">{{ job.dates }}</div>
+          <div class="serif font-bold text-lg leading-snug">{{ job.title }}</div>
+          <div class="text-sm text-gray-400 mb-2">{{ job.org }}</div>
+          <div class="text-sm text-gray-300 leading-relaxed max-w-xl">{{ job.blurb }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- CAPABILITIES -->
+<section class="max-w-6xl mx-auto px-6 py-20">
+  <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">Capabilities</div>
+  <h2 class="serif font-bold text-3xl text-navy mb-8">What I bring to the table</h2>
+  <div class="flex flex-wrap gap-2.5">
+    {% for c in capabilities %}
+    <span class="px-4 py-2 rounded-lg bg-[#F4F6FA] border border-gray-200 text-sm font-medium text-[#2C3548]">{{ c }}</span>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- EDUCATION / CREDENTIALS -->
+<section class="bg-[#F7F8FA] border-y border-gray-200">
+  <div class="max-w-6xl mx-auto px-6 py-20 grid md:grid-cols-3 gap-10">
+    <div>
+      <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-4">Education</div>
+      {% for e in education %}
+      <div class="mb-4">
+        <div class="font-semibold text-navy text-sm">{{ e.title }}</div>
+        <div class="text-xs text-slate2">{{ e.org }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    <div>
+      <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-4">Certifications</div>
+      <ul class="space-y-2">
+        {% for c in certifications %}
+        <li class="text-sm text-[#2C3548]">{{ c }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div>
+      <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-4">Recognition</div>
+      <div class="mb-4">
+        <div class="font-semibold text-navy text-sm">Patent</div>
+        <div class="text-xs text-slate2">{{ recognition.patent }}</div>
+      </div>
+      <div class="mb-4">
+        <div class="font-semibold text-navy text-sm">Honors & Awards</div>
+        <div class="text-xs text-slate2">{{ recognition.honors }}</div>
+      </div>
+      <div>
+        <div class="font-semibold text-navy text-sm">Languages</div>
+        <div class="text-xs text-slate2">{{ recognition.languages }}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+{% macro testimonial_card(t) %}
+<div class="carousel-card fill group bg-white border border-[#CFE0F5] hover:border-[#0A66C2] rounded-xl overflow-hidden flex flex-col">
+  <!-- LinkedIn-blue ribbon, same visual language as the Cornell University
+       banner on the certificate cards, just themed to the source instead. -->
+  <div class="bg-gradient-to-r from-[#0A66C2] to-[#0E76D0] px-4 py-2 flex items-center gap-2">
+    <span class="w-5 h-5 rounded bg-white flex items-center justify-center text-[#0A66C2] text-[11px] font-black flex-shrink-0">in</span>
+    <span class="text-white text-[10px] tracking-[0.15em] uppercase font-bold">LinkedIn Recommendation</span>
+  </div>
+  <div class="p-6 flex flex-col flex-1">
+    <div class="text-[#0A66C2]/25 text-5xl leading-none serif font-bold -mb-3">&ldquo;</div>
+    <p class="text-sm text-[#2C3548] leading-relaxed mb-5 flex-1">{{ t.quote }}</p>
+    <div class="flex items-center gap-3 border-t border-[#EAF1FB] pt-4">
+      <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
+           style="background:linear-gradient(135deg,#0A66C2,#004182)">{{ t.name[0] }}</div>
+      <div class="min-w-0">
+        <div class="font-bold text-navy text-sm leading-tight">{{ t.name }}</div>
+        <div class="text-xs text-slate2 leading-snug">{{ t.title }}</div>
+        <div class="text-[11px] text-[#0A66C2] font-semibold mt-0.5">{{ t.relationship }} &middot; {{ t.date }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endmacro %}
+<section id="testimonials" class="border-y border-gray-200 overflow-hidden">
+  <div class="max-w-6xl mx-auto px-6 pt-20">
+    <div class="text-[11px] tracking-[0.2em] uppercase text-accent font-bold mb-2">Testimonials</div>
+    <h2 class="serif font-bold text-3xl text-navy mb-3">What people say about working with me</h2>
+    <p class="text-slate2 max-w-2xl mb-4">Sourced from LinkedIn recommendations, shown as received. Hover any card to pause and take a closer look.</p>
+  </div>
+  <div class="carousel-wrap">
+    <button type="button" class="carousel-nav prev" id="testimonialsPrev" aria-label="Scroll testimonials left">&larr;</button>
+    <button type="button" class="carousel-nav next" id="testimonialsNext" aria-label="Scroll testimonials right">&rarr;</button>
+    <div class="carousel-viewport" id="testimonialsViewport">
+      <div class="carousel-track" id="testimonialsTrack">
+      {% for t in testimonials %}{{ testimonial_card(t) }}{% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- BOOK TIME WITH ME -- Lives inside the footer under "Let's talk". Outlook-style day bar. Visitors pick a length, then
      drag or tap their meeting onto any free spot of the day; busy blocks from
@@ -1502,6 +1463,32 @@
     });
   }
 
+  initFilmstripCarousel({
+    viewportId: 'samplesViewport', trackId: 'samplesTrack',
+    prevId: 'samplesPrev', nextId: 'samplesNext',
+    cardSelector: '.carousel-card', pxPerSecond: 28, loop: true, // slow enough to read a card while it drifts by
+  });
+  initFilmstripCarousel({
+    viewportId: 'certsViewport', trackId: 'certsTrack',
+    prevId: 'certsPrev', nextId: 'certsNext',
+    cardSelector: '.carousel-card', pxPerSecond: 24, loop: false, // no duplicated cards -- bounces instead of looping
+  });
+  initFilmstripCarousel({
+    viewportId: 'awardsViewport', trackId: 'awardsTrack',
+    prevId: 'awardsPrev', nextId: 'awardsNext',
+    cardSelector: '.carousel-card', pxPerSecond: 22, loop: false,
+  });
+  initFilmstripCarousel({
+    viewportId: 'testimonialsViewport', trackId: 'testimonialsTrack',
+    prevId: 'testimonialsPrev', nextId: 'testimonialsNext',
+    cardSelector: '.carousel-card', pxPerSecond: 22, loop: false,
+  });
+  initFilmstripCarousel({
+    viewportId: 'articlesViewport', trackId: 'articlesTrack',
+    prevId: 'articlesPrev', nextId: 'articlesNext',
+    cardSelector: '.carousel-card', pxPerSecond: 20, loop: false,
+  });
+
   // Scroll progress bar -- thin gold bar tracking how far down the page
   // the reader is, updated on scroll via rAF to avoid layout thrash.
   (function initScrollProgress() {
@@ -1523,133 +1510,30 @@
 
   // Scroll-spy nav -- highlights whichever section heading is currently
   // in view, so the nav reflects where the reader actually is on the page.
-  // ---- Concept A: profile tabs -------------------------------------------
-  // One panel visible at a time. The URL hash names the tab (#experience),
-  // and links to the old one-page sections (#samples, #timeline, ...) still
-  // land on the tab that now holds that content.
-  (function initProfileTabs() {
-    const TABS = ['overview', 'experience', 'work', 'credentials', 'recommendations'];
-    const LEGACY = { top: 'overview', impact: 'overview', about: 'overview',
-      timeline: 'experience', samples: 'work', articles: 'work',
-      certificates: 'credentials', recognition: 'credentials', testimonials: 'recommendations' };
-    const panels = TABS.map(id => document.getElementById(id));
-    const tabBtns = Array.from(document.querySelectorAll('.profile-tab'));
-    const navLinks = Array.from(document.querySelectorAll('[data-tab-link]'));
-    const bar = document.querySelector('[role="tablist"][aria-label="Profile sections"]');
-    if (panels.some(p => !p) || !tabBtns.length) return;
-    let current = null;
+  (function initScrollSpy() {
+    const sectionIds = ['impact', 'about', 'work', 'samples', 'articles', 'certificates', 'timeline', 'testimonials'];
+    const sections = sectionIds.map(id => document.getElementById(id)).filter(Boolean);
+    const links = Array.from(document.querySelectorAll('.nav-link, .nav-link-mobile'));
+    if (!sections.length || !links.length) return;
 
-    function show(id, opts) {
-      opts = opts || {};
-      if (!TABS.includes(id)) id = 'overview';
-      const changed = id !== current;
-      current = id;
-      panels.forEach(p => { p.hidden = p.id !== id; });
-      tabBtns.forEach(b => {
-        const on = b.dataset.tab === id;
-        b.setAttribute('aria-selected', String(on));
-        b.tabIndex = on ? 0 : -1;
-        if (on && b.scrollIntoView && opts.scrollTab !== false) b.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    function setActive(id) {
+      links.forEach(link => {
+        const isMatch = link.getAttribute('href') === '#' + id;
+        link.classList.toggle('active-nav', isMatch);
       });
-      navLinks.forEach(a => a.classList.toggle('active-nav', a.dataset.tabLink === id && a.classList.contains('nav-link') || a.dataset.tabLink === id && a.classList.contains('nav-link-mobile')));
-      if (opts.updateHash !== false) {
-        try { history.replaceState(null, '', id === 'overview' ? location.pathname + location.search : '#' + id); } catch (e) {}
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      // Prefer the entry closest to the top of the viewport among those visible.
+      const visible = entries.filter(e => e.isIntersecting);
+      if (visible.length) {
+        visible.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        setActive(visible[0].target.id);
       }
-      if (opts.scroll && bar) {
-        // Put the new tab's content right under the sticky nav + tab bar. Measure
-        // from the profile card above the bar: the bar itself may be stuck.
-        const card = bar.parentElement.previousElementSibling;
-        const top = card.getBoundingClientRect().bottom + window.scrollY - 57;
-        if (window.scrollY > top || opts.force) window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
-      }
-      if (changed) { try { gtag('event', 'profile_tab_view', { tab: id }); } catch (e) {} }
-    }
+    }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
 
-    tabBtns.forEach((b, i) => {
-      b.addEventListener('click', () => show(b.dataset.tab, { scroll: true }));
-      b.addEventListener('keydown', (e) => {
-        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
-        e.preventDefault();
-        const next = tabBtns[(i + (e.key === 'ArrowRight' ? 1 : tabBtns.length - 1)) % tabBtns.length];
-        next.focus(); show(next.dataset.tab, { scroll: true });
-      });
-    });
-    navLinks.forEach(a => a.addEventListener('click', (e) => {
-      e.preventDefault();
-      show(a.dataset.tabLink, { scroll: true, force: true });
-    }));
-
-    function fromHash() {
-      const h = (location.hash || '').slice(1);
-      if (!h) { show('overview', { updateHash: false, scrollTab: false }); return; }
-      if (TABS.includes(h)) { show(h, { updateHash: false, scrollTab: false }); return; }
-      if (LEGACY[h]) { show(LEGACY[h], { scrollTab: false }); return; }
-      show(current || 'overview', { updateHash: false, scrollTab: false }); // e.g. #book: leave the tabs alone
-    }
-    window.addEventListener('hashchange', fromHash);
-    fromHash();
-    if (TABS.includes((location.hash || '').slice(1)) || LEGACY[(location.hash || '').slice(1)]) {
-      setTimeout(() => show(current, { scroll: true, force: true, updateHash: false, scrollTab: false }), 50);
-    }
+    sections.forEach(section => observer.observe(section));
   })();
-
-  initFilmstripCarousel({ viewportId: 'certsViewport', trackId: 'certsTrack', prevId: 'certsPrev', nextId: 'certsNext',
-    cardSelector: '.carousel-card', pxPerSecond: 24, loop: false });
-  initFilmstripCarousel({ viewportId: 'awardsViewport', trackId: 'awardsTrack', prevId: 'awardsPrev', nextId: 'awardsNext',
-    cardSelector: '.carousel-card', pxPerSecond: 22, loop: false });
-  // Carousels measure themselves on resize; a hidden tab measures as zero, so nudge them when one opens
-  document.querySelectorAll('.profile-tab, [data-tab-link]').forEach(el => el.addEventListener('click', () => requestAnimationFrame(() => window.dispatchEvent(new Event('resize')))));
-  window.addEventListener('hashchange', () => requestAnimationFrame(() => window.dispatchEvent(new Event('resize'))));
-  requestAnimationFrame(() => window.dispatchEvent(new Event('resize')));
-
-  // "See more" toggles (About paragraphs, earlier roles)
-  document.querySelectorAll('.see-more[data-more]').forEach(btn => {
-    const moreLabel = btn.textContent;
-    btn.addEventListener('click', () => {
-      const items = document.querySelectorAll(btn.dataset.more);
-      const opening = items.length && items[0].classList.contains('hidden');
-      items.forEach(el => el.classList.toggle('hidden', !opening));
-      btn.textContent = opening ? (btn.dataset.lessLabel || 'Show less') : moreLabel;
-    });
-  });
-
-  // Recommendations: clamp long quotes to 4 lines with a "See more"
-  document.querySelectorAll('.rec-quote').forEach(p => {
-    const btn = p.nextElementSibling;
-    p.classList.add('clamp-4');
-    requestAnimationFrame(() => {
-      if (p.scrollHeight > p.clientHeight + 4) btn.classList.remove('hidden');
-    });
-    btn.addEventListener('click', () => {
-      const clamped = p.classList.toggle('clamp-4');
-      btn.textContent = clamped ? 'See more' : 'Show less';
-    });
-  });
-  // Quotes inside a hidden tab measure as 0: re-check when a tab opens
-  document.querySelectorAll('.profile-tab').forEach(b => b.addEventListener('click', () => {
-    requestAnimationFrame(() => document.querySelectorAll('.rec-quote.clamp-4').forEach(p => {
-      if (p.scrollHeight > p.clientHeight + 4) p.nextElementSibling.classList.remove('hidden');
-    }));
-  }));
-
-  // Work & writing filter: by kind (sample/article) or topic tag, with live counts
-  (function initWorkFilter() {
-    const btns = Array.from(document.querySelectorAll('.work-filter'));
-    const items = Array.from(document.querySelectorAll('.work-item'));
-    const matches = (it, f) => f === 'all' || it.dataset.kind === f || (' ' + (it.dataset.tags || '') + ' ').includes(' ' + f + ' ');
-    btns.forEach(b => {
-      const n = items.filter(it => matches(it, b.dataset.filter)).length;
-      if (!n) { b.remove(); return; }
-      b.textContent = b.textContent + ' \u00b7 ' + n;
-      b.setAttribute('aria-pressed', String(b.classList.contains('on')));
-      b.addEventListener('click', () => {
-        btns.forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', String(x === b)); });
-        items.forEach(it => { it.style.display = matches(it, b.dataset.filter) ? '' : 'none'; });
-        try { gtag('event', 'work_filter', { filter: b.dataset.filter }); } catch (e) {}
-      });
-    });
-  })();
-
 
   // Mobile nav toggle -- purely additive: the desktop nav (lg:flex) is
   // untouched, this only drives the lg:hidden hamburger + dropdown panel.

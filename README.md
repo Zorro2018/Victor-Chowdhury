@@ -57,3 +57,15 @@ run the dev server (`python3 main.py`) then `python3 build_portable.py`.
   folded in too. Say the word if that should come back out.
 - Anecdotes in each bucket are drawn/paraphrased directly from line items
   across all three r\u00e9sum\u00e9s \u2014 nothing fabricated.
+
+## Layout (Oct 2026 redesign)
+
+The homepage is a LinkedIn-style profile: a profile card with a sticky tab bar
+(Overview, Experience, Work & writing, Credentials, Recommendations), with
+"Let's talk" (live booking + contact form) at the bottom. Old section links
+(`#samples`, `#timeline`, ...) open the matching tab.
+
+- `template.html`: the live site, built into `index.html` by `build_portable.py`.
+- `template_legacy.html`: the previous one-page site, served locally at `/legacy`.
+  Its published copy is frozen at `legacy/index.html` (victorbuildsai.com/legacy/).
+- A full snapshot of the pre-redesign repo is on the `backup/pre-concept-a` branch.
