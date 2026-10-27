@@ -343,7 +343,7 @@
   .profile-tab:focus-visible { outline: 2px solid #0F7B6C; outline-offset: -4px; border-radius: 6px; }
   .see-more { font-size: 0.875rem; font-weight: 700; color: #0F7B6C; background: none; border: 0; padding: 0; cursor: pointer; }
   .see-more:hover { text-decoration: underline; }
-  .work-filter { padding: 0.4rem 0.85rem; border-radius: 999px; border: 1px solid #C9CFD8; font-size: 0.78rem; font-weight: 600; color: #1B2230; background: #fff; cursor: pointer; }
+  .work-filter { flex: 0 0 auto; white-space: nowrap; padding: 0.4rem 0.85rem; border-radius: 999px; border: 1px solid #C9CFD8; font-size: 0.78rem; font-weight: 600; color: #1B2230; background: #fff; cursor: pointer; }
   .work-filter.on { background: #16233F; border-color: #16233F; color: #fff; }
   .clamp-4 { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
   .rail-slot { display: block; text-align: center; padding: 0.5rem 0.4rem; border: 1px solid #0F7B6C; border-radius: 0.6rem; color: #0F7B6C; font-weight: 700; font-size: 0.85rem; line-height: 1.25; }
@@ -355,6 +355,7 @@
 
 <!-- SCROLL PROGRESS BAR -->
 <div id="scrollProgress"></div>
+
 
 
 
@@ -919,19 +920,23 @@
       <!-- ================= WORK & WRITING ================= -->
       <section id="work" role="tabpanel" class="tab-panel" hidden>
         <div class="pcard">
-          <div class="flex flex-wrap items-baseline justify-between gap-3 mb-4">
-            <h2 class="pcard-title !mb-0">Work &amp; writing</h2>
-            <div class="flex flex-wrap gap-2" role="group" aria-label="Filter work">
-              <button type="button" class="work-filter on" data-filter="all">All &middot; 15</button>
-              <button type="button" class="work-filter" data-filter="sample">Work samples &middot; 13</button>
-              <button type="button" class="work-filter" data-filter="article">Articles &middot; 2</button>
-            </div>
+          <h2 class="pcard-title !mb-3">Work &amp; writing</h2>
+          <div class="flex gap-2 overflow-x-auto sm:flex-wrap pb-1 mb-3 -mx-1 px-1" role="group" aria-label="Filter work" style="scrollbar-width:none;">
+            <button type="button" class="work-filter on" data-filter="all">All</button>
+            <button type="button" class="work-filter" data-filter="ai">AI &amp; agents</button>
+            <button type="button" class="work-filter" data-filter="dashboards">Dashboards</button>
+            <button type="button" class="work-filter" data-filter="care">Customer care</button>
+            <button type="button" class="work-filter" data-filter="retail">Retail &amp; operations</button>
+            <button type="button" class="work-filter" data-filter="exec">Executive storytelling</button>
+            <button type="button" class="work-filter" data-filter="sample">Work samples</button>
+            <button type="button" class="work-filter" data-filter="article">Articles</button>
+            <button type="button" class="work-filter" data-filter="personal">Personal projects</button>
           </div>
           <p class="text-sm text-slate2 mb-4">Live, interactive artifacts and write-ups. Demos use illustrative data to protect Walmart's.</p>
           <div class="space-y-3">
             
             
-            <button type="button" data-kind="sample" data-premium="aisle1" data-premium-title="AISLE1: The AI-Native Reporting Hub That Replaced Our BI Sprawl" aria-label="Premium: AISLE1: The AI-Native Reporting Hub That Replaced Our BI Sprawl - unlock to view"
+            <button type="button" data-kind="sample" data-tags="ai dashboards care " data-premium="aisle1" data-premium-title="AISLE1: The AI-Native Reporting Hub That Replaced Our BI Sprawl" aria-label="Premium: AISLE1: The AI-Native Reporting Hub That Replaced Our BI Sprawl - unlock to view"
                     class="work-item premium-card accent-top accent-gold group w-full text-left flex flex-row gap-3 sm:gap-4 bg-white border border-[#E8B923] rounded-xl !p-3 !pt-4 sm:!p-4 sm:!pt-5 hover:shadow-lg hover:border-accent transition">
             
               <div class="relative w-28 sm:w-56 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
@@ -947,7 +952,7 @@
             </button>
             
             
-            <a href="https://www.victorbuildsai.com/victorgames/" target="_blank" rel="noopener" data-kind="sample"
+            <a href="https://www.victorbuildsai.com/victorgames/" target="_blank" rel="noopener" data-kind="sample" data-tags="personal ai "
                class="work-item accent-top group flex flex-row gap-3 sm:gap-4 bg-white border border-gray-200 rounded-xl p-3 pt-4 sm:p-4 sm:pt-5 hover:border-accent hover:shadow-lg transition-all duration-300">
             
               <div class="relative w-28 sm:w-56 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
@@ -963,7 +968,7 @@
             </a>
             
             
-            <a href="https://www.victorbuildsai.com/work/agent-performance/" target="_blank" rel="noopener" data-kind="sample"
+            <a href="https://www.victorbuildsai.com/work/agent-performance/" target="_blank" rel="noopener" data-kind="sample" data-tags="dashboards care "
                class="work-item accent-top group flex flex-row gap-3 sm:gap-4 bg-white border border-gray-200 rounded-xl p-3 pt-4 sm:p-4 sm:pt-5 hover:border-accent hover:shadow-lg transition-all duration-300">
             
               <div class="relative w-28 sm:w-56 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
@@ -979,7 +984,7 @@
             </a>
             
             
-            <a href="https://www.victorbuildsai.com/work/smart-woffie/" target="_blank" rel="noopener" data-kind="sample"
+            <a href="https://www.victorbuildsai.com/work/smart-woffie/" target="_blank" rel="noopener" data-kind="sample" data-tags="ai care "
                class="work-item accent-top group flex flex-row gap-3 sm:gap-4 bg-white border border-gray-200 rounded-xl p-3 pt-4 sm:p-4 sm:pt-5 hover:border-accent hover:shadow-lg transition-all duration-300">
             
               <div class="relative w-28 sm:w-56 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
@@ -995,7 +1000,7 @@
             </a>
             
             
-            <a href="https://www.victorbuildsai.com/work/appeasement-analysis/" target="_blank" rel="noopener" data-kind="sample"
+            <a href="https://www.victorbuildsai.com/work/appeasement-analysis/" target="_blank" rel="noopener" data-kind="sample" data-tags="dashboards care "
                class="work-item accent-top group flex flex-row gap-3 sm:gap-4 bg-white border border-gray-200 rounded-xl p-3 pt-4 sm:p-4 sm:pt-5 hover:border-accent hover:shadow-lg transition-all duration-300">
             
               <div class="relative w-28 sm:w-56 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
@@ -1011,7 +1016,7 @@
             </a>
             
             
-            <a href="https://www.victorbuildsai.com/work/weekly-update/" target="_blank" rel="noopener" data-kind="sample"
+            <a href="https://www.victorbuildsai.com/work/weekly-update/" target="_blank" rel="noopener" data-kind="sample" data-tags="exec care "
                class="work-item accent-top group flex flex-row gap-3 sm:gap-4 bg-white border border-gray-200 rounded-xl p-3 pt-4 sm:p-4 sm:pt-5 hover:border-accent hover:shadow-lg transition-all duration-300">
             
               <div class="relative w-28 sm:w-56 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
@@ -1027,7 +1032,7 @@
             </a>
             
             
-            <a href="https://www.victorbuildsai.com/work/call-complexity/" target="_blank" rel="noopener" data-kind="sample"
+            <a href="https://www.victorbuildsai.com/work/call-complexity/" target="_blank" rel="noopener" data-kind="sample" data-tags="dashboards care "
                class="work-item accent-top group flex flex-row gap-3 sm:gap-4 bg-white border border-gray-200 rounded-xl p-3 pt-4 sm:p-4 sm:pt-5 hover:border-accent hover:shadow-lg transition-all duration-300">
             
               <div class="relative w-28 sm:w-56 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
@@ -1043,7 +1048,7 @@
             </a>
             
             
-            <a href="https://www.victorbuildsai.com/work/complexity-vs-self-serve/" target="_blank" rel="noopener" data-kind="sample"
+            <a href="https://www.victorbuildsai.com/work/complexity-vs-self-serve/" target="_blank" rel="noopener" data-kind="sample" data-tags="ai dashboards care "
                class="work-item accent-top group flex flex-row gap-3 sm:gap-4 bg-white border border-gray-200 rounded-xl p-3 pt-4 sm:p-4 sm:pt-5 hover:border-accent hover:shadow-lg transition-all duration-300">
             
               <div class="relative w-28 sm:w-56 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
@@ -1059,7 +1064,7 @@
             </a>
             
             
-            <a href="https://www.victorbuildsai.com/work/product-analytics/" target="_blank" rel="noopener" data-kind="sample"
+            <a href="https://www.victorbuildsai.com/work/product-analytics/" target="_blank" rel="noopener" data-kind="sample" data-tags="dashboards care "
                class="work-item accent-top group flex flex-row gap-3 sm:gap-4 bg-white border border-gray-200 rounded-xl p-3 pt-4 sm:p-4 sm:pt-5 hover:border-accent hover:shadow-lg transition-all duration-300">
             
               <div class="relative w-28 sm:w-56 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
@@ -1075,7 +1080,7 @@
             </a>
             
             
-            <a href="https://www.victorbuildsai.com/work/store-summary/" target="_blank" rel="noopener" data-kind="sample"
+            <a href="https://www.victorbuildsai.com/work/store-summary/" target="_blank" rel="noopener" data-kind="sample" data-tags="exec retail dashboards "
                class="work-item accent-top group flex flex-row gap-3 sm:gap-4 bg-white border border-gray-200 rounded-xl p-3 pt-4 sm:p-4 sm:pt-5 hover:border-accent hover:shadow-lg transition-all duration-300">
             
               <div class="relative w-28 sm:w-56 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
@@ -1091,7 +1096,7 @@
             </a>
             
             
-            <a href="https://www.victorbuildsai.com/work/data-to-story/" target="_blank" rel="noopener" data-kind="sample"
+            <a href="https://www.victorbuildsai.com/work/data-to-story/" target="_blank" rel="noopener" data-kind="sample" data-tags="exec retail "
                class="work-item accent-top group flex flex-row gap-3 sm:gap-4 bg-white border border-gray-200 rounded-xl p-3 pt-4 sm:p-4 sm:pt-5 hover:border-accent hover:shadow-lg transition-all duration-300">
             
               <div class="relative w-28 sm:w-56 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
@@ -1107,7 +1112,7 @@
             </a>
             
             
-            <a href="https://www.victorbuildsai.com/work/checkout-and-shrink/" target="_blank" rel="noopener" data-kind="sample"
+            <a href="https://www.victorbuildsai.com/work/checkout-and-shrink/" target="_blank" rel="noopener" data-kind="sample" data-tags="ai retail "
                class="work-item accent-top group flex flex-row gap-3 sm:gap-4 bg-white border border-gray-200 rounded-xl p-3 pt-4 sm:p-4 sm:pt-5 hover:border-accent hover:shadow-lg transition-all duration-300">
             
               <div class="relative w-28 sm:w-56 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
@@ -1123,7 +1128,7 @@
             </a>
             
             
-            <a href="https://www.victorbuildsai.com/work/fuel-pricing-engine/" target="_blank" rel="noopener" data-kind="sample"
+            <a href="https://www.victorbuildsai.com/work/fuel-pricing-engine/" target="_blank" rel="noopener" data-kind="sample" data-tags="retail "
                class="work-item accent-top group flex flex-row gap-3 sm:gap-4 bg-white border border-gray-200 rounded-xl p-3 pt-4 sm:p-4 sm:pt-5 hover:border-accent hover:shadow-lg transition-all duration-300">
             
               <div class="relative w-28 sm:w-56 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
@@ -1139,7 +1144,7 @@
             </a>
             
             
-            <a href="https://www.victorbuildsai.com/articles/ai-vs-bi/" target="_blank" rel="noopener" data-kind="article"
+            <a href="https://www.victorbuildsai.com/articles/ai-vs-bi/" target="_blank" rel="noopener" data-kind="article" data-tags="ai "
                class="work-item accent-top group flex flex-row gap-3 sm:gap-4 bg-white border border-gray-200 rounded-xl p-3 pt-4 sm:p-4 sm:pt-5 hover:border-accent hover:shadow-lg transition-all duration-300">
               <div class="relative w-28 sm:w-56 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
                 <span class="absolute top-2 left-2 z-[2] bg-navy text-[#FFC220] text-[10px] font-black tracking-[0.12em] uppercase px-2 py-1 rounded">Article</span>
@@ -1153,7 +1158,7 @@
               </div>
             </a>
             
-            <a href="https://www.victorbuildsai.com/articles/prioritization-playbook/" target="_blank" rel="noopener" data-kind="article"
+            <a href="https://www.victorbuildsai.com/articles/prioritization-playbook/" target="_blank" rel="noopener" data-kind="article" data-tags="leadership "
                class="work-item accent-top group flex flex-row gap-3 sm:gap-4 bg-white border border-gray-200 rounded-xl p-3 pt-4 sm:p-4 sm:pt-5 hover:border-accent hover:shadow-lg transition-all duration-300">
               <div class="relative w-28 sm:w-56 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
                 <span class="absolute top-2 left-2 z-[2] bg-navy text-[#FFC220] text-[10px] font-black tracking-[0.12em] uppercase px-2 py-1 rounded">Article</span>
@@ -2485,15 +2490,22 @@
     }));
   }));
 
-  // Work & writing filter
+  // Work & writing filter: by kind (sample/article) or topic tag, with live counts
   (function initWorkFilter() {
-    const btns = document.querySelectorAll('.work-filter');
-    const items = document.querySelectorAll('.work-item');
-    btns.forEach(b => b.addEventListener('click', () => {
-      btns.forEach(x => x.classList.toggle('on', x === b));
-      const f = b.dataset.filter;
-      items.forEach(it => { it.style.display = (f === 'all' || it.dataset.kind === f) ? '' : 'none'; });
-    }));
+    const btns = Array.from(document.querySelectorAll('.work-filter'));
+    const items = Array.from(document.querySelectorAll('.work-item'));
+    const matches = (it, f) => f === 'all' || it.dataset.kind === f || (' ' + (it.dataset.tags || '') + ' ').includes(' ' + f + ' ');
+    btns.forEach(b => {
+      const n = items.filter(it => matches(it, b.dataset.filter)).length;
+      if (!n) { b.remove(); return; }
+      b.textContent = b.textContent + ' \u00b7 ' + n;
+      b.setAttribute('aria-pressed', String(b.classList.contains('on')));
+      b.addEventListener('click', () => {
+        btns.forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', String(x === b)); });
+        items.forEach(it => { it.style.display = matches(it, b.dataset.filter) ? '' : 'none'; });
+        try { gtag('event', 'work_filter', { filter: b.dataset.filter }); } catch (e) {}
+      });
+    });
   })();
 
 

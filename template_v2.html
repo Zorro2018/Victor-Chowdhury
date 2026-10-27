@@ -343,7 +343,7 @@
   .profile-tab:focus-visible { outline: 2px solid #0F7B6C; outline-offset: -4px; border-radius: 6px; }
   .see-more { font-size: 0.875rem; font-weight: 700; color: #0F7B6C; background: none; border: 0; padding: 0; cursor: pointer; }
   .see-more:hover { text-decoration: underline; }
-  .work-filter { padding: 0.4rem 0.85rem; border-radius: 999px; border: 1px solid #C9CFD8; font-size: 0.78rem; font-weight: 600; color: #1B2230; background: #fff; cursor: pointer; }
+  .work-filter { flex: 0 0 auto; white-space: nowrap; padding: 0.4rem 0.85rem; border-radius: 999px; border: 1px solid #C9CFD8; font-size: 0.78rem; font-weight: 600; color: #1B2230; background: #fff; cursor: pointer; }
   .work-filter.on { background: #16233F; border-color: #16233F; color: #fff; }
   .clamp-4 { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
   .rail-slot { display: block; text-align: center; padding: 0.5rem 0.4rem; border: 1px solid #0F7B6C; border-radius: 0.6rem; color: #0F7B6C; font-weight: 700; font-size: 0.85rem; line-height: 1.25; }
@@ -358,6 +358,16 @@
 
 {% macro logo(domain, box='w-12 h-12', pad='p-1.5') -%}
 <span class="{{ box }} {{ pad }} rounded-lg bg-white border border-gray-200 flex items-center justify-center flex-shrink-0 overflow-hidden"><img src="https://www.google.com/s2/favicons?domain={{ domain }}&amp;sz=128" alt="" aria-hidden="true" loading="lazy" referrerpolicy="no-referrer" class="w-full h-full object-contain"></span>
+{%- endmacro %}
+{% macro work_tags(title) -%}
+{%- set rules = [
+  ('AISLE1:', 'ai dashboards care'), ('Smart Woffie', 'ai care'), ('Agent Performance', 'dashboards care'),
+  ('Promo & Appeasement', 'dashboards care'), ('CES Weekly Update', 'exec care'), ('Call Complexity Scorecard', 'dashboards care'),
+  ('Call Complexity vs', 'ai dashboards care'), ('AISLEONE CRM', 'dashboards care'), ('Store Summary', 'exec retail dashboards'),
+  ('Data to Story', 'exec retail'), ('Intelligent Retail Lab', 'ai retail'), ('Fuel Pricing', 'retail'),
+  ('Fruit Slicer', 'personal ai'), ('Claude vs.', 'ai'), ('Stop Being Overwhelmed', 'leadership')
+] -%}
+{%- for kw, tg in rules if kw in title %}{{ tg }} {% endfor -%}
 {%- endmacro %}
 {% macro mini_logo(domain) -%}
 <img src="https://www.google.com/s2/favicons?domain={{ domain }}&amp;sz=64" alt="" aria-hidden="true" loading="lazy" referrerpolicy="no-referrer" class="inline-block w-4 h-4 object-contain align-[-3px] mr-1">
@@ -617,22 +627,26 @@
       <!-- ================= WORK & WRITING ================= -->
       <section id="work" role="tabpanel" class="tab-panel" hidden>
         <div class="pcard">
-          <div class="flex flex-wrap items-baseline justify-between gap-3 mb-4">
-            <h2 class="pcard-title !mb-0">Work &amp; writing</h2>
-            <div class="flex flex-wrap gap-2" role="group" aria-label="Filter work">
-              <button type="button" class="work-filter on" data-filter="all">All &middot; {{ work_samples|length + articles|length }}</button>
-              <button type="button" class="work-filter" data-filter="sample">Work samples &middot; {{ work_samples|length }}</button>
-              <button type="button" class="work-filter" data-filter="article">Articles &middot; {{ articles|length }}</button>
-            </div>
+          <h2 class="pcard-title !mb-3">Work &amp; writing</h2>
+          <div class="flex gap-2 overflow-x-auto sm:flex-wrap pb-1 mb-3 -mx-1 px-1" role="group" aria-label="Filter work" style="scrollbar-width:none;">
+            <button type="button" class="work-filter on" data-filter="all">All</button>
+            <button type="button" class="work-filter" data-filter="ai">AI &amp; agents</button>
+            <button type="button" class="work-filter" data-filter="dashboards">Dashboards</button>
+            <button type="button" class="work-filter" data-filter="care">Customer care</button>
+            <button type="button" class="work-filter" data-filter="retail">Retail &amp; operations</button>
+            <button type="button" class="work-filter" data-filter="exec">Executive storytelling</button>
+            <button type="button" class="work-filter" data-filter="sample">Work samples</button>
+            <button type="button" class="work-filter" data-filter="article">Articles</button>
+            <button type="button" class="work-filter" data-filter="personal">Personal projects</button>
           </div>
           <p class="text-sm text-slate2 mb-4">Live, interactive artifacts and write-ups. Demos use illustrative data to protect Walmart's.</p>
           <div class="space-y-3">
             {% for s in work_samples %}
             {% if s.premium %}
-            <button type="button" data-kind="sample" data-premium="{{ s.premium }}" data-premium-title="{{ s.title }}" aria-label="Premium: {{ s.title }} - unlock to view"
+            <button type="button" data-kind="sample" data-tags="{{ work_tags(s.title) }}" data-premium="{{ s.premium }}" data-premium-title="{{ s.title }}" aria-label="Premium: {{ s.title }} - unlock to view"
                     class="work-item premium-card accent-top accent-gold group w-full text-left flex flex-row gap-3 sm:gap-4 bg-white border border-[#E8B923] rounded-xl !p-3 !pt-4 sm:!p-4 sm:!pt-5 hover:shadow-lg hover:border-accent transition">
             {% else %}
-            <a href="{{ s.url }}" target="_blank" rel="noopener" data-kind="sample"
+            <a href="{{ s.url }}" target="_blank" rel="noopener" data-kind="sample" data-tags="{{ work_tags(s.title) }}"
                class="work-item accent-top group flex flex-row gap-3 sm:gap-4 bg-white border border-gray-200 rounded-xl p-3 pt-4 sm:p-4 sm:pt-5 hover:border-accent hover:shadow-lg transition-all duration-300">
             {% endif %}
               <div class="relative w-28 sm:w-56 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
@@ -648,7 +662,7 @@
             {% if s.premium %}</button>{% else %}</a>{% endif %}
             {% endfor %}
             {% for a in articles %}
-            <a href="{{ a.url }}" target="_blank" rel="noopener" data-kind="article"
+            <a href="{{ a.url }}" target="_blank" rel="noopener" data-kind="article" data-tags="{{ work_tags(a.title) }}"
                class="work-item accent-top group flex flex-row gap-3 sm:gap-4 bg-white border border-gray-200 rounded-xl p-3 pt-4 sm:p-4 sm:pt-5 hover:border-accent hover:shadow-lg transition-all duration-300">
               <div class="relative w-28 sm:w-56 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
                 <span class="absolute top-2 left-2 z-[2] bg-navy text-[#FFC220] text-[10px] font-black tracking-[0.12em] uppercase px-2 py-1 rounded">Article</span>
@@ -1618,15 +1632,22 @@
     }));
   }));
 
-  // Work & writing filter
+  // Work & writing filter: by kind (sample/article) or topic tag, with live counts
   (function initWorkFilter() {
-    const btns = document.querySelectorAll('.work-filter');
-    const items = document.querySelectorAll('.work-item');
-    btns.forEach(b => b.addEventListener('click', () => {
-      btns.forEach(x => x.classList.toggle('on', x === b));
-      const f = b.dataset.filter;
-      items.forEach(it => { it.style.display = (f === 'all' || it.dataset.kind === f) ? '' : 'none'; });
-    }));
+    const btns = Array.from(document.querySelectorAll('.work-filter'));
+    const items = Array.from(document.querySelectorAll('.work-item'));
+    const matches = (it, f) => f === 'all' || it.dataset.kind === f || (' ' + (it.dataset.tags || '') + ' ').includes(' ' + f + ' ');
+    btns.forEach(b => {
+      const n = items.filter(it => matches(it, b.dataset.filter)).length;
+      if (!n) { b.remove(); return; }
+      b.textContent = b.textContent + ' \u00b7 ' + n;
+      b.setAttribute('aria-pressed', String(b.classList.contains('on')));
+      b.addEventListener('click', () => {
+        btns.forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', String(x === b)); });
+        items.forEach(it => { it.style.display = matches(it, b.dataset.filter) ? '' : 'none'; });
+        try { gtag('event', 'work_filter', { filter: b.dataset.filter }); } catch (e) {}
+      });
+    });
   })();
 
 
