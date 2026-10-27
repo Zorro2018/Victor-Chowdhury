@@ -1,0 +1,2282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-C8TZNCC93Z"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-C8TZNCC93Z');
+  // Key actions on the site, reported to Google Analytics as events
+  (function () {
+    var ev = function (name, params) { try { gtag('event', name, params || {}); } catch (e) {} };
+    document.addEventListener('click', function (e) {
+      var t = e.target.closest ? e.target.closest('a,button') : null;
+      if (!t) return;
+      var href = t.getAttribute('href') || '';
+      if (/\.pdf(\?|#|$)/i.test(href)) ev('resume_download', { file_name: href.split('/').pop() });
+      else if (/victorgames/.test(href)) ev('game_link_click');
+      else if (/linkedin\.com/i.test(href)) ev('linkedin_click');
+      else if (/^mailto:/i.test(href)) ev('email_click');
+      if (t.id === 'chatLauncher') ev('chat_open');
+      if (t.id === 'startPlayBtn') ev('game_start');
+      if (t.id === 'newSessionBtn') ev('game_new_session');
+    }, true);
+    document.addEventListener('submit', function (e) {
+      var names = { contactForm: 'contact_form_submit', chatLeadForm: 'chat_lead_submit',
+        premiumForm: 'premium_unlock_submit',
+        chatForm: 'chat_message_sent', jobFitForm: 'job_fit_check', bookTimeForm: 'book_time_submit' };
+      var id = e.target && e.target.id;
+      if (names[id]) ev(names[id]);
+    }, true);
+  })();
+</script>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>{{ profile.name }} | {{ profile.tagline }}</title>
+<meta name="description" content="{{ profile.subhead }}">
+
+<!-- Open Graph / Twitter preview card -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{ profile.name }} | {{ profile.tagline }}">
+<meta property="og:description" content="{{ profile.subhead }}">
+<meta property="og:image" content="https://www.victorbuildsai.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://www.victorbuildsai.com/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ profile.name }} | {{ profile.tagline }}">
+<meta name="twitter:description" content="{{ profile.subhead }}">
+<meta name="twitter:image" content="https://www.victorbuildsai.com/og-image.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700;8..60,900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          navy: { DEFAULT: '#16233F', 2: '#24365E' },
+          accent: { DEFAULT: '#0F7B6C', soft: '#D5E9E5' },
+          ink: '#1B2230',
+          slate2: '#5A667C',
+        },
+        fontFamily: {
+          serif: ['"Source Serif 4"', 'Georgia', 'serif'],
+          sans: ['Inter', '-apple-system', 'sans-serif'],
+        },
+      },
+    },
+  };
+</script>
+<style>
+  html { scroll-behavior: smooth; }
+  html, body { overflow-x: hidden; }
+  body { font-family: 'Inter', sans-serif; }
+  .serif { font-family: 'Source Serif 4', Georgia, serif; }
+  .bucket-panel { display: none; }
+  .bucket-panel.active { display: block; }
+  .bucket-btn.active { background: #16233F; color: #fff; }
+  .bucket-btn.active .bucket-count { color: #9FD3CA; }
+
+  /* Work Samples / Certificates filmstrip -- continuous left-to-right loop
+     (JS-driven native scroll, so the prev/next buttons can nudge it directly),
+     pauses + expands on hover/focus. Shared by both carousels. */
+  .carousel-wrap { position: relative; }
+  .carousel-viewport {
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+  }
+  .carousel-viewport::-webkit-scrollbar { display: none; }
+  .carousel-track {
+    display: flex;
+    align-items: stretch;
+    gap: 1.5rem;
+    width: max-content;
+    padding: 0.5rem 1.5rem 1.5rem;
+  }
+  /* When a carousel has too few cards to need scrolling, center them
+     instead of leaving them left-aligned with empty space on the right.
+     Toggled by JS (see initFilmstripCarousel) based on actual content vs
+     viewport width, so it only kicks in when there's genuinely nothing
+     to scroll. */
+  .carousel-track--centered {
+    width: 100%;
+    justify-content: center;
+  }
+  .carousel-card {
+    flex: 0 0 320px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+  .carousel-card.fill { flex: 1 1 280px; max-width: 380px; }
+  .carousel-card:hover,
+  .carousel-card:focus-visible {
+    transform: scale(1.06);
+    position: relative;
+    z-index: 10;
+    box-shadow: 0 20px 40px -12px rgba(22,35,63,0.25);
+  }
+  .carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.95);
+    border: 1px solid var(--card-bd, rgba(0,0,0,.10));
+    box-shadow: 0 4px 14px rgba(22,35,63,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 20;
+    color: #16233F;
+    font-size: 1.1rem;
+    line-height: 1;
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+  .carousel-nav:hover { background: #fff; transform: translateY(-50%) scale(1.08); }
+  .carousel-nav.prev { left: 0.4rem; }
+  .carousel-nav.next { right: 0.4rem; }
+
+  /* Scroll progress bar */
+  #scrollProgress {
+    position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+    background: linear-gradient(90deg, #FFC220, #E4A400);
+    z-index: 60; transition: width 0.08s linear;
+  }
+
+  /* Scroll-spy nav link state */
+  .nav-link.active-nav, .nav-link-mobile.active-nav { color: #0F7B6C; font-weight: 700; }
+
+  /* Count-up impact metrics -- avoid layout shift before JS sets the digits */
+  .impact-metric { font-variant-numeric: tabular-nums; }
+
+  /* Hero: subtle film-grain texture over the navy gradient */
+  .hero-grain {
+    position: absolute; inset: 0; pointer-events: none; opacity: 0.35; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Hero: cursor-reactive spotlight (desktop/mouse only -- see JS guard) */
+  .hero-spotlight {
+    position: absolute; inset: 0; pointer-events: none; opacity: 0;
+    transition: opacity 0.4s ease;
+    background: radial-gradient(600px circle at var(--mx, 50%) var(--my, 50%), rgba(79,191,174,0.20), transparent 45%);
+  }
+  .hero-spotlight.active { opacity: 1; }
+
+  /* Hero: animated gradient headline */
+  .gradient-text {
+    background: linear-gradient(90deg, #ffffff, #4FBFAE, #FFC220, #ffffff);
+    background-size: 300% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: gradientShift 8s ease infinite;
+  }
+  @keyframes gradientShift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+  @media (prefers-reduced-motion: reduce) { .gradient-text { animation: none; background-position: 0% 50%; } }
+
+  /* "Ask about my work" chat widget */
+  #chatLauncher {
+    position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 50;
+    display: flex; align-items: center; gap: 0.6rem;
+    background: #16233F; color: #fff; border: none; border-radius: 999px;
+    padding: 0.85rem 1.3rem; font-weight: 700; font-size: 0.85rem;
+    box-shadow: 0 10px 30px -8px rgba(22,35,63,0.5); cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  #chatLauncher:hover { transform: translateY(-2px); box-shadow: 0 14px 34px -6px rgba(22,35,63,0.55); }
+  /* Mobile only: the fixed launcher is anchored by `right` with no left
+     constraint, so its full-text width can push off-screen on narrow
+     phones. Collapse to icon-only below 480px -- desktop is untouched. */
+  @media (max-width: 480px) {
+    #chatLauncher { padding: 0.85rem; gap: 0; }
+    #chatLauncher .launcher-text, #chatLauncher .launcher-ai-tag { display: none; }
+  }
+  #chatPanel {
+    position: fixed; bottom: 5.5rem; right: 1.5rem; z-index: 50;
+    width: min(360px, calc(100vw - 2.5rem)); max-height: min(520px, calc(100vh - 8rem));
+    background: #fff; border-radius: 1rem; overflow: hidden;
+    box-shadow: 0 24px 60px -12px rgba(22,35,63,0.35); border: 1px solid #E4E7ED;
+    display: none; flex-direction: column;
+  }
+  #chatPanel.open { display: flex; }
+  #chatMessages { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.7rem; }
+  .chat-bubble { max-width: 85%; padding: 0.6rem 0.9rem; border-radius: 0.8rem; font-size: 0.85rem; line-height: 1.45; }
+  .chat-bubble.user { align-self: flex-end; background: #16233F; color: #fff; border-bottom-right-radius: 0.2rem; }
+  .chat-bubble.bot { align-self: flex-start; background: #F3F6FB; color: #1F2937; border-bottom-left-radius: 0.2rem; }
+  .chat-bubble.typing { display: flex; gap: 4px; align-items: center; }
+  .chat-bubble.typing span { width: 6px; height: 6px; border-radius: 50%; background: #94A3B8; animation: typingBounce 1.2s infinite ease-in-out; }
+  .chat-bubble.typing span:nth-child(2) { animation-delay: 0.15s; }
+  .chat-bubble.typing span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes typingBounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.5; } 30% { transform: translateY(-4px); opacity: 1; } }
+  /* "Talk to Victor" additions */
+  .wave-smiley { position: relative; display: inline-flex; flex-shrink: 0; width: 28px; height: 28px; margin: 0 0.1rem 0 0.35rem; }
+  .wave-hand { position: absolute; left: -12px; top: -5px; font-size: 1.05rem; line-height: 1; transform-origin: 30% 90%; animation: handWave 3s ease-in-out infinite; }
+  .wave-hand > span { display: inline-block; }
+  #chatLauncher:hover .wave-hand { animation-duration: 1s; }
+  @keyframes handWave {
+    0%, 50%, 100% { transform: rotate(0deg); }
+    58% { transform: rotate(-22deg); } 66% { transform: rotate(12deg); }
+    74% { transform: rotate(-22deg); } 82% { transform: rotate(8deg); } 90% { transform: rotate(-10deg); }
+  }
+  @media (prefers-reduced-motion: reduce) { .wave-hand { animation: none; } }
+  #chatPanel { width: min(380px, calc(100vw - 2rem)); max-height: min(600px, calc(100vh - 7.5rem)); }
+  @media (max-width: 480px) { #chatPanel { right: 1rem; bottom: 5rem; } }
+  .chat-bubble { white-space: pre-wrap; word-wrap: break-word; }
+  .chat-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg,#FFC220,#F59E0B); color: #16233F; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.78rem; flex-shrink: 0; position: relative; }
+  .chat-avatar::after { content: ""; position: absolute; right: -1px; bottom: -1px; width: 10px; height: 10px; border-radius: 50%; background: #22C55E; border: 2px solid #16233F; }
+  #chatChips { display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0 1rem 0.6rem; }
+  #chatChips button { background: #fff; border: 1px solid #CBD5E1; color: #16233F; border-radius: 999px; padding: 0.35rem 0.7rem; font-size: 0.74rem; font-weight: 600; cursor: pointer; }
+  #chatChips button:hover { border-color: #16233F; background: #F3F6FB; }
+  #chatLeadBar { padding: 0 0.75rem 0.5rem; }
+  #chatLeadToggle { width: 100%; background: #FFF8E6; border: 1px dashed #F59E0B; color: #92400E; border-radius: 0.6rem; padding: 0.45rem; font-size: 0.76rem; font-weight: 700; cursor: pointer; }
+  #chatLeadForm { display: none; flex-direction: column; gap: 0.4rem; background: #F8FAFC; border: 1px solid #E4E7ED; border-radius: 0.7rem; padding: 0.65rem; margin-top: 0.4rem; }
+  #chatLeadForm.open { display: flex; }
+  #chatLeadForm input { padding: 0.45rem 0.6rem; border: 1px solid #E4E7ED; border-radius: 0.5rem; font-size: 0.8rem; outline: none; }
+  #chatLeadForm button[type=submit] { background: #16233F; color: #fff; border: none; border-radius: 0.5rem; padding: 0.5rem; font-weight: 700; font-size: 0.8rem; cursor: pointer; }
+  /* "Book time with me" mentions in AI replies link to the booking section */
+  .chat-bubble a.book-link { color: #0F7B6C; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }
+  #chatInput { resize: none; font-family: inherit; line-height: 1.35; max-height: 110px; }
+  #chatNudge { position: fixed; right: 1.5rem; bottom: 5.4rem; z-index: 49; max-width: 260px; background: #fff; color: #1F2937; border: 1px solid #E4E7ED; border-radius: 0.9rem 0.9rem 0.2rem 0.9rem; padding: 0.7rem 2rem 0.7rem 0.9rem; font-size: 0.82rem; line-height: 1.4; box-shadow: 0 16px 40px -12px rgba(22,35,63,0.35); display: none; cursor: pointer; }
+  #chatNudge.show { display: block; animation: nudgeIn 0.35s ease; }
+  #chatNudge .x { position: absolute; top: 0.3rem; right: 0.5rem; background: none; border: none; font-size: 1rem; color: #94A3B8; cursor: pointer; }
+  @keyframes nudgeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { #chatNudge.show { animation: none; } }
+
+  /* Premium work samples */
+  .work-item .premium-badge, .work-item .sample-badge { transform: scale(0.8); transform-origin: top left; top: 6px; left: 6px; }
+  .premium-card { font: inherit; color: inherit; cursor: pointer; padding: 0; box-shadow: 0 0 0 1px rgba(232,185,35,0.35); }
+  .premium-badge { position: absolute; top: 10px; left: 10px; z-index: 2; background: linear-gradient(135deg,#FFC220,#E8A317); color: #16233F;
+    font-size: 0.68rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px;
+    box-shadow: 0 4px 12px -2px rgba(0,0,0,0.25); }
+  /* Highlight badges on regular cards (e.g. "Creativity") */
+  .sample-badge { position: absolute; top: 10px; left: 10px; z-index: 2; background: linear-gradient(135deg,#8B5CF6,#EC4899); color: #fff;
+    font-size: 0.68rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px;
+    box-shadow: 0 4px 12px -2px rgba(0,0,0,0.25); }
+  .badge-card { box-shadow: 0 0 0 1px rgba(139,92,246,0.35); border-color: #C4B5FD !important; }
+  #premiumOverlay { position: fixed; inset: 0; z-index: 75; background: rgba(15,23,42,0.6); display: none; align-items: center; justify-content: center; padding: 1rem; }
+  #premiumOverlay.open { display: flex; }
+  #premiumModal { background: #fff; border-radius: 1rem; width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto; box-shadow: 0 30px 70px -15px rgba(0,0,0,0.45); }
+  #premiumModal label { display: block; font-size: 0.78rem; font-weight: 600; color: #374151; margin: 0.7rem 0 0.25rem; }
+  #premiumModal, #premiumModal * { box-sizing: border-box; }
+  #premiumModal input { width: 100%; padding: 0.6rem 0.8rem; border: 1px solid #E4E7ED; border-radius: 0.6rem; font-size: 0.88rem; outline: none; font-family: inherit; }
+  #premiumModal input:focus { border-color: #0F7B6C; }
+  #premiumModal input.invalid { border-color: #DC2626; }
+  .premium-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+  /* "Check My Fit" modal */
+  #jobFitOverlay {
+    position: fixed; inset: 0; z-index: 70; background: rgba(15,23,42,0.6);
+    display: none; align-items: center; justify-content: center; padding: 1rem;
+  }
+  #jobFitOverlay.open { display: flex; }
+  #jobFitModal {
+    background: #fff; border-radius: 1rem; width: 100%; max-width: 540px;
+    max-height: 88vh; overflow-y: auto; box-shadow: 0 30px 70px -15px rgba(0,0,0,0.45);
+  }
+  .fit-spinner {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 3px solid #E4E7ED; border-top-color: #0F7B6C;
+    animation: fitSpin 0.8s linear infinite; margin: 0 auto;
+  }
+  @keyframes fitSpin { to { transform: rotate(360deg); } }
+  .fit-score-ring {
+    width: 110px; height: 110px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1rem; font-weight: 800; font-size: 2rem; color: #16233F;
+    background: conic-gradient(var(--fit-color, #0F7B6C) calc(var(--fit-pct, 0) * 1%), #EDEFF3 0);
+  }
+  .fit-score-ring-inner {
+    width: 88px; height: 88px; border-radius: 50%; background: #fff;
+    display: flex; align-items: center; justify-content: center; flex-direction: column;
+  }
+  .fit-score-ring-inner small { font-size: 0.6rem; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* Lightweight hover tooltips for buttons -- pure CSS, no JS */
+  .tt { position: relative; }
+  .tt::after {
+    content: attr(data-tip);
+    position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%);
+    background: #16233F; color: #fff; font-size: 0.72rem; font-weight: 500;
+    padding: 0.5rem 0.7rem; border-radius: 0.5rem; white-space: normal; width: max-content; max-width: 220px;
+    text-align: center; line-height: 1.35;
+    opacity: 0; pointer-events: none; transition: opacity 0.15s ease, transform 0.15s ease;
+    box-shadow: 0 8px 20px -6px rgba(0,0,0,0.35); z-index: 40;
+  }
+  .tt::before {
+    content: ''; position: absolute; bottom: calc(100% + 4px); left: 50%; transform: translateX(-50%);
+    border: 6px solid transparent; border-top-color: #16233F;
+    opacity: 0; pointer-events: none; transition: opacity 0.15s ease; z-index: 40;
+  }
+  .tt:hover::after, .tt:hover::before { opacity: 1; }
+  .tt:hover::after { transform: translateX(-50%) translateY(-2px); }
+
+  /* Small persistent "Powered by AI" caption under AI-driven buttons */
+  .ai-badge {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    font-size: 0.65rem; font-weight: 700; letter-spacing: 0.04em;
+    color: #4FBFAE; margin-top: 0.4rem;
+  }
+
+  /* ---- Concept A (profile + tabs) ---- */
+  .pcard { background: #fff; border: 1px solid #E5E7EB; border-radius: 1rem; padding: 1.5rem 1.75rem; }
+  @media (max-width: 640px) { .pcard { padding: 1.1rem 1.1rem; } }
+  .pcard-title { font-size: 1.25rem; font-weight: 700; color: #16233F; margin-bottom: 1rem; }
+  .profile-tab { flex: 0 0 auto; padding: 0.95rem 0.9rem 0.8rem; border-bottom: 3px solid transparent; font-weight: 600; font-size: 0.95rem; color: #5A667C; white-space: nowrap; background: none; cursor: pointer; }
+  .profile-tab:hover { color: #16233F; }
+  .profile-tab[aria-selected="true"] { color: #0F7B6C; border-bottom-color: #0F7B6C; }
+  .profile-tab:focus-visible { outline: 2px solid #0F7B6C; outline-offset: -4px; border-radius: 6px; }
+  .see-more { font-size: 0.875rem; font-weight: 700; color: #0F7B6C; background: none; border: 0; padding: 0; cursor: pointer; }
+  .see-more:hover { text-decoration: underline; }
+  .work-filter { padding: 0.4rem 0.85rem; border-radius: 999px; border: 1px solid #C9CFD8; font-size: 0.78rem; font-weight: 600; color: #1B2230; background: #fff; cursor: pointer; }
+  .work-filter.on { background: #16233F; border-color: #16233F; color: #fff; }
+  .clamp-4 { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  .rail-slot { display: block; text-align: center; padding: 0.5rem 0.4rem; border: 1px solid #0F7B6C; border-radius: 0.6rem; color: #0F7B6C; font-weight: 700; font-size: 0.85rem; line-height: 1.25; }
+  .rail-slot:hover { background: #D5E9E5; }
+  aside .bt-skel { border-radius: 0.6rem; background: linear-gradient(90deg,#EEF1F5 25%,#F7F8FA 50%,#EEF1F5 75%); background-size: 200% 100%; animation: btShimmer 1.2s infinite; }
+</style>
+</head>
+<body class="bg-white text-ink">
+
+<!-- SCROLL PROGRESS BAR -->
+<div id="scrollProgress"></div>
+
+<!-- NAV -->
+<nav class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-200">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+    <a href="#overview" data-tab-link="overview" class="serif font-bold text-lg text-navy whitespace-nowrap">{{ profile.name }}</a>
+    <div class="hidden lg:flex items-center gap-5 text-sm font-medium text-slate2">
+      <a href="#overview" data-tab-link="overview" class="nav-link hover:text-accent">Overview</a>
+      <a href="#experience" data-tab-link="experience" class="nav-link hover:text-accent">Experience</a>
+      <a href="#work" data-tab-link="work" class="nav-link hover:text-accent">Work &amp; Writing</a>
+      <a href="#credentials" data-tab-link="credentials" class="nav-link hover:text-accent">Credentials</a>
+      <a href="#recommendations" data-tab-link="recommendations" class="nav-link hover:text-accent">Recommendations</a>
+      <a href="#book" class="whitespace-nowrap px-4 py-2 rounded-full border border-navy text-navy hover:bg-navy hover:text-white transition">Book Time</a>
+      <a href="{{ profile.linkedin }}" target="_blank" rel="noopener"
+         class="px-4 py-2 rounded-full bg-navy text-white hover:bg-navy-2 transition">LinkedIn</a>
+    </div>
+    <button type="button" id="mobileNavToggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobileNavPanel"
+            class="lg:hidden flex flex-col justify-center items-center gap-[5px] w-9 h-9 -mr-1">
+      <span id="mnBar1" class="block w-6 h-[2px] bg-navy transition-transform duration-200"></span>
+      <span id="mnBar2" class="block w-6 h-[2px] bg-navy transition-opacity duration-200"></span>
+      <span id="mnBar3" class="block w-6 h-[2px] bg-navy transition-transform duration-200"></span>
+    </button>
+  </div>
+  <div id="mobileNavPanel" class="lg:hidden hidden border-t border-gray-200 bg-white px-6 py-4">
+    <div class="flex flex-col gap-1 text-sm font-medium text-slate2">
+      <a href="#overview" data-tab-link="overview" class="nav-link-mobile py-2 hover:text-accent">Overview</a>
+      <a href="#experience" data-tab-link="experience" class="nav-link-mobile py-2 hover:text-accent">Experience</a>
+      <a href="#work" data-tab-link="work" class="nav-link-mobile py-2 hover:text-accent">Work &amp; Writing</a>
+      <a href="#credentials" data-tab-link="credentials" class="nav-link-mobile py-2 hover:text-accent">Credentials</a>
+      <a href="#recommendations" data-tab-link="recommendations" class="nav-link-mobile py-2 hover:text-accent">Recommendations</a>
+      <a href="#book" class="nav-link-mobile py-2 hover:text-accent">Book Time</a>
+      <a href="{{ profile.linkedin }}" target="_blank" rel="noopener"
+         class="mt-2 px-4 py-2.5 rounded-full bg-navy text-white text-center hover:bg-navy-2 transition">LinkedIn</a>
+    </div>
+  </div>
+</nav>
+
+<!-- PROFILE (Concept A: LinkedIn-style profile card + tabs) -->
+<main id="top" class="bg-[#F3F4F6]">
+  <div class="max-w-6xl mx-auto px-3 sm:px-6 pt-4 sm:pt-6 pb-16 flex flex-wrap gap-5 items-start">
+
+    <!-- ===== Main column ===== -->
+    <div class="min-w-0" style="flex: 999 1 640px;">
+
+      <!-- Profile card -->
+      <div class="bg-white border border-gray-200 rounded-t-2xl overflow-hidden">
+        <div class="relative h-32 sm:h-44 bg-navy">
+          <div class="absolute inset-0 opacity-[0.08]" style="background-image:radial-gradient(circle at 20px 20px, white 2px, transparent 0);background-size:40px 40px;"></div>
+          <div class="hidden sm:block absolute right-6 bottom-4 text-[11px] tracking-[0.16em] uppercase font-bold text-[#FFC220] text-right">{{ profile.current_role }}</div>
+        </div>
+        <div class="px-5 sm:px-8">
+          <div class="-mt-14 sm:-mt-[72px] w-28 h-28 sm:w-36 sm:h-36 rounded-full bg-accent border-[5px] border-white flex items-center justify-center text-white serif font-bold text-4xl sm:text-5xl relative">VC</div>
+          <div class="flex flex-wrap justify-between gap-6 mt-3">
+            <div class="min-w-0" style="flex: 1 1 380px;">
+              <h1 class="serif font-bold text-2xl sm:text-[32px] leading-tight text-navy">{{ profile.name }}</h1>
+              <div class="text-[17px] text-ink mt-1">{{ profile.tagline }}, turning enterprise data into decisions.</div>
+              <p class="text-[15px] text-slate2 leading-relaxed mt-2 max-w-2xl">{{ profile.subhead }}</p>
+              <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-slate2 mt-3">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z"></path><circle cx="12" cy="9" r="2.5"></circle></svg>
+                <span>{{ profile.location }} &middot; open to relocating</span>
+                <span class="opacity-40">&middot;</span>
+                <span>{{ profile.years_industry }} years in industry &middot; {{ profile.years_walmart }} at Walmart</span>
+              </div>
+            </div>
+            <div class="flex flex-col gap-3 text-sm font-semibold text-ink" style="flex: 0 1 260px;">
+              <div class="flex items-center gap-3"><span class="w-9 h-9 rounded-lg bg-[#E8EEF9] text-navy flex items-center justify-center text-xs font-black flex-shrink-0">WM</span>Walmart &middot; 6 roles since 2017</div>
+              <div class="flex items-center gap-3"><span class="w-9 h-9 rounded-lg bg-[#FBEDED] text-[#B31B1B] flex items-center justify-center text-xs font-black flex-shrink-0">CU</span>Cornell &middot; Product Mgmt &amp; ML</div>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-start gap-2.5 mt-5 mb-6">
+            <a href="#book" class="tt px-5 py-2.5 rounded-full bg-accent hover:bg-[#0c665a] text-white font-bold text-sm transition"
+               data-tip="Pick a time on Victor's live calendar">Book time with me</a>
+            <a href="/static/Victor_Chowdhury_CV_Data_AI.pdf" download="Victor Chowdhury Resume.pdf"
+               class="tt px-5 py-2.5 rounded-full border border-accent text-accent hover:bg-accent-soft font-bold text-sm transition"
+               data-tip="Downloads the resume">Download r&eacute;sum&eacute;</a>
+            <div class="flex flex-col items-center">
+              <button type="button" id="jobFitLauncher"
+                      class="tt px-5 py-2.5 rounded-full border border-navy text-navy hover:bg-navy hover:text-white font-bold text-sm transition"
+                      data-tip="Paste a job link or description and get an instant AI-scored fit percentage against Victor's profile">Check my fit &rarr;</button>
+              <span class="ai-badge">&#10024; Powered by AI</span>
+            </div>
+            <a href="/static/Victor-Chowdhury.vcf" download
+               class="tt px-5 py-2.5 rounded-full border border-gray-300 text-ink hover:bg-gray-50 font-semibold text-sm transition"
+               data-tip="Downloads a contact card (.vcf) you can save straight into your phone or email contacts">Save contact</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sticky tab bar -->
+      <div class="sticky top-[57px] z-30 bg-white border border-t-0 border-gray-200 rounded-b-2xl mb-4 shadow-[0_6px_12px_-10px_rgba(22,35,63,0.35)]">
+        <div class="flex overflow-x-auto px-2 sm:px-4" role="tablist" aria-label="Profile sections" style="scrollbar-width:none;">
+          <button type="button" role="tab" class="profile-tab" data-tab="overview" aria-controls="overview">Overview</button>
+          <button type="button" role="tab" class="profile-tab" data-tab="experience" aria-controls="experience">Experience</button>
+          <button type="button" role="tab" class="profile-tab" data-tab="work" aria-controls="work">Work &amp; writing</button>
+          <button type="button" role="tab" class="profile-tab" data-tab="credentials" aria-controls="credentials">Credentials</button>
+          <button type="button" role="tab" class="profile-tab" data-tab="recommendations" aria-controls="recommendations">Recommendations</button>
+        </div>
+      </div>
+
+      <!-- ================= OVERVIEW ================= -->
+      <section id="overview" role="tabpanel" class="tab-panel space-y-4">
+        <div class="pcard">
+          <h2 class="pcard-title">About</h2>
+          <div class="text-[15px] leading-relaxed text-[#2C3548] space-y-4">
+            {% for para in about %}
+            <p{% if not loop.first %} class="about-more hidden"{% endif %}>{{ para }}</p>
+            {% endfor %}
+          </div>
+          {% if about|length > 1 %}<button type="button" class="see-more mt-2" data-more=".about-more" data-less-label="Show less">See more</button>{% endif %}
+          <div class="text-[11px] tracking-[0.14em] uppercase text-slate2 font-bold mt-6 mb-2">What I bring</div>
+          <div class="flex flex-wrap gap-2">
+            {% for c in capabilities %}
+            <span class="px-3 py-1.5 rounded-full bg-[#EEF1F5] text-[13px] font-semibold text-[#2C3548]{% if loop.index > 10 %} skill-more hidden{% endif %}">{{ c }}</span>
+            {% endfor %}
+            {% if capabilities|length > 10 %}<button type="button" class="see-more px-3 py-1.5 rounded-full border border-dashed border-[#9AA5B5] !text-[13px]" data-more=".skill-more" data-less-label="Show fewer">+{{ capabilities|length - 10 }} more</button>{% endif %}
+          </div>
+        </div>
+
+        <div class="pcard">
+          <h2 class="pcard-title">Impact, by the numbers</h2>
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {% for item in impact %}
+            <div class="border border-gray-200 rounded-xl p-4 hover:border-accent transition">
+              <div class="impact-metric serif font-black text-[22px] sm:text-[26px] text-accent leading-none mb-2">{{ item.metric }}</div>
+              <div class="font-bold text-sm text-ink leading-snug">{{ item.label }}</div>
+              <div class="text-[10px] tracking-[0.1em] uppercase text-slate2 font-bold mt-1 mb-2">{{ item.tag }}</div>
+              <div class="hidden sm:block text-xs text-slate2 leading-relaxed">{{ item.detail }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="pcard">
+          <div class="flex items-baseline justify-between gap-3 mb-4">
+            <h2 class="pcard-title !mb-0">Featured</h2>
+            <a href="#work" data-tab-link="work" class="text-sm font-semibold text-accent hover:underline whitespace-nowrap">All {{ work_samples|length + articles|length }} samples &amp; articles &rarr;</a>
+          </div>
+          <div class="grid sm:grid-cols-3 gap-3">
+            {% for s in work_samples if ('AISLE1:' in s.title) or ('Smart Woffie' in s.title) or ('Agent Performance' in s.title) %}
+            {% if s.premium %}
+            <button type="button" data-premium="{{ s.premium }}" data-premium-title="{{ s.title }}" aria-label="Premium: {{ s.title }} - unlock to view"
+                    class="premium-card group block text-left bg-white border border-[#E8B923] rounded-xl overflow-hidden hover:border-accent transition">
+            {% else %}
+            <a href="{{ s.url }}" target="_blank" rel="noopener" class="group block bg-white border border-gray-200 rounded-xl overflow-hidden hover:border-accent transition">
+            {% endif %}
+              <div class="aspect-[16/10] overflow-hidden bg-gray-100 border-b border-gray-200 relative">
+                {% if s.premium %}<span class="premium-badge">&#9733; Premium</span>{% endif %}
+                <img src="{{ s.thumbnail }}" alt="{{ s.title }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300">
+              </div>
+              <div class="p-3.5">
+                <div class="text-[10px] tracking-[0.12em] uppercase text-accent font-bold mb-1">{{ s.tag }}</div>
+                <div class="font-bold text-sm text-navy leading-snug group-hover:text-accent transition">{{ s.title }}</div>
+              </div>
+            {% if s.premium %}</button>{% else %}</a>{% endif %}
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= EXPERIENCE ================= -->
+      <section id="experience" role="tabpanel" class="tab-panel space-y-4" hidden>
+        <div class="pcard">
+          <h2 class="pcard-title">Experience</h2>
+
+          <!-- Walmart: grouped roles, LinkedIn style -->
+          <div class="flex gap-4">
+            <span class="w-12 h-12 rounded-lg bg-[#E8EEF9] text-navy flex items-center justify-center text-sm font-black flex-shrink-0">WM</span>
+            <div class="min-w-0 flex-1">
+              <div class="font-bold text-[16px] text-ink">Walmart</div>
+              <div class="text-[13px] text-slate2">6 roles &middot; Jan 2017 to present &middot; Bentonville, Arkansas</div>
+              <ol class="mt-4 border-l-2 border-[#D5DBE3] pl-5 space-y-5">
+                {% for job in timeline if 'Wipro' not in job.org %}
+                <li class="relative{% if loop.index > 3 %} role-more hidden{% endif %}">
+                  <span class="absolute -left-[27px] top-1.5 w-3 h-3 rounded-full {{ 'bg-accent' if loop.first else 'bg-[#C3CAD5]' }} border-2 border-white"></span>
+                  <div class="font-bold text-[15px] text-ink leading-snug">{{ job.title }}</div>
+                  <div class="text-[13px] text-slate2">{% if job.org != 'Walmart' %}{{ job.org }} &middot; {% endif %}{{ job.dates }}</div>
+                  <p class="text-sm text-[#2C3548] leading-relaxed mt-1.5">{{ job.blurb }}</p>
+                </li>
+                {% endfor %}
+              </ol>
+              <button type="button" class="see-more mt-3" data-more=".role-more" data-less-label="Show fewer roles">Show 3 earlier Walmart roles</button>
+            </div>
+          </div>
+
+          <div class="h-px bg-gray-200 my-6"></div>
+
+          <!-- Wipro -->
+          <div class="flex gap-4">
+            <span class="w-12 h-12 rounded-lg bg-[#F1ECFA] text-[#4B2C8A] flex items-center justify-center text-sm font-black flex-shrink-0">WI</span>
+            <div class="min-w-0 flex-1">
+              <div class="font-bold text-[16px] text-ink">Wipro &middot; Nike account</div>
+              <div class="text-[13px] text-slate2">2 roles &middot; Sep 2010 to Jan 2017 &middot; India and Portland, Oregon</div>
+              <ol class="mt-4 border-l-2 border-[#D5DBE3] pl-5 space-y-5">
+                {% for job in timeline if 'Wipro' in job.org %}
+                <li class="relative">
+                  <span class="absolute -left-[27px] top-1.5 w-3 h-3 rounded-full bg-[#C3CAD5] border-2 border-white"></span>
+                  <div class="font-bold text-[15px] text-ink leading-snug">{{ job.title }}</div>
+                  <div class="text-[13px] text-slate2">{{ job.org|replace('Wipro · ', '') }} &middot; {{ job.dates }}</div>
+                  <p class="text-sm text-[#2C3548] leading-relaxed mt-1.5">{{ job.blurb }}</p>
+                </li>
+                {% endfor %}
+              </ol>
+            </div>
+          </div>
+        </div>
+
+        <!-- The four lenses, as stacked LinkedIn-style entries -->
+        <div class="pcard">
+          <h2 class="pcard-title !mb-1">Highlights by area</h2>
+          <p class="text-sm text-slate2 mb-4">The same career through the four lenses people usually ask about.</p>
+          <div class="flex flex-wrap gap-2 mb-5" role="tablist">
+            {% for b in buckets %}
+            <button class="bucket-btn px-4 py-2 rounded-full border border-gray-300 text-sm font-semibold text-navy hover:border-navy transition {{ 'active' if loop.first else '' }}"
+                    data-target="bucket-{{ b.id }}" onclick="showBucket('{{ b.id }}')">
+              {{ b.label }} <span class="bucket-count text-xs text-slate2">&middot; {{ b.anecdotes|length }}</span>
+            </button>
+            {% endfor %}
+          </div>
+          {% for b in buckets %}
+          <div id="bucket-{{ b.id }}" class="bucket-panel {{ 'active' if loop.first else '' }}">
+            <p class="text-[15px] text-slate2 leading-relaxed mb-4">{{ b.intro }}</p>
+            <div class="space-y-3">
+              {% for a in b.anecdotes %}
+              <div class="border border-gray-200 rounded-xl p-4 sm:p-5">
+                <div class="text-[10px] tracking-[0.12em] uppercase text-accent font-bold mb-1">{{ a.tag }}</div>
+                <h3 class="serif font-bold text-[17px] text-navy leading-snug mb-1.5">{{ a.title }}</h3>
+                <p class="text-sm text-[#3A4459] leading-relaxed">{{ a.body }}</p>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+
+      <!-- ================= WORK & WRITING ================= -->
+      <section id="work" role="tabpanel" class="tab-panel" hidden>
+        <div class="pcard">
+          <div class="flex flex-wrap items-baseline justify-between gap-3 mb-4">
+            <h2 class="pcard-title !mb-0">Work &amp; writing</h2>
+            <div class="flex flex-wrap gap-2" role="group" aria-label="Filter work">
+              <button type="button" class="work-filter on" data-filter="all">All &middot; {{ work_samples|length + articles|length }}</button>
+              <button type="button" class="work-filter" data-filter="sample">Work samples &middot; {{ work_samples|length }}</button>
+              <button type="button" class="work-filter" data-filter="article">Articles &middot; {{ articles|length }}</button>
+            </div>
+          </div>
+          <p class="text-sm text-slate2 mb-4">Live, interactive artifacts and write-ups. Demos use illustrative data to protect Walmart's.</p>
+          <div class="space-y-3">
+            {% for s in work_samples %}
+            {% if s.premium %}
+            <button type="button" data-kind="sample" data-premium="{{ s.premium }}" data-premium-title="{{ s.title }}" aria-label="Premium: {{ s.title }} - unlock to view"
+                    class="work-item premium-card group w-full text-left flex flex-row gap-3 sm:gap-4 bg-white border border-[#E8B923] rounded-xl !p-3 sm:!p-4 hover:border-accent transition">
+            {% else %}
+            <a href="{{ s.url }}" target="_blank" rel="noopener" data-kind="sample"
+               class="work-item group flex flex-row gap-3 sm:gap-4 bg-white border border-gray-200 rounded-xl p-3 sm:p-4 hover:border-accent transition">
+            {% endif %}
+              <div class="relative w-28 sm:w-56 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
+                {% if s.premium %}<span class="premium-badge">&#9733; Premium</span>{% elif s.badge %}<span class="sample-badge">&#10024; {{ s.badge }}</span>{% endif %}
+                <img src="{{ s.thumbnail }}" alt="{{ s.title }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300">
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="text-[10px] tracking-[0.12em] uppercase text-accent font-bold mb-1">{{ s.tag }}</div>
+                <h3 class="serif font-bold text-[17px] text-navy leading-snug group-hover:text-accent transition">{{ s.title }}</h3>
+                <p class="text-sm text-[#3A4459] leading-relaxed mt-1.5 line-clamp-3">{{ s.description }}</p>
+                {% if s.premium %}<div class="text-xs font-bold text-[#B7791F] mt-2">&#128274; Unlock to view &rarr;</div>{% else %}<div class="text-xs font-bold text-accent mt-2">{{ s.cta or "View live" }} &rarr;</div>{% endif %}
+              </div>
+            {% if s.premium %}</button>{% else %}</a>{% endif %}
+            {% endfor %}
+            {% for a in articles %}
+            <a href="{{ a.url }}" target="_blank" rel="noopener" data-kind="article"
+               class="work-item group flex flex-row gap-3 sm:gap-4 bg-white border border-gray-200 rounded-xl p-3 sm:p-4 hover:border-accent transition">
+              <div class="relative w-28 sm:w-56 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
+                <span class="absolute top-2 left-2 z-[2] bg-navy text-[#FFC220] text-[10px] font-black tracking-[0.12em] uppercase px-2 py-1 rounded">Article</span>
+                <img src="{{ a.thumbnail }}" alt="{{ a.title }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300">
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="text-[10px] tracking-[0.12em] uppercase text-accent font-bold mb-1">{{ a.tag }}</div>
+                <h3 class="serif font-bold text-[17px] text-navy leading-snug group-hover:text-accent transition">{{ a.title }}</h3>
+                <p class="text-sm text-[#3A4459] leading-relaxed mt-1.5 line-clamp-3">{{ a.description }}</p>
+                <div class="text-xs font-bold text-accent mt-2">Read article &rarr;</div>
+              </div>
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= CREDENTIALS ================= -->
+      <section id="credentials" role="tabpanel" class="tab-panel space-y-4" hidden>
+        <div class="pcard">
+          <h2 class="pcard-title">Education</h2>
+          <div class="space-y-4">
+            {% for e in education %}
+            <div class="flex gap-4">
+              {% set is_cornell = 'Cornell' in e.org %}
+              <span class="w-12 h-12 rounded-lg flex items-center justify-center text-sm font-black flex-shrink-0 {{ 'bg-[#FBEDED] text-[#B31B1B]' if is_cornell else 'bg-[#EEF1F5] text-navy' }}">{{ 'CU' if is_cornell else e.org[:1] }}</span>
+              <div class="min-w-0">
+                <div class="font-bold text-[15px] text-ink">{{ e.org.split(' · ')[0] }}</div>
+                <div class="text-sm text-[#2C3548]">{{ e.title }}</div>
+                <div class="text-[13px] text-slate2">{{ e.org.split(' · ')[1] if ' · ' in e.org else '' }}</div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="pcard">
+          <h2 class="pcard-title">Licenses &amp; certifications</h2>
+          <div class="space-y-3">
+            {% for c in certificates %}
+            <a href="{{ c.url }}" target="_blank" rel="noopener" class="group flex flex-row gap-3 sm:gap-4 border border-gray-200 rounded-xl p-3 sm:p-4 hover:border-accent transition">
+              <div class="w-24 sm:w-36 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-gray-100">
+                <img src="{{ c.thumbnail }}" alt="{{ c.title }}" loading="lazy" class="w-full h-full object-cover object-top group-hover:scale-105 transition duration-300">
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="text-[10px] tracking-[0.12em] uppercase font-bold mb-1 {{ 'text-[#B31B1B]' if c.brand == 'cornell' else 'text-accent' }}">{{ c.tag }}</div>
+                <h3 class="serif font-bold text-[17px] text-navy leading-snug group-hover:text-accent transition">{{ c.title }}</h3>
+                <p class="text-sm text-[#3A4459] leading-relaxed mt-1.5 line-clamp-3">{{ c.description }}</p>
+                <div class="text-xs font-bold mt-2 {{ 'text-[#B31B1B]' if c.brand == 'cornell' else 'text-accent' }}">Show credential &#8599;</div>
+              </div>
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="pcard">
+          <h2 class="pcard-title">Honors &amp; awards</h2>
+          <div class="space-y-3">
+            {% for a in awards %}
+            <div class="flex flex-row gap-3 sm:gap-4 border border-gray-200 rounded-xl p-3 sm:p-4">
+              <button type="button" class="award-photo w-24 sm:w-36 self-start flex-shrink-0 aspect-[16/10] rounded-lg overflow-hidden border border-gray-200 bg-[#F4F6FA] cursor-zoom-in"
+                      data-caption="{{ a.title }} · {{ a.org }}{% if a.year %} · {{ a.year }}{% endif %}" aria-label="View larger: {{ a.title }}">
+                <img src="{{ a.image }}" alt="{{ a.alt }}" loading="lazy" class="w-full h-full object-contain p-2">
+              </button>
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mb-1">
+                  <span class="text-[10px] tracking-[0.12em] uppercase font-bold text-accent">{{ a.org }}</span>
+                  {% if a.year %}<span class="text-xs font-semibold text-slate2">{{ a.year }}</span>{% endif %}
+                </div>
+                <h3 class="serif font-bold text-[17px] text-navy leading-snug">{{ a.title }}</h3>
+                <p class="text-sm text-[#3A4459] leading-relaxed mt-1.5 line-clamp-3">{{ a.description }}</p>
+              </div>
+            </div>
+            {% endfor %}
+            <div class="flex flex-row gap-3 sm:gap-4 border border-gray-200 rounded-xl p-3 sm:p-4">
+              <div class="w-24 sm:w-36 self-start flex-shrink-0 aspect-[16/10] rounded-lg bg-navy text-[#FFC220] flex items-center justify-center serif font-bold text-sm sm:text-lg">Patent</div>
+              <div class="min-w-0 flex-1">
+                <div class="text-[10px] tracking-[0.12em] uppercase font-bold text-accent mb-1">Walmart &middot; 2019</div>
+                <h3 class="serif font-bold text-[17px] text-navy leading-snug">{{ recognition.patent }}</h3>
+                <p class="text-sm text-[#3A4459] leading-relaxed mt-1.5">Other honors: {{ recognition.honors }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pcard">
+          <h2 class="pcard-title">Languages</h2>
+          <p class="text-sm text-[#2C3548]">{{ recognition.languages }}</p>
+        </div>
+      </section>
+
+      <!-- ================= RECOMMENDATIONS ================= -->
+      <section id="recommendations" role="tabpanel" class="tab-panel" hidden>
+        <div class="pcard">
+          <div class="flex items-baseline justify-between gap-3 mb-1">
+            <h2 class="pcard-title !mb-0">Recommendations</h2>
+            <span class="text-[13px] text-slate2">Received &middot; {{ testimonials|length }}</span>
+          </div>
+          <p class="text-sm text-slate2 mb-4">From LinkedIn, shown as received.</p>
+          <div class="space-y-3">
+            {% for t in testimonials %}
+            <div class="border border-gray-200 rounded-xl p-4 sm:p-5">
+              <div class="flex items-start gap-3">
+                <div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0" style="background:#0A66C2">{{ t.name[0] }}</div>
+                <div class="min-w-0">
+                  <div class="font-bold text-[15px] text-ink leading-tight">{{ t.name }}</div>
+                  <div class="text-[13px] text-slate2 leading-snug">{{ t.title }}</div>
+                  <div class="text-xs text-[#0A66C2] font-semibold mt-0.5">{{ t.relationship }} &middot; {{ t.date }}</div>
+                </div>
+              </div>
+              <p class="rec-quote text-[15px] text-[#2C3548] leading-relaxed mt-3">{{ t.quote }}</p>
+              <button type="button" class="rec-toggle see-more mt-1 hidden">See more</button>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===== Right rail ===== -->
+    <aside class="min-w-0 space-y-4 lg:sticky lg:top-[76px]" style="flex: 1 1 290px;">
+      <div class="pcard !p-5">
+        <div class="font-bold text-[16px] text-navy">Book time with me</div>
+        <div class="text-[13px] text-slate2 mt-1">Live from my calendar. You get the invite and a Meet link right away.</div>
+        <div id="railSlots" class="grid grid-cols-2 gap-2 mt-4">
+          <div class="bt-skel h-10"></div><div class="bt-skel h-10"></div><div class="bt-skel h-10"></div><div class="bt-skel h-10"></div>
+        </div>
+        <a href="#book" class="block mt-3 text-center py-2.5 rounded-full bg-accent hover:bg-[#0c665a] text-white font-bold text-sm transition">Open full calendar</a>
+      </div>
+
+      <div class="pcard !p-5">
+        <div class="font-bold text-[16px] text-navy">Ask AI Victor</div>
+        <div class="text-[13px] text-slate2 mt-1">The first-call version of me, grounded in my real work.</div>
+        <div class="flex flex-col gap-2 mt-3">
+          <button type="button" class="ask-ai text-left px-3 py-2.5 rounded-lg bg-[#EEF1F5] hover:bg-[#E2E7EE] text-[13px] font-medium text-ink transition" data-q="How did you measure the $330M in loss prevented?">How did you measure the $330M?</button>
+          <button type="button" class="ask-ai text-left px-3 py-2.5 rounded-lg bg-[#EEF1F5] hover:bg-[#E2E7EE] text-[13px] font-medium text-ink transition" data-q="What did you build with AISLE1, and how did you get people to adopt it?">What is AISLE1?</button>
+          <button type="button" class="ask-ai text-left px-3 py-2.5 rounded-lg bg-[#EEF1F5] hover:bg-[#E2E7EE] text-[13px] font-medium text-ink transition" data-q="How do you lead a team through AI adoption?">How do you lead AI adoption?</button>
+        </div>
+      </div>
+
+      <div class="pcard !p-5">
+        <div class="font-bold text-[16px] text-navy">Highlights</div>
+        <ul class="mt-3 space-y-2.5 text-sm text-[#2C3548]">
+          <li><span class="font-bold text-ink">Patent filed</span> &middot; {{ recognition.patent|replace(' (Patent Filed)', '') }}</li>
+          <li><span class="font-bold text-ink">Peak Captain</span> &middot; Walmart Fulfillment Services, 2024</li>
+          <li><span class="font-bold text-ink">Languages</span> &middot; English, Hindi, Bengali</li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<div id="awardLightbox" role="dialog" aria-modal="true" aria-label="Award photo" style="display:none;position:fixed;inset:0;z-index:80;background:rgba(10,16,32,0.88);align-items:center;justify-content:center;padding:1rem;">
+  <figure style="max-width:min(1000px,100%);max-height:100%;display:flex;flex-direction:column;align-items:center;gap:.75rem;margin:0;">
+    <img id="awardLightboxImg" src="" alt="" style="max-width:100%;max-height:82vh;border-radius:.6rem;background:#fff;box-shadow:0 30px 70px -15px rgba(0,0,0,.6);">
+    <figcaption id="awardLightboxCap" style="color:#E5E7EB;font-size:.9rem;text-align:center;"></figcaption>
+  </figure>
+  <button type="button" id="awardLightboxClose" aria-label="Close" style="position:absolute;top:1rem;right:1.25rem;background:none;border:none;color:#fff;font-size:2rem;line-height:1;cursor:pointer;">&times;</button>
+</div>
+<script>
+  // Recognition lightbox: click a photo to view it full size; Esc, the x or the backdrop closes it.
+  (function initAwardLightbox() {
+    const box = document.getElementById('awardLightbox');
+    if (!box) return;
+    const img = document.getElementById('awardLightboxImg');
+    const cap = document.getElementById('awardLightboxCap');
+    let opener = null;
+    function close() { box.style.display = 'none'; img.src = ''; if (opener) opener.focus(); }
+    document.querySelectorAll('.award-photo').forEach(btn => btn.addEventListener('click', () => {
+      opener = btn;
+      const thumb = btn.querySelector('img');
+      img.src = thumb.currentSrc || thumb.src; img.alt = thumb.alt;
+      cap.textContent = btn.dataset.caption || '';
+      box.style.display = 'flex';
+      document.getElementById('awardLightboxClose').focus();
+    }));
+    box.addEventListener('click', e => { if (e.target === box) close(); });
+    document.getElementById('awardLightboxClose').addEventListener('click', close);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && box.style.display === 'flex') close(); });
+  })();
+</script>
+
+<!-- BOOK TIME WITH ME -- Lives inside the footer under "Let's talk". Outlook-style day bar. Visitors pick a length, then
+     drag or tap their meeting onto any free spot of the day; busy blocks from
+     Victor's Google Calendar show as "Busy" (times only, never titles). Backed
+     by the book-time Supabase Edge Function. Booking is instant: a confirmed
+     event with a Meet link lands on Victor's calendar, Google emails the invite
+     to the visitor, and Victor gets an email with their details. -->
+<style>
+  #book .bt-chip { text-align: center; white-space: nowrap; border: 1px solid #E4E7ED; background: #fff; color: #1B2230; border-radius: 999px; padding: 0.45rem 0.95rem; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all .15s ease; }
+  #book .bt-chip:hover { border-color: #0F7B6C; color: #0F7B6C; }
+  #book .bt-chip[aria-pressed="true"] { background: #16233F; border-color: #16233F; color: #fff; }
+  #book .bt-days { display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.5rem; scroll-snap-type: x proximity; scrollbar-width: thin; }
+  #book .bt-day { flex: 0 0 auto; width: 4.6rem; scroll-snap-align: start; border: 1px solid #E4E7ED; background: #fff; border-radius: 0.8rem; padding: 0.55rem 0.3rem; text-align: center; cursor: pointer; transition: all .15s ease; }
+  #book .bt-day:hover:not(:disabled) { border-color: #0F7B6C; }
+  #book .bt-day:disabled { opacity: .45; cursor: default; }
+  #book .bt-day .w { font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: #5A667C; font-weight: 700; }
+  #book .bt-day .d { font-family: 'Source Serif 4', Georgia, serif; font-size: 1.45rem; font-weight: 700; color: #16233F; line-height: 1.15; }
+  #book .bt-day .m { font-size: 0.7rem; color: #5A667C; }
+  #book .bt-day .n { font-size: 0.66rem; color: #0F7B6C; font-weight: 700; margin-top: 0.15rem; }
+  #book .bt-day[aria-pressed="true"] { background: #16233F; border-color: #16233F; }
+  #book .bt-day[aria-pressed="true"] .w, #book .bt-day[aria-pressed="true"] .m { color: #9AA6C0; }
+  #book .bt-day[aria-pressed="true"] .d { color: #fff; }
+  #book .bt-day[aria-pressed="true"] .n { color: #FFC220; }
+
+  /* Day bar */
+  #book .bt-bar { position: relative; height: 76px; border: 1px solid #E4E7ED; border-radius: 0.8rem; background: #fff; overflow: hidden; touch-action: none; cursor: copy; user-select: none; -webkit-user-select: none; }
+  #book .bt-grid { position: absolute; top: 0; bottom: 0; width: 1px; background: #EEF1F5; pointer-events: none; }
+  #book .bt-grid.half { background: transparent; border-left: 1px dashed #F1F3F6; }
+  #book .bt-busy { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(135deg, #E9ECF1 0 6px, #F3F5F8 6px 12px); border-left: 1px solid #DCE1E8; border-right: 1px solid #DCE1E8; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; color: #7A8597; letter-spacing: .04em; text-transform: uppercase; pointer-events: none; overflow: hidden; white-space: nowrap; }
+  #book .bt-off { position: absolute; top: 0; bottom: 0; background: repeating-linear-gradient(135deg, #F4F5F7 0 4px, #FAFBFC 4px 8px); pointer-events: none; }
+  #book .bt-ghost { position: absolute; top: 8px; bottom: 8px; border: 2px dashed #0F7B6C; border-radius: 0.55rem; background: rgba(15,123,108,.06); pointer-events: none; display: none; }
+  #book .bt-sel { position: absolute; top: 8px; bottom: 8px; border-radius: 0.55rem; background: #0F7B6C; color: #fff; box-shadow: 0 6px 16px -6px rgba(15,123,108,.6); display: flex; align-items: center; justify-content: center; font-size: 0.74rem; font-weight: 700; cursor: grab; outline: none; overflow: hidden; white-space: nowrap; transition: left .08s ease; }
+  #book .bt-sel.dragging { cursor: grabbing; transition: none; }
+  #book .bt-sel:focus-visible { box-shadow: 0 0 0 3px #D5E9E5, 0 6px 16px -6px rgba(15,123,108,.6); }
+  #book .bt-sel::before, #book .bt-sel::after { content: ''; position: absolute; top: 50%; transform: translateY(-50%); width: 3px; height: 18px; border-radius: 2px; background: rgba(255,255,255,.55); }
+  #book .bt-sel::before { left: 5px; } #book .bt-sel::after { right: 5px; }
+  #book .bt-axis { position: relative; height: 22px; margin-top: 4px; }
+  #book .bt-axis span { position: absolute; transform: translateX(-50%); font-size: 0.7rem; color: #5A667C; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  #book .bt-axis span.first { transform: none; } #book .bt-axis span.last { transform: translateX(-100%); }
+  #book .bt-sw { display: inline-block; width: 14px; height: 10px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; }
+  #book .bt-nudge { width: 2.5rem; height: 2.5rem; border: 1px solid #E4E7ED; border-radius: 0.6rem; background: #fff; font-weight: 700; color: #16233F; cursor: pointer; }
+  #book .bt-nudge:hover:not(:disabled) { border-color: #0F7B6C; color: #0F7B6C; }
+  #book .bt-nudge:disabled { opacity: .35; cursor: default; }
+
+  #book .bt-input { width: 100%; padding: 0.7rem 0.9rem; border: 1px solid #E4E7ED; border-radius: 0.6rem; font-size: 0.9rem; outline: none; background: #fff; font-family: inherit; }
+  #book .bt-input:focus { border-color: #0F7B6C; box-shadow: 0 0 0 3px #D5E9E5; }
+  #book .bt-chip:focus-visible, #book .bt-day:focus-visible, #book .bt-nudge:focus-visible { outline: 2px solid #0F7B6C; outline-offset: 2px; }
+  #book .bt-skel { border-radius: 0.6rem; background: linear-gradient(90deg,#EEF1F5 25%,#F7F8FA 50%,#EEF1F5 75%); background-size: 200% 100%; animation: btShimmer 1.2s infinite; }
+  @keyframes btShimmer { to { background-position: -200% 0; } }
+  #book .bt-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+</style>
+<!-- FOOTER / CONTACT -->
+<footer id="book" class="bg-navy text-white">
+  <div class="max-w-6xl mx-auto px-6 py-16 text-center">
+    <h2 class="serif font-bold text-3xl mb-4">Let's talk data, AI, or product.</h2>
+    <p class="text-gray-300 mb-8 max-w-xl mx-auto">Open to conversations on AI strategy, product analytics, and building teams that ship. Grab time on my calendar, or leave a note below.</p>
+    <div class="bg-white text-ink text-left border border-white/10 rounded-2xl shadow-xl overflow-hidden grid lg:grid-cols-[260px_1fr] mb-14">
+      <!-- Options -->
+      <div class="p-6 lg:p-7 border-b lg:border-b-0 lg:border-r border-gray-200">
+        <h3 class="serif font-bold text-2xl text-navy mb-1">Book time with me</h3>
+        <p class="text-sm text-slate2 mb-5">Pick a length, then drag your meeting onto any open spot. Grey blocks are times I'm busy.</p>
+        <div class="text-[11px] tracking-[0.14em] uppercase text-slate2 font-bold mb-2">Length</div>
+        <div class="grid grid-cols-4 lg:grid-cols-2 gap-2 mb-6" id="btDurations" role="group" aria-label="Meeting length"></div>
+        <label for="btTz" class="block text-[11px] tracking-[0.14em] uppercase text-slate2 font-bold mb-2">Your time zone</label>
+        <select id="btTz" class="bt-input mb-6"></select>
+        <ul class="text-sm text-slate2 space-y-2">
+          <li class="flex gap-2"><span class="text-accent font-bold">&#10003;</span>Google Meet link included</li>
+          <li class="flex gap-2"><span class="text-accent font-bold">&#10003;</span>Invite goes straight to your inbox</li>
+          <li class="flex gap-2"><span class="text-accent font-bold">&#10003;</span>Weekdays, 8 AM to 6 PM Central</li>
+        </ul>
+      </div>
+
+      <!-- Steps -->
+      <div class="p-6 lg:p-7 min-w-0">
+        <div id="btMsg" class="hidden mb-4 rounded-lg px-4 py-3 text-sm bg-[#FDF2E9] text-[#9A4A12]"></div>
+
+        <div id="btPick">
+          <div class="text-[11px] tracking-[0.14em] uppercase text-slate2 font-bold mb-2">Day</div>
+          <div class="bt-days mb-6" id="btDays" role="group" aria-label="Day"></div>
+
+          <div id="btDayArea">
+            <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 mb-2">
+              <div class="text-[11px] tracking-[0.14em] uppercase text-slate2 font-bold" id="btDayLabel">Your meeting</div>
+              <div class="text-xs text-slate2">Drag or tap to place it.</div>
+            </div>
+            <div class="bt-bar" id="btBar" aria-label="Day timeline">
+              <div class="bt-ghost" id="btGhost"></div>
+              <div class="bt-sel" id="btSel" role="slider" tabindex="0" aria-label="Meeting start time"></div>
+            </div>
+            <div class="bt-axis" id="btAxis" aria-hidden="true"></div>
+            <div class="flex flex-wrap gap-4 text-xs text-slate2 mt-1 mb-5">
+              <span><span class="bt-sw" style="background:#0F7B6C"></span>Your meeting</span>
+              <span><span class="bt-sw" style="background:repeating-linear-gradient(135deg,#E2E6EC 0 3px,#F3F5F8 3px 6px);border:1px solid #DCE1E8"></span>Busy</span>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-4 border-t border-gray-100 pt-5">
+              <div>
+                <div class="serif font-bold text-navy text-xl" id="btSelTime"></div>
+                <div class="text-xs text-slate2" id="btSelSub"></div>
+              </div>
+              <div class="flex items-center gap-2">
+                <button type="button" class="bt-nudge" id="btEarlier" aria-label="15 minutes earlier">&minus;15</button>
+                <button type="button" class="bt-nudge" id="btLater" aria-label="15 minutes later">+15</button>
+                <button type="button" id="btContinue" class="ml-1 px-5 py-2.5 rounded-lg bg-navy hover:bg-navy-2 text-white font-semibold text-sm transition disabled:opacity-50">Continue &rarr;</button>
+              </div>
+            </div>
+          </div>
+          <p id="btEmpty" class="hidden text-sm text-slate2"></p>
+        </div>
+
+        <form id="bookTimeForm" class="hidden" novalidate>
+          <button type="button" id="btBack" class="text-sm font-semibold text-accent hover:underline mb-4">&larr; Change the time</button>
+          <div class="rounded-xl bg-accent-soft px-4 py-3 mb-5">
+            <div class="serif font-bold text-navy text-lg" id="btWhen"></div>
+            <div class="text-xs text-slate2" id="btWhenSub"></div>
+          </div>
+          <div class="grid sm:grid-cols-2 gap-3 mb-3">
+            <input id="btName" class="bt-input" autocomplete="name" placeholder="Your name *" required>
+            <input id="btEmail" class="bt-input" type="email" autocomplete="email" placeholder="Your email *" required>
+            <input id="btCompany" class="bt-input" autocomplete="organization" placeholder="Company">
+            <input id="btRole" class="bt-input" placeholder="Role you're hiring for">
+          </div>
+          <input id="btLink" class="bt-input mb-3" type="url" placeholder="Link to the job posting (optional)">
+          <textarea id="btNotes" class="bt-input mb-4 resize-y" rows="3" placeholder="Anything I should know beforehand? (optional)"></textarea>
+          <div class="bt-hp" aria-hidden="true"><label>Website <input id="btWebsite" tabindex="-1" autocomplete="off"></label></div>
+          <button type="submit" id="btSubmit" class="px-6 py-3 rounded-lg bg-navy hover:bg-navy-2 text-white font-semibold text-sm transition disabled:opacity-60">Confirm booking</button>
+        </form>
+
+        <div id="btDone" class="hidden text-center py-8">
+          <div class="w-14 h-14 rounded-full bg-accent text-white grid place-items-center mx-auto mb-4 text-2xl">&#10003;</div>
+          <h3 class="serif font-bold text-2xl text-navy mb-2">You're booked</h3>
+          <p class="text-slate2" id="btDoneWhen"></p>
+          <p class="text-slate2 mt-1" id="btDoneMeet"></p>
+          <p class="text-slate2 mt-1">A calendar invite is on its way to <strong class="text-ink" id="btDoneEmail"></strong>.</p>
+          <button type="button" id="btAgain" class="mt-5 text-sm font-semibold text-accent hover:underline">Book another time</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-[11px] tracking-[0.2em] uppercase text-gray-400 font-bold mb-4">Prefer to send a note?</div>
+
+    <!-- Inline contact form -- posts straight to Supabase, no page reload -->
+    <form id="contactForm" class="max-w-md mx-auto mb-10 text-left" novalidate>
+      <div class="mb-3">
+        <input type="text" id="cf-name" name="name" required placeholder="Your name *"
+               class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 placeholder-gray-400 text-white text-sm focus:outline-none focus:border-accent">
+      </div>
+      <div class="mb-3">
+        <input type="email" id="cf-email" name="email" placeholder="Your email (optional)"
+               class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 placeholder-gray-400 text-white text-sm focus:outline-none focus:border-accent">
+      </div>
+      <div class="mb-3">
+        <textarea id="cf-note" name="note" rows="3" placeholder="Leave a note (optional)"
+                  class="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 placeholder-gray-400 text-white text-sm focus:outline-none focus:border-accent resize-none"></textarea>
+      </div>
+      <button type="submit" id="cf-submit"
+              class="w-full px-6 py-3 rounded-lg bg-accent hover:bg-[#0c665a] transition font-semibold text-sm disabled:opacity-50">
+        Send
+      </button>
+      <div id="cf-status" class="text-xs mt-2 text-center min-h-[1rem]"></div>
+    </form>
+
+    <div class="flex flex-wrap justify-center gap-3 mb-10">
+      <a href="https://outlook.office.com/mail/deeplink/compose?to={{ profile.email }}&subject=Let%27s%20Connect" target="_blank" rel="noopener"
+         class="tt px-6 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm"
+         data-tip="Opens a new email to Victor, ready to send">Email Me</a>
+      <a href="{{ profile.linkedin }}" target="_blank" rel="noopener"
+         class="tt px-6 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm"
+         data-tip="Opens Victor's LinkedIn profile in a new tab">LinkedIn</a>
+      <a href="/static/Victor-Chowdhury.vcf" download
+         class="tt px-6 py-3 rounded-lg border border-white/30 hover:bg-white/10 transition font-semibold text-sm"
+         data-tip="Downloads a contact card (.vcf) you can save straight into your phone or email contacts">Save My Contact</a>
+    </div>
+    <div class="flex flex-wrap justify-center gap-4 text-xs text-gray-400 mb-8">
+      {% for r in resumes %}
+      <a href="/static/{{ r.file }}" download class="hover:text-white underline underline-offset-2">{{ r.label }}</a>
+      {% endfor %}
+    </div>
+    <div class="text-xs text-gray-500 border-t border-white/10 pt-6">{{ profile.name }} &middot; {{ profile.location }}</div>
+    <div class="text-[11px] text-gray-600 mt-2">This site logs basic visit analytics (approximate location from IP, browser type) for the owner's own reference.</div>
+  </div>
+</footer>
+<script>
+(function () {
+  var ENDPOINT = 'https://wownxeielqhubwfzqqor.supabase.co/functions/v1/book-time';
+  var DURATIONS = [15, 30, 45, 60];
+  var Q = 15 * 60000; // quarter hour
+  var $ = function (id) { return document.getElementById(id); };
+  var S = { duration: 30, tz: 'America/Chicago', days: [], valid: {}, day: null, start: null, req: 0, loaded: false };
+  try { S.tz = Intl.DateTimeFormat().resolvedOptions().timeZone || S.tz; } catch (e) {}
+
+  function post(body) {
+    return fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { j._status = r.status; return j; }); });
+  }
+  function fmt(d, o) { o.timeZone = S.tz; return new Intl.DateTimeFormat('en-US', o).format(d); }
+  function tm(ms) { return fmt(new Date(ms), { hour: 'numeric', minute: '2-digit' }); }
+  function zoneName() {
+    try { return new Intl.DateTimeFormat('en-US', { timeZone: S.tz, timeZoneName: 'long' }).formatToParts(new Date())
+      .filter(function (p) { return p.type === 'timeZoneName'; })[0].value; } catch (e) { return S.tz; }
+  }
+  function msg(t) { var m = $('btMsg'); if (!t) { m.classList.add('hidden'); return; } m.textContent = t; m.classList.remove('hidden'); }
+  function show(step) {
+    $('btPick').classList.toggle('hidden', step !== 'pick');
+    $('bookTimeForm').classList.toggle('hidden', step !== 'form');
+    $('btDone').classList.toggle('hidden', step !== 'done');
+  }
+
+  // ---------- options
+  function renderDurations() {
+    var el = $('btDurations'); el.innerHTML = '';
+    DURATIONS.forEach(function (d) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'bt-chip';
+      b.textContent = d + ' min'; b.setAttribute('aria-pressed', String(d === S.duration));
+      b.onclick = function () { if (d === S.duration) return; S.duration = d; renderDurations(); show('pick'); load(true); };
+      el.appendChild(b);
+    });
+  }
+  (function () {
+    var zones = Intl.supportedValuesOf ? Intl.supportedValuesOf('timeZone') : [];
+    ['America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'Europe/London', 'Asia/Kolkata', S.tz]
+      .forEach(function (z) { if (zones.indexOf(z) < 0) zones.push(z); });
+    zones.sort().forEach(function (z) { var o = document.createElement('option'); o.value = z; o.textContent = z.replace(/_/g, ' '); $('btTz').appendChild(o); });
+    $('btTz').value = S.tz;
+    $('btTz').onchange = function () { S.tz = this.value; renderDays(); renderBar(); };
+  })();
+
+  // ---------- data
+  function skeleton() {
+    $('btDays').innerHTML = ''; $('btEmpty').classList.add('hidden'); $('btDayArea').classList.add('hidden');
+    for (var i = 0; i < 6; i++) { var s = document.createElement('div'); s.className = 'bt-skel'; s.style.cssText = 'width:4.6rem;height:5.2rem;flex:0 0 auto'; $('btDays').appendChild(s); }
+  }
+  function load(keepDay) {
+    var id = ++S.req; msg(''); var prevDay = keepDay ? S.day : null; var prevStart = S.start; skeleton();
+    return post({ action: 'slots', duration: S.duration }).then(function (r) {
+      if (id !== S.req) return;
+      if (!r.connected) { setData([], []); empty('Online booking is paused right now. Please use the contact form below and I\'ll get back to you.'); return; }
+      setData(r.days || [], r.slots || [], prevDay, prevStart);
+    }).catch(function () {
+      if (id !== S.req) return;
+      setData([], []); empty('Couldn\'t load my calendar just now. Please refresh, or use the contact form below.');
+    });
+  }
+  function setData(days, slots, prevDay, prevStart) {
+    S.days = days.map(function (d) {
+      return { date: d.date, start: Date.parse(d.start), open: Date.parse(d.open), close: Date.parse(d.close), full: d.full,
+        busy: d.busy.map(function (b) { return [Date.parse(b[0]), Date.parse(b[1])]; }), valid: [] };
+    });
+    slots.forEach(function (s) {
+      var t = Date.parse(s);
+      for (var i = 0; i < S.days.length; i++) { var d = S.days[i]; if (t >= d.start && t < d.close) { d.valid.push(t); break; } }
+    });
+    var firstOpen = S.days.filter(function (d) { return d.valid.length; })[0];
+    var keep = prevDay && S.days.filter(function (d) { return d.date === prevDay && d.valid.length; })[0];
+    S.day = keep ? keep.date : (firstOpen ? firstOpen.date : null);
+    S.start = null;
+    if (keep && prevStart) S.start = nearest(keep, prevStart);
+    if (!S.day) { renderDays(); empty('No open time in the next few weeks for this length. Try a shorter meeting, or use the contact form below.'); return; }
+    renderDays(); renderBar();
+  }
+  function empty(t) { $('btDayArea').classList.add('hidden'); $('btEmpty').textContent = t; $('btEmpty').classList.remove('hidden'); }
+  function cur() { for (var i = 0; i < S.days.length; i++) if (S.days[i].date === S.day) return S.days[i]; return null; }
+  function nearest(d, t) {
+    var best = null, bd = Infinity;
+    d.valid.forEach(function (v) { var dd = Math.abs(v - t); if (dd < bd) { bd = dd; best = v; } });
+    return best;
+  }
+
+  // ---------- day chips
+  function freeHours(d) {
+    if (d.full) return 0;
+    var free = d.close - d.open;
+    d.busy.forEach(function (b) { free -= Math.max(0, Math.min(b[1], d.close) - Math.max(b[0], d.open)); });
+    return Math.max(0, free) / 3600000;
+  }
+  function renderDays() {
+    var el = $('btDays'); el.innerHTML = '';
+    S.days.forEach(function (d) {
+      var mid = new Date(d.start + 4 * 3600000);
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'bt-day';
+      var open = d.valid.length > 0;
+      b.disabled = !open;
+      b.setAttribute('aria-pressed', String(d.date === S.day));
+      b.innerHTML = '<div class="w"></div><div class="d"></div><div class="m"></div><div class="n"></div>';
+      b.children[0].textContent = fmt(mid, { weekday: 'short' });
+      b.children[1].textContent = fmt(mid, { day: 'numeric' });
+      b.children[2].textContent = fmt(mid, { month: 'short' });
+      var h = freeHours(d);
+      b.children[3].textContent = !open ? 'Full' : (h >= 1 ? (Math.round(h * 2) / 2) + 'h free' : Math.round(h * 60) + 'm free');
+      b.setAttribute('aria-label', fmt(mid, { weekday: 'long', month: 'long', day: 'numeric' }) + (open ? ', ' + b.children[3].textContent : ', fully booked'));
+      if (open) b.onclick = function () { S.day = d.date; S.start = null; renderDays(); renderBar(); };
+      el.appendChild(b);
+    });
+  }
+
+  // ---------- day bar
+  var bar = $('btBar'), sel = $('btSel'), ghost = $('btGhost');
+  function pct(d, t) { return (t - d.start) / (d.close - d.start) * 100; }
+  function renderBar() {
+    var d = cur(); if (!d) return;
+    $('btDayArea').classList.remove('hidden'); $('btEmpty').classList.add('hidden');
+    if (S.start == null || d.valid.indexOf(S.start) < 0) S.start = d.valid[0];
+    // clear old layers
+    Array.prototype.slice.call(bar.querySelectorAll('.bt-grid,.bt-busy,.bt-off')).forEach(function (n) { n.remove(); });
+    var frag = document.createDocumentFragment();
+    var hours = (d.close - d.start) / 3600000;
+    for (var i = 1; i < hours * 2; i++) {
+      var g = document.createElement('div'); g.className = 'bt-grid' + (i % 2 ? ' half' : '');
+      g.style.left = (i / (hours * 2) * 100) + '%'; frag.appendChild(g);
+    }
+    if (d.open > d.start) { var off = document.createElement('div'); off.className = 'bt-off'; off.style.left = '0'; off.style.width = pct(d, d.open) + '%'; frag.appendChild(off); }
+    d.busy.forEach(function (b) {
+      var el = document.createElement('div'); el.className = 'bt-busy';
+      el.style.left = pct(d, b[0]) + '%'; el.style.width = (pct(d, b[1]) - pct(d, b[0])) + '%';
+      el.title = 'Busy ' + tm(b[0]) + ' – ' + tm(b[1]);
+      if (b[1] - b[0] >= 45 * 60000) el.textContent = 'Busy';
+      frag.appendChild(el);
+    });
+    bar.insertBefore(frag, ghost);
+    // axis: a label every hour on wide screens, every 2 hours on narrow
+    var axis = $('btAxis'); axis.innerHTML = '';
+    var stepH = bar.clientWidth < 520 ? 2 : 1;
+    for (var h = 0; h <= hours; h += stepH) {
+      var s = document.createElement('span');
+      s.style.left = (h / hours * 100) + '%';
+      s.className = h === 0 ? 'first' : (h + stepH > hours ? 'last' : '');
+      s.textContent = fmt(new Date(d.start + h * 3600000), { hour: 'numeric', minute: '2-digit' }).replace(':00', '');
+      axis.appendChild(s);
+    }
+    var mid = new Date(d.start + 4 * 3600000);
+    $('btDayLabel').textContent = fmt(mid, { weekday: 'long', month: 'long', day: 'numeric' }) + ' · ' + zoneName();
+    placeSel();
+  }
+  function placeSel() {
+    var d = cur(); if (!d || S.start == null) return;
+    sel.style.left = pct(d, S.start) + '%';
+    sel.style.width = (pct(d, S.start + S.duration * 60000) - pct(d, S.start)) + '%';
+    var label = tm(S.start) + ' – ' + tm(S.start + S.duration * 60000);
+    sel.textContent = sel.getBoundingClientRect().width > 84 ? label.replace(/ (AM|PM)(?= \u2013)/, '') : '';
+    sel.title = label;
+    sel.setAttribute('aria-valuetext', label);
+    $('btSelTime').textContent = label;
+    $('btSelSub').textContent = S.duration + ' min · Google Meet';
+    var i = d.valid.indexOf(S.start);
+    $('btEarlier').disabled = i <= 0; $('btLater').disabled = i < 0 || i >= d.valid.length - 1;
+  }
+  function timeAt(clientX, anchorMs) {
+    var d = cur(), r = bar.getBoundingClientRect();
+    var t = d.start + Math.min(1, Math.max(0, (clientX - r.left) / r.width)) * (d.close - d.start) - (anchorMs || 0);
+    return Math.round(t / Q) * Q;
+  }
+  function centerAnchor() { return S.duration * 60000 / 2; }
+
+  // hover preview (mouse only)
+  bar.addEventListener('pointermove', function (e) {
+    if (drag || e.pointerType !== 'mouse' || e.target === sel) { ghost.style.display = 'none'; return; }
+    var d = cur(); if (!d) return;
+    var t = nearest(d, timeAt(e.clientX, centerAnchor()));
+    if (t == null) return;
+    ghost.style.display = 'block'; ghost.style.left = pct(d, t) + '%';
+    ghost.style.width = (pct(d, t + S.duration * 60000) - pct(d, t)) + '%';
+  });
+  bar.addEventListener('pointerleave', function () { ghost.style.display = 'none'; });
+
+  // tap / click / drag
+  var drag = null;
+  bar.addEventListener('pointerdown', function (e) {
+    var d = cur(); if (!d) return;
+    e.preventDefault();
+    var onSel = e.target === sel;
+    var anchor = onSel ? (timeAt(e.clientX) - S.start) : centerAnchor();
+    if (!onSel) { var t = nearest(d, timeAt(e.clientX, anchor)); if (t != null) { S.start = t; placeSel(); } anchor = timeAt(e.clientX) - S.start; }
+    drag = { anchor: anchor };
+    sel.classList.add('dragging'); ghost.style.display = 'none';
+    try { bar.setPointerCapture(e.pointerId); } catch (err) {}
+  });
+  bar.addEventListener('pointermove', function (e) {
+    if (!drag) return;
+    var t = nearest(cur(), timeAt(e.clientX, drag.anchor));
+    if (t != null && t !== S.start) { S.start = t; placeSel(); }
+  });
+  function endDrag() { if (!drag) return; drag = null; sel.classList.remove('dragging'); sel.focus({ preventScroll: true }); }
+  bar.addEventListener('pointerup', endDrag);
+  bar.addEventListener('pointercancel', endDrag);
+
+  function nudge(dir) {
+    var d = cur(); if (!d) return;
+    var i = d.valid.indexOf(S.start) + dir;
+    if (i >= 0 && i < d.valid.length) { S.start = d.valid[i]; placeSel(); }
+  }
+  $('btEarlier').onclick = function () { nudge(-1); };
+  $('btLater').onclick = function () { nudge(1); };
+  sel.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { e.preventDefault(); nudge(-1); }
+    else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { e.preventDefault(); nudge(1); }
+    else if (e.key === 'Enter') { e.preventDefault(); $('btContinue').click(); }
+  });
+  window.addEventListener('resize', function () { if (!$('btDayArea').classList.contains('hidden')) renderBar(); });
+
+  // ---------- details + booking
+  function whenText(ms, dur) {
+    return fmt(new Date(ms), { weekday: 'long', month: 'long', day: 'numeric' }) + ' · ' + tm(ms) + ' – ' + tm(ms + dur * 60000);
+  }
+  $('btContinue').onclick = function () {
+    if (S.start == null) return;
+    msg('');
+    $('btWhen').textContent = whenText(S.start, S.duration);
+    $('btWhenSub').textContent = S.duration + ' min · Google Meet · ' + zoneName();
+    show('form'); $('btName').focus({ preventScroll: true });
+  };
+  $('btBack').onclick = function () { msg(''); show('pick'); renderBar(); };
+  $('btAgain').onclick = function () { $('bookTimeForm').reset(); show('pick'); load(false); };
+
+  $('bookTimeForm').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var p = {
+      action: 'book', duration: S.duration, start: new Date(S.start).toISOString(), timezone: S.tz,
+      name: $('btName').value.trim(), email: $('btEmail').value.trim(), company: $('btCompany').value.trim(),
+      role: $('btRole').value.trim(), job_link: $('btLink').value.trim(), notes: $('btNotes').value.trim(),
+      website: $('btWebsite').value
+    };
+    if (!p.name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.email)) { msg('Please add your name and a valid email.'); return; }
+    if (p.job_link && !/^https?:\/\//i.test(p.job_link)) { msg('The job link should start with https://'); return; }
+    var btn = $('btSubmit'); btn.disabled = true; btn.textContent = 'Booking…'; msg('');
+    post(p).then(function (r) {
+      btn.disabled = false; btn.textContent = 'Confirm booking';
+      if (r._status === 409) {
+        show('pick'); load(true).then(function () { msg('Sorry, that time was just taken. I\'ve moved you to the nearest open spot.'); });
+        return;
+      }
+      if (!r.ok) { msg(r.error || 'Something went wrong. Please try again.'); return; }
+      $('btDoneWhen').textContent = whenText(Date.parse(r.start), r.duration || S.duration) + ' (' + zoneName() + ')';
+      var meet = $('btDoneMeet'); meet.textContent = '';
+      if (r.meet_link) {
+        meet.append('Google Meet: ');
+        var a = document.createElement('a'); a.href = r.meet_link; a.target = '_blank'; a.rel = 'noopener';
+        a.className = 'text-accent font-semibold underline'; a.textContent = r.meet_link.replace(/^https?:\/\//, ''); meet.appendChild(a);
+      }
+      $('btDoneEmail').textContent = p.email;
+      show('done');
+    }).catch(function () {
+      btn.disabled = false; btn.textContent = 'Confirm booking';
+      msg('Couldn\'t reach the booking service. Please try again, or use the contact form below.');
+    });
+  });
+
+  renderDurations();
+  var sec = $('book');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) {
+      if (es.some(function (e) { return e.isIntersecting; }) && !S.loaded) { S.loaded = true; io.disconnect(); load(false); }
+    }, { rootMargin: '600px' });
+    io.observe(sec);
+  } else { S.loaded = true; load(false); }
+})();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const supabaseClient = window.supabase.createClient(
+    'https://wownxeielqhubwfzqqor.supabase.co',
+    'sb_publishable_xoDSPFqfv-ISbkKtp8EoAA_ERGpiUP_'
+  );
+
+  // Contact form -- inserts straight into Supabase; a database trigger
+  // handles pushing a notification, so no server code is needed here.
+  (function initContactForm() {
+    const form = document.getElementById('contactForm');
+    if (!form) return;
+    const statusEl = document.getElementById('cf-status');
+    const submitBtn = document.getElementById('cf-submit');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('cf-name').value.trim();
+      const email = document.getElementById('cf-email').value.trim();
+      const note = document.getElementById('cf-note').value.trim();
+
+      if (!name) {
+        statusEl.textContent = 'Name is required.';
+        statusEl.className = 'text-xs mt-2 text-center text-red-300';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      statusEl.textContent = 'Sending...';
+      statusEl.className = 'text-xs mt-2 text-center text-gray-300';
+
+      const { error } = await supabaseClient.from('contact_submissions').insert({
+        name,
+        email: email || null,
+        note: note || null,
+      });
+
+      submitBtn.disabled = false;
+      if (error) {
+        statusEl.textContent = "Something went wrong. Try the Email Me button instead.";
+        statusEl.className = 'text-xs mt-2 text-center text-red-300';
+      } else {
+        form.reset();
+        statusEl.textContent = 'Thanks, message sent!';
+        statusEl.className = 'text-xs mt-2 text-center text-green-300';
+      }
+    });
+  })();
+
+  // Visit logging -- best-effort, silently no-ops on any failure (ad
+  // blockers, offline, rate-limited IP lookup, etc.) so it never affects
+  // the page itself.
+  (function logVisit() {
+    fetch('https://ipapi.co/json/')
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(geo => {
+        return supabaseClient.from('site_visits').insert({
+          ip: geo.ip || null,
+          city: geo.city || null,
+          region: geo.region || null,
+          country: geo.country_name || null,
+          user_agent: navigator.userAgent,
+          referrer: document.referrer || null,
+          page_path: window.location.pathname,
+        });
+      })
+      .catch(() => { /* best-effort only */ });
+  })();
+</script>
+
+<script>
+  function showBucket(id) {
+    document.querySelectorAll('.bucket-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.bucket-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('bucket-' + id).classList.add('active');
+    document.querySelector('[data-target="bucket-' + id + '"]').classList.add('active');
+  }
+
+  // Work Samples / Certificates filmstrip -- ambient auto-scroll (rAF-driven
+  // native scroll, not a CSS transform animation, so the prev/next buttons
+  // can nudge the exact same scroll position without fighting an animation
+  // timeline). Two modes:
+  //  - loop:true  -- the track's content is duplicated once (see the two-loop
+  //    sample_card macro), so wrapping scrollLeft past one set's width loops
+  //    seamlessly back to the start. Used by Work Samples.
+  //  - loop:false -- no duplicated cards in the DOM at all (each certificate
+  //    appears exactly once); auto-scroll instead bounces back and forth
+  //    between the two ends. Used by Certificates, so no card ever repeats.
+  function initFilmstripCarousel({ viewportId, trackId, prevId, nextId, cardSelector, pxPerSecond, loop = true }) {
+    const viewport = document.getElementById(viewportId);
+    const track = document.getElementById(trackId);
+    const prevBtn = document.getElementById(prevId);
+    const nextBtn = document.getElementById(nextId);
+    if (!viewport || !track || !prevBtn || !nextBtn) return;
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let oneSetWidth = loop ? track.scrollWidth / 2 : 0;
+    let direction = 1; // only used when loop is false
+    let paused = reducedMotion;
+    let resumeTimer = null;
+    let lastTs = null;
+
+    // When there are few enough cards that the track never needs to
+    // scroll (e.g. only 2 articles), left-aligned content leaves a large
+    // empty gap on wide screens. Center it instead, and hide the now-
+    // pointless prev/next buttons. Re-checked on resize since it depends
+    // on viewport width.
+    function updateFit() {
+      const fitsWithoutScroll = track.scrollWidth <= viewport.clientWidth + 1;
+      track.classList.toggle('carousel-track--centered', fitsWithoutScroll);
+      prevBtn.style.display = fitsWithoutScroll ? 'none' : '';
+      nextBtn.style.display = fitsWithoutScroll ? 'none' : '';
+      return fitsWithoutScroll;
+    }
+    let fitsWithoutScroll = updateFit();
+
+    function cardStep() {
+      const card = track.querySelector(cardSelector);
+      const gap = parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap) || 24;
+      return (card ? card.offsetWidth : 320) + gap;
+    }
+
+    function maxScroll() {
+      return Math.max(0, track.scrollWidth - viewport.clientWidth);
+    }
+
+    function wrapIfNeeded() {
+      if (oneSetWidth <= 0) return;
+      if (viewport.scrollLeft >= oneSetWidth) viewport.scrollLeft -= oneSetWidth;
+      else if (viewport.scrollLeft < 0) viewport.scrollLeft += oneSetWidth;
+    }
+
+    function tick(ts) {
+      if (lastTs == null) lastTs = ts;
+      const dt = (ts - lastTs) / 1000;
+      lastTs = ts;
+      if (!paused && !fitsWithoutScroll) {
+        if (loop) {
+          viewport.scrollLeft += pxPerSecond * dt;
+          wrapIfNeeded();
+        } else {
+          viewport.scrollLeft += direction * pxPerSecond * dt;
+          const max = maxScroll();
+          if (viewport.scrollLeft >= max) { viewport.scrollLeft = max; direction = -1; }
+          else if (viewport.scrollLeft <= 0) { viewport.scrollLeft = 0; direction = 1; }
+        }
+      }
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+
+    function pauseTemporarily() {
+      paused = true;
+      if (resumeTimer) clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(() => {
+        resumeTimer = null;
+        if (!viewport.matches(':hover')) paused = reducedMotion;
+      }, 2500);
+    }
+
+    viewport.addEventListener('mouseenter', () => { paused = true; });
+    viewport.addEventListener('mouseleave', () => {
+      if (!resumeTimer) paused = reducedMotion;
+    });
+    viewport.addEventListener('focusin', () => { paused = true; });
+    viewport.addEventListener('focusout', () => { if (!viewport.matches(':hover')) paused = reducedMotion; });
+
+    nextBtn.addEventListener('click', () => {
+      pauseTemporarily();
+      direction = 1;
+      viewport.scrollBy({ left: cardStep(), behavior: reducedMotion ? 'auto' : 'smooth' });
+    });
+    prevBtn.addEventListener('click', () => {
+      pauseTemporarily();
+      const step = cardStep();
+      if (loop) {
+        // Native scrollLeft can't go negative -- if we're near the start,
+        // silently teleport into the duplicate second set first (instant,
+        // imperceptible since it's identical content), then scroll back by
+        // one card so "previous" always has somewhere to go.
+        if (viewport.scrollLeft < step) viewport.scrollLeft += oneSetWidth;
+      } else {
+        direction = -1;
+      }
+      viewport.scrollBy({ left: -step, behavior: reducedMotion ? 'auto' : 'smooth' });
+    });
+
+    window.addEventListener('resize', () => {
+      oneSetWidth = loop ? track.scrollWidth / 2 : 0;
+      fitsWithoutScroll = updateFit();
+    });
+  }
+
+  // Scroll progress bar -- thin gold bar tracking how far down the page
+  // the reader is, updated on scroll via rAF to avoid layout thrash.
+  (function initScrollProgress() {
+    const bar = document.getElementById('scrollProgress');
+    if (!bar) return;
+    let ticking = false;
+    function update() {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const pct = height > 0 ? (scrollTop / height) * 100 : 0;
+      bar.style.width = pct + '%';
+      ticking = false;
+    }
+    window.addEventListener('scroll', () => {
+      if (!ticking) { requestAnimationFrame(update); ticking = true; }
+    }, { passive: true });
+    update();
+  })();
+
+  // Scroll-spy nav -- highlights whichever section heading is currently
+  // in view, so the nav reflects where the reader actually is on the page.
+  // ---- Concept A: profile tabs -------------------------------------------
+  // One panel visible at a time. The URL hash names the tab (#experience),
+  // and links to the old one-page sections (#samples, #timeline, ...) still
+  // land on the tab that now holds that content.
+  (function initProfileTabs() {
+    const TABS = ['overview', 'experience', 'work', 'credentials', 'recommendations'];
+    const LEGACY = { top: 'overview', impact: 'overview', about: 'overview',
+      timeline: 'experience', samples: 'work', articles: 'work',
+      certificates: 'credentials', recognition: 'credentials', testimonials: 'recommendations' };
+    const panels = TABS.map(id => document.getElementById(id));
+    const tabBtns = Array.from(document.querySelectorAll('.profile-tab'));
+    const navLinks = Array.from(document.querySelectorAll('[data-tab-link]'));
+    const bar = document.querySelector('[role="tablist"][aria-label="Profile sections"]');
+    if (panels.some(p => !p) || !tabBtns.length) return;
+    let current = null;
+
+    function show(id, opts) {
+      opts = opts || {};
+      if (!TABS.includes(id)) id = 'overview';
+      const changed = id !== current;
+      current = id;
+      panels.forEach(p => { p.hidden = p.id !== id; });
+      tabBtns.forEach(b => {
+        const on = b.dataset.tab === id;
+        b.setAttribute('aria-selected', String(on));
+        b.tabIndex = on ? 0 : -1;
+        if (on && b.scrollIntoView && opts.scrollTab !== false) b.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      });
+      navLinks.forEach(a => a.classList.toggle('active-nav', a.dataset.tabLink === id && a.classList.contains('nav-link') || a.dataset.tabLink === id && a.classList.contains('nav-link-mobile')));
+      if (opts.updateHash !== false) {
+        try { history.replaceState(null, '', id === 'overview' ? location.pathname + location.search : '#' + id); } catch (e) {}
+      }
+      if (opts.scroll && bar) {
+        // Bring the tab bar to the top (just under the sticky nav) if the reader is below it
+        const top = bar.parentElement.getBoundingClientRect().top + window.scrollY - 57;
+        if (window.scrollY > top || opts.force) window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+      }
+      if (changed) { try { gtag('event', 'profile_tab_view', { tab: id }); } catch (e) {} }
+    }
+
+    tabBtns.forEach((b, i) => {
+      b.addEventListener('click', () => show(b.dataset.tab, { scroll: true }));
+      b.addEventListener('keydown', (e) => {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        e.preventDefault();
+        const next = tabBtns[(i + (e.key === 'ArrowRight' ? 1 : tabBtns.length - 1)) % tabBtns.length];
+        next.focus(); show(next.dataset.tab, { scroll: true });
+      });
+    });
+    navLinks.forEach(a => a.addEventListener('click', (e) => {
+      e.preventDefault();
+      show(a.dataset.tabLink, { scroll: true, force: true });
+    }));
+
+    function fromHash() {
+      const h = (location.hash || '').slice(1);
+      if (!h) { show('overview', { updateHash: false, scrollTab: false }); return; }
+      if (TABS.includes(h)) { show(h, { updateHash: false, scrollTab: false }); return; }
+      if (LEGACY[h]) { show(LEGACY[h], { scrollTab: false }); return; }
+      show(current || 'overview', { updateHash: false, scrollTab: false }); // e.g. #book: leave the tabs alone
+    }
+    window.addEventListener('hashchange', fromHash);
+    fromHash();
+    if (TABS.includes((location.hash || '').slice(1)) || LEGACY[(location.hash || '').slice(1)]) {
+      setTimeout(() => show(current, { scroll: true, force: true, updateHash: false, scrollTab: false }), 50);
+    }
+  })();
+
+  // "See more" toggles (About paragraphs, earlier roles)
+  document.querySelectorAll('.see-more[data-more]').forEach(btn => {
+    const moreLabel = btn.textContent;
+    btn.addEventListener('click', () => {
+      const items = document.querySelectorAll(btn.dataset.more);
+      const opening = items.length && items[0].classList.contains('hidden');
+      items.forEach(el => el.classList.toggle('hidden', !opening));
+      btn.textContent = opening ? (btn.dataset.lessLabel || 'Show less') : moreLabel;
+    });
+  });
+
+  // Recommendations: clamp long quotes to 4 lines with a "See more"
+  document.querySelectorAll('.rec-quote').forEach(p => {
+    const btn = p.nextElementSibling;
+    p.classList.add('clamp-4');
+    requestAnimationFrame(() => {
+      if (p.scrollHeight > p.clientHeight + 4) btn.classList.remove('hidden');
+    });
+    btn.addEventListener('click', () => {
+      const clamped = p.classList.toggle('clamp-4');
+      btn.textContent = clamped ? 'See more' : 'Show less';
+    });
+  });
+  // Quotes inside a hidden tab measure as 0: re-check when a tab opens
+  document.querySelectorAll('.profile-tab').forEach(b => b.addEventListener('click', () => {
+    requestAnimationFrame(() => document.querySelectorAll('.rec-quote.clamp-4').forEach(p => {
+      if (p.scrollHeight > p.clientHeight + 4) p.nextElementSibling.classList.remove('hidden');
+    }));
+  }));
+
+  // Work & writing filter
+  (function initWorkFilter() {
+    const btns = document.querySelectorAll('.work-filter');
+    const items = document.querySelectorAll('.work-item');
+    btns.forEach(b => b.addEventListener('click', () => {
+      btns.forEach(x => x.classList.toggle('on', x === b));
+      const f = b.dataset.filter;
+      items.forEach(it => { it.style.display = (f === 'all' || it.dataset.kind === f) ? '' : 'none'; });
+    }));
+  })();
+
+  // Right rail: next four open 30-minute times from the live calendar
+  (function initRailSlots() {
+    const box = document.getElementById('railSlots');
+    if (!box) return;
+    let tz = 'America/Chicago';
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || tz; } catch (e) {}
+    const fail = (msg) => { box.innerHTML = ''; const p = document.createElement('p'); p.className = 'col-span-2 text-[13px] text-slate2'; p.textContent = msg; box.appendChild(p); };
+    fetch('https://wownxeielqhubwfzqqor.supabase.co/functions/v1/book-time', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'slots', duration: 30 })
+    }).then(r => r.json()).then(r => {
+      if (!r.connected || !r.slots || !r.slots.length) { fail('Open the full calendar to see times.'); return; }
+      // Spread the picks out: the first open time on each of the next few days
+      const seen = new Set(), picks = [];
+      for (const s of r.slots) {
+        const d = new Date(s);
+        const day = d.toLocaleDateString('en-US', { timeZone: tz, weekday: 'short', month: 'short', day: 'numeric' });
+        if (seen.has(day)) continue;
+        seen.add(day); picks.push(d);
+        if (picks.length === 4) break;
+      }
+      box.innerHTML = '';
+      picks.forEach(d => {
+        const a = document.createElement('a');
+        a.href = '#book';
+        a.className = 'rail-slot';
+        const w = document.createElement('span');
+        w.className = 'block text-[11px] font-semibold text-slate2';
+        w.textContent = d.toLocaleDateString('en-US', { timeZone: tz, weekday: 'short', month: 'short', day: 'numeric' });
+        const t = document.createElement('span');
+        t.className = 'block';
+        t.textContent = d.toLocaleTimeString('en-US', { timeZone: tz, hour: 'numeric', minute: '2-digit' });
+        a.appendChild(w); a.appendChild(t);
+        a.addEventListener('click', () => { try { gtag('event', 'rail_slot_click'); } catch (e) {} });
+        box.appendChild(a);
+      });
+    }).catch(() => fail('Open the full calendar to see times.'));
+  })();
+
+  // Right rail: ask AI Victor a ready-made question
+  document.querySelectorAll('.ask-ai').forEach(btn => btn.addEventListener('click', () => {
+    const panel = document.getElementById('chatPanel');
+    const launcher = document.getElementById('chatLauncher');
+    const input = document.getElementById('chatInput');
+    const form = document.getElementById('chatForm');
+    if (!panel || !launcher || !input || !form) return;
+    if (!panel.classList.contains('open')) launcher.click();
+    input.value = btn.dataset.q;
+    if (form.requestSubmit) form.requestSubmit(); else form.dispatchEvent(new Event('submit', { cancelable: true }));
+  }));
+
+  // Mobile nav toggle -- purely additive: the desktop nav (lg:flex) is
+  // untouched, this only drives the lg:hidden hamburger + dropdown panel.
+  (function initMobileNav() {
+    const toggle = document.getElementById('mobileNavToggle');
+    const panel = document.getElementById('mobileNavPanel');
+    const bar1 = document.getElementById('mnBar1');
+    const bar2 = document.getElementById('mnBar2');
+    const bar3 = document.getElementById('mnBar3');
+    if (!toggle || !panel) return;
+
+    function setOpen(open) {
+      panel.classList.toggle('hidden', !open);
+      toggle.setAttribute('aria-expanded', String(open));
+      bar1.style.transform = open ? 'translateY(7px) rotate(45deg)' : '';
+      bar3.style.transform = open ? 'translateY(-7px) rotate(-45deg)' : '';
+      bar2.style.opacity = open ? '0' : '1';
+    }
+
+    toggle.addEventListener('click', () => {
+      setOpen(panel.classList.contains('hidden'));
+    });
+
+    // Close after tapping a link, and if the viewport crosses into the
+    // desktop breakpoint (e.g. rotating a tablet) so it can't get stuck open.
+    panel.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setOpen(false)));
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 1024) setOpen(false);
+    });
+  })();
+
+  // Count-up animation for the "Impact, by the numbers" tiles. Parses
+  // formats like "$36M", "35%", and "51% \u2192 73.5%" -- animates the
+  // numeric portion from 0 (or, for an arrow transition, keeps the "before"
+  // value static and animates just the "after" number) while preserving
+  // whatever currency symbol / % / unit letter surrounds it. Anything that
+  // doesn't look like a clean number+unit (e.g. a product name like
+  // "AISLE1") is left exactly as rendered.
+  (function initCountUp() {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const els = document.querySelectorAll('.impact-metric');
+    if (!els.length) return;
+
+    function parseSimple(str) {
+      const m = str.trim().match(/^([$€£]?)(\d+(?:\.\d+)?)(%|M|K|B|Cr|L)?$/);
+      if (!m) return null;
+      const numStr = m[2];
+      return {
+        prefix: m[1] || '',
+        suffix: m[3] || '',
+        value: parseFloat(numStr),
+        decimals: numStr.includes('.') ? numStr.split('.')[1].length : 0,
+      };
+    }
+
+    function parseMetric(raw) {
+      const arrowSplit = raw.split(/\s*(?:\u2192|->)\s*/);
+      if (arrowSplit.length === 2) {
+        const after = parseSimple(arrowSplit[1]);
+        if (!after) return null;
+        return { before: arrowSplit[0].trim(), ...after };
+      }
+      const simple = parseSimple(raw);
+      return simple ? { before: null, ...simple } : null;
+    }
+
+    function animate(el, parsed) {
+      const { before, prefix, suffix, value, decimals } = parsed;
+      const duration = 1200;
+      const start = performance.now();
+      function frame(now) {
+        const t = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
+        const current = (value * eased).toFixed(decimals);
+        el.textContent = (before ? before + ' \u2192 ' : '') + prefix + current + suffix;
+        if (t < 1) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        obs.unobserve(el);
+        const parsed = parseMetric(el.textContent);
+        if (!parsed || reducedMotion) return; // leave static text as-is
+        animate(el, parsed);
+      });
+    }, { threshold: 0.4 });
+
+    els.forEach(el => observer.observe(el));
+  })();
+</script>
+
+<!-- TALK TO VICTOR -- floating recruiter chat. Multi-turn conversation with
+     an AI version of Victor via the talk-to-victor Supabase Edge Function
+     (Gemini, first-person persona grounded in his resume + interview stories).
+     Chats are logged for Victor; "Pass my details" drops a lead into
+     contact_submissions, which pushes an ntfy alert. -->
+<div id="chatNudge" role="status">
+  <button class="x" aria-label="Dismiss">&times;</button>
+  <strong>Hi, I'm Victor's AI.</strong> Hiring? Ask me what you'd ask on a first call, or paste a job description.
+</div>
+<button id="chatLauncher" class="tt" aria-label="Talk to Victor (AI)" aria-expanded="false" aria-controls="chatPanel"
+        data-tip="Hi, I'm Victor's AI agent &#128075; Hiring? Let's talk!">
+  <span class="wave-smiley" aria-hidden="true">
+    <svg width="28" height="28" viewBox="0 0 32 32">
+      <circle cx="16" cy="16" r="15" fill="#FFC220"/>
+      <ellipse cx="11" cy="13" rx="1.9" ry="2.5" fill="#16233F"/>
+      <ellipse cx="21" cy="13" rx="1.9" ry="2.5" fill="#16233F"/>
+      <path d="M9 19.5 Q16 26.5 23 19.5" stroke="#16233F" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      <circle cx="7.5" cy="18.5" r="2" fill="#F59E0B" opacity="0.5"/>
+      <circle cx="24.5" cy="18.5" r="2" fill="#F59E0B" opacity="0.5"/>
+    </svg>
+    <span class="wave-hand"><span>&#128075;</span></span>
+  </span>
+  <span class="launcher-text">Talk to Victor</span>
+  <span class="launcher-ai-tag" style="font-size:0.62rem;opacity:0.75;margin-left:0.15rem;">&#10024; AI</span>
+</button>
+<div id="chatPanel" role="dialog" aria-label="Talk to Victor (AI)">
+  <div style="background:#16233F;color:#fff;padding:0.85rem 1rem;display:flex;justify-content:space-between;align-items:center;gap:0.7rem;">
+    <div style="display:flex;align-items:center;gap:0.65rem;">
+      <div class="chat-avatar" aria-hidden="true">VC</div>
+      <div>
+        <div style="font-weight:800;font-size:0.9rem;">Victor Chowdhury <span style="font-weight:600;font-size:0.68rem;background:rgba(255,194,32,0.18);color:#FFC220;border-radius:999px;padding:1px 7px;margin-left:2px;">AI</span></div>
+        <div style="font-size:0.7rem;color:#9AA6C0;">AI version of Victor &middot; the real Victor reads every chat</div>
+      </div>
+    </div>
+    <button id="chatClose" aria-label="Close chat" style="background:none;border:none;color:#fff;font-size:1.2rem;cursor:pointer;line-height:1;">&times;</button>
+  </div>
+  <div id="chatMessages" aria-live="polite"></div>
+  <div id="chatChips"></div>
+  <div id="chatLeadBar">
+    <button id="chatLeadToggle" type="button">&#128203; Pass my details to Victor</button>
+    <form id="chatLeadForm" novalidate>
+      <input id="leadName" placeholder="Your name *" maxlength="120" autocomplete="name">
+      <input id="leadEmail" type="email" placeholder="Work email *" maxlength="200" autocomplete="email">
+      <input id="leadCompany" placeholder="Company" maxlength="150" autocomplete="organization">
+      <input id="leadRole" placeholder="Role you're hiring for" maxlength="200">
+      <button type="submit">Send to Victor</button>
+      <div id="leadStatus" style="font-size:0.74rem;color:#64748B;"></div>
+    </form>
+  </div>
+  <form id="chatForm" style="display:flex;gap:0.5rem;padding:0.6rem 0.75rem 0.4rem;border-top:1px solid #E4E7ED;align-items:flex-end;">
+    <textarea id="chatInput" rows="1" placeholder="Ask me anything, or paste a job description&hellip;"
+           autocomplete="off" maxlength="1500"
+           style="flex:1;padding:0.55rem 0.8rem;border:1px solid #E4E7ED;border-radius:0.6rem;font-size:0.83rem;outline:none;"></textarea>
+    <button type="submit" style="background:#0F7B6C;color:#fff;border:none;border-radius:0.6rem;padding:0.55rem 0.9rem;font-weight:700;font-size:0.83rem;cursor:pointer;">Send</button>
+  </form>
+  <div style="font-size:0.66rem;color:#94A3B8;text-align:center;padding:0 0.75rem 0.55rem;">AI-generated answers can be imperfect. Chats are saved so Victor can follow up.</div>
+</div>
+
+<!-- PREMIUM CONTENT GATE -- visitor leaves a verified contact before a
+     premium work sample opens. The unlock-premium edge function validates the
+     email (syntax + live DNS), alerts Victor (WhatsApp + email) and only then
+     returns the content URL, which never appears in this page. -->
+<div id="premiumOverlay">
+  <div id="premiumModal" role="dialog" aria-modal="true" aria-labelledby="premiumTitle">
+    <div style="background:#16233F;color:#fff;padding:1.1rem 1.3rem;display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;">
+      <div>
+        <div style="font-size:0.68rem;font-weight:800;letter-spacing:0.08em;color:#FFC220;text-transform:uppercase;">&#9733; Premium work sample</div>
+        <div id="premiumTitle" style="font-weight:800;font-size:1.02rem;margin-top:2px;line-height:1.3;"></div>
+      </div>
+      <button type="button" id="premiumClose" aria-label="Close" style="background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;line-height:1;">&times;</button>
+    </div>
+    <div style="padding:1.2rem 1.3rem 1.3rem;">
+      <p style="font-size:0.85rem;color:#3A4459;line-height:1.5;margin:0;">This one's my flagship build. Tell me who you are and it opens right away. I'll know you stopped by, and I may follow up.</p>
+      <form id="premiumForm" novalidate>
+        <label for="pmName">Name *</label>
+        <input id="pmName" autocomplete="name" maxlength="120" required>
+        <label for="pmEmail">Email *</label>
+        <input id="pmEmail" type="email" autocomplete="email" maxlength="200" required placeholder="you@company.com">
+        <label for="pmCompany">Company</label>
+        <input id="pmCompany" autocomplete="organization" maxlength="150">
+        <label for="pmRole">Role you're hiring for</label>
+        <input id="pmRole" maxlength="150">
+        <div class="premium-hp" aria-hidden="true"><label for="pmWebsite">Website</label><input id="pmWebsite" tabindex="-1" autocomplete="off"></div>
+        <div id="pmStatus" role="status" style="font-size:0.8rem;margin-top:0.7rem;min-height:1.1em;color:#DC2626;"></div>
+        <button type="submit" id="pmSubmit" style="margin-top:0.4rem;width:100%;background:#0F7B6C;color:#fff;border:none;border-radius:0.6rem;padding:0.75rem;font-weight:700;font-size:0.92rem;cursor:pointer;">Unlock &amp; view &rarr;</button>
+        <div style="font-size:0.7rem;color:#94A3B8;margin-top:0.6rem;text-align:center;">Your details go only to Victor. No mailing lists.</div>
+      </form>
+      <div id="pmDone" style="display:none;text-align:center;padding:0.6rem 0 0.2rem;">
+        <div style="font-size:1.6rem;">&#127881;</div>
+        <div style="font-weight:700;color:#16233F;margin:0.3rem 0 0.8rem;">Unlocked, thanks!</div>
+        <a id="pmOpen" href="#" target="_blank" rel="noopener" style="display:inline-block;background:#0F7B6C;color:#fff;border-radius:0.6rem;padding:0.7rem 1.2rem;font-weight:700;font-size:0.9rem;text-decoration:none;">Open it &rarr;</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHECK MY FIT -- pastes a job link or job description, calls a Supabase
+     Edge Function (check-job-fit) that fetches the link server-side (avoids
+     browser CORS limits), sends it to Gemini alongside Victor's profile, and
+     returns a calibrated 0-100 fit score with rationale. -->
+<div id="jobFitOverlay">
+  <div id="jobFitModal" role="dialog" aria-label="Check job fit">
+    <div style="background:#16233F;color:#fff;padding:1.1rem 1.3rem;display:flex;justify-content:space-between;align-items:flex-start;">
+      <div>
+        <div style="font-weight:800;font-size:1.05rem;">Check My Fit</div>
+        <div style="font-size:0.76rem;color:#9AA6C0;margin-top:2px;">AI-generated match score, grounded in this site's content</div>
+      </div>
+      <button id="jobFitClose" aria-label="Close" style="background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;line-height:1;">&times;</button>
+    </div>
+    <div style="padding:1.3rem;">
+      <form id="jobFitForm">
+        <label for="jobFitInput" style="display:block;font-size:0.8rem;font-weight:600;color:#374151;margin-bottom:0.4rem;">Paste a job posting link or the job description text</label>
+        <textarea id="jobFitInput" rows="4" maxlength="6000" placeholder="https://... or paste the full job description"
+                  style="width:100%;padding:0.7rem 0.85rem;border:1px solid #E4E7ED;border-radius:0.6rem;font-size:0.85rem;outline:none;resize:vertical;font-family:inherit;"></textarea>
+        <div style="font-size:0.72rem;color:#9CA3AF;margin-top:0.4rem;">Note: some sites (LinkedIn especially) block automated link fetching. If the link doesn't work, paste the job description text directly instead.</div>
+        <button type="submit" id="jobFitSubmit" style="margin-top:0.9rem;width:100%;background:#0F7B6C;color:#fff;border:none;border-radius:0.6rem;padding:0.75rem;font-weight:700;font-size:0.9rem;cursor:pointer;">Check Fit</button>
+      </form>
+      <div id="jobFitResult" style="margin-top:1.3rem;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Hero cursor-reactive spotlight -- desktop/fine-pointer only, so it never
+  // fires (or leaves a stray CSS var) on touch devices.
+  (function initHeroSpotlight() {
+    const hero = document.getElementById('top');
+    const spotlight = document.getElementById('heroSpotlight');
+    if (!hero || !spotlight) return;
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+    hero.addEventListener('mousemove', (e) => {
+      const rect = hero.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      spotlight.style.setProperty('--mx', x + '%');
+      spotlight.style.setProperty('--my', y + '%');
+      spotlight.classList.add('active');
+    });
+    hero.addEventListener('mouseleave', () => spotlight.classList.remove('active'));
+  })();
+
+  // "Talk to Victor" -- multi-turn chat with an AI version of Victor.
+  // History lives in memory (and sessionStorage when available) and is sent
+  // with each turn; the edge function is stateless apart from logging.
+  (function initTalkToVictor() {
+    const launcher = document.getElementById('chatLauncher');
+    const panel = document.getElementById('chatPanel');
+    const closeBtn = document.getElementById('chatClose');
+    const form = document.getElementById('chatForm');
+    const input = document.getElementById('chatInput');
+    const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
+    const messages = document.getElementById('chatMessages');
+    const chips = document.getElementById('chatChips');
+    const nudge = document.getElementById('chatNudge');
+    const leadToggle = document.getElementById('chatLeadToggle');
+    const leadForm = document.getElementById('chatLeadForm');
+    const leadStatus = document.getElementById('leadStatus');
+    if (!launcher || !panel || !form) return;
+
+    const ENDPOINT = 'https://wownxeielqhubwfzqqor.supabase.co/functions/v1/talk-to-victor';
+    const GREETING = "Hi, I'm Victor's AI agent \u{1F44B} Think of me as the first-call version of Victor. Ask me about the AI products I've built, how I lead teams, or the messiest problem I've solved. Or paste a job description and I'll tell you how I'd fit.\n\nLike what you hear? Grab time on my calendar in Book time with me, or tap \"Pass my details to Victor\" and the real me will reach out.";
+    const STARTERS = [
+      'Give me the 60-second overview',
+      "What's your biggest AI win?",
+      'Tell me about a time you pushed back',
+      'Why are you looking for a new role?',
+    ];
+
+    const store = {
+      get(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } },
+      set(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} },
+    };
+    const newId = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+      : 'xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx'.replace(/x/g, () => (Math.random() * 16 | 0).toString(16));
+    let sessionId = store.get('ttv_session') || newId();
+    store.set('ttv_session', sessionId);
+    let history = [];
+    try { history = JSON.parse(store.get('ttv_history') || '[]') || []; } catch (e) { history = []; }
+    const saveHistory = () => store.set('ttv_history', JSON.stringify(history.slice(-30)));
+
+    // Turn "Book time with me" into a link that jumps to the booking section
+    function appendWithBookLinks(el, text) {
+      text.split(/(book time with me)/i).forEach((piece, j) => {
+        if (j % 2 === 1) {
+          const a = document.createElement('a');
+          a.href = '#book'; a.className = 'book-link'; a.textContent = piece;
+          a.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (window.innerWidth < 768) closePanel();   // the chat covers the page on phones
+            document.getElementById('book').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            try { gtag('event', 'chat_book_link_click'); } catch (err) {}
+          });
+          el.appendChild(a);
+        } else if (piece) {
+          el.appendChild(document.createTextNode(piece));
+        }
+      });
+    }
+
+    function addBubble(text, cls) {
+      const div = document.createElement('div');
+      div.className = 'chat-bubble ' + cls;
+      if (cls === 'bot' && text) {
+        // Build links as DOM nodes (never innerHTML) so replies stay XSS-safe
+        text.split(/(https:\/\/[^\s)\]]+)/g).forEach((part, i) => {
+          if (i % 2 === 1) {
+            const url = part.replace(/[.,;:!?'"]+$/, '');
+            const a = document.createElement('a');
+            a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+            a.textContent = url.replace(/^https:\/\//, '').replace(/\/$/, '');
+            a.style.cssText = 'color:#0F7B6C;font-weight:600;text-decoration:underline;word-break:break-all;';
+            div.appendChild(a);
+            if (url.length < part.length) div.appendChild(document.createTextNode(part.slice(url.length)));
+          } else if (part) {
+            appendWithBookLinks(div, part);
+          }
+        });
+      } else {
+        div.textContent = text;
+      }
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+      return div;
+    }
+    function renderChips() {
+      chips.innerHTML = '';
+      if (history.length) return;
+      STARTERS.forEach(q => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.textContent = q;
+        b.addEventListener('click', () => send(q));
+        chips.appendChild(b);
+      });
+    }
+    function renderAll() {
+      messages.innerHTML = '';
+      addBubble(GREETING, 'bot');
+      history.forEach(m => addBubble(m.content, m.role === 'user' ? 'user' : 'bot'));
+      renderChips();
+    }
+
+    async function send(text) {
+      const q = (text || '').trim();
+      if (!q || (submitBtn && submitBtn.disabled)) return;
+      history.push({ role: 'user', content: q.slice(0, 1500) });
+      saveHistory();
+      addBubble(q, 'user');
+      chips.innerHTML = '';
+      input.value = ''; autosize();
+      if (submitBtn) submitBtn.disabled = true;
+      const typing = addBubble('', 'bot typing');
+      typing.innerHTML = '<span></span><span></span><span></span>';
+      try {
+        const resp = await fetch(ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: history.slice(-20), session_id: sessionId }),
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) throw new Error(data.error || 'Something went wrong.');
+        if (data.session_id) { sessionId = data.session_id; store.set('ttv_session', sessionId); }
+        typing.remove();
+        history.push({ role: 'assistant', content: data.answer });
+        saveHistory();
+        addBubble(data.answer, 'bot');
+      } catch (err) {
+        typing.remove();
+        history.pop(); saveHistory();   // let them resend the same question
+        addBubble(err.message || 'Something went wrong. Please try the contact form below.', 'bot');
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+        input.focus();
+      }
+    }
+
+    function autosize() { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 110) + 'px'; }
+    input.addEventListener('input', autosize);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(input.value); }
+    });
+    form.addEventListener('submit', (e) => { e.preventDefault(); send(input.value); });
+
+    function hideNudge() { nudge.classList.remove('show'); store.set('ttv_nudged', '1'); }
+    function openPanel() {
+      hideNudge();
+      panel.classList.add('open');
+      launcher.setAttribute('aria-expanded', 'true');
+      if (!messages.children.length) renderAll();
+      input.focus();
+    }
+    function closePanel() {
+      panel.classList.remove('open');
+      launcher.setAttribute('aria-expanded', 'false');
+    }
+    launcher.addEventListener('click', () => panel.classList.contains('open') ? closePanel() : openPanel());
+
+    // Rotating hover greetings -- a new line each time someone hovers
+    const HOVER_LINES = [
+      "Hi, I'm Victor's AI agent \u{1F44B} Hiring? Let's talk!",
+      "Hey there! I'm Victor's AI agent. Ask me anything, I've got stories.",
+      "Grab a coffee ☕ I'm Victor's AI agent and I'm ready when you are.",
+      "Hiring for AI & data? I'm Victor's AI agent. Let's chat!",
+      "Got a job description? Paste it in and I'll show you how I fit \u{1F3AF}",
+      "I'm Victor's AI agent. Skip the small talk and ask me about impact \u{1F4C8}",
+    ];
+    let hoverIdx = 0;
+    launcher.addEventListener('mouseenter', () => {
+      launcher.setAttribute('data-tip', HOVER_LINES[hoverIdx % HOVER_LINES.length]);
+      hoverIdx++;
+    });
+    closeBtn.addEventListener('click', closePanel);
+
+    // Proactive greeting: a small nudge bubble once per visit
+    if (nudge && !store.get('ttv_nudged')) {
+      setTimeout(() => { if (!panel.classList.contains('open')) nudge.classList.add('show'); }, 5000);
+      nudge.addEventListener('click', (e) => {
+        if (e.target.classList.contains('x')) { hideNudge(); return; }
+        openPanel();
+      });
+    }
+
+    // "Pass my details to Victor"
+    leadToggle.addEventListener('click', () => {
+      leadForm.classList.toggle('open');
+      if (leadForm.classList.contains('open')) document.getElementById('leadName').focus();
+    });
+    leadForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const v = id => document.getElementById(id).value.trim();
+      const payload = { action: 'lead', session_id: sessionId, name: v('leadName'), email: v('leadEmail'), company: v('leadCompany'), role: v('leadRole') };
+      if (!payload.name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email)) {
+        leadStatus.textContent = 'Please add your name and a valid email.'; return;
+      }
+      const btn = leadForm.querySelector('button[type=submit]');
+      btn.disabled = true; leadStatus.textContent = 'Sending…';
+      try {
+        const resp = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) throw new Error(data.error || 'Could not send.');
+        leadForm.classList.remove('open');
+        leadToggle.textContent = '✓ Victor has your details';
+        leadToggle.disabled = true;
+        addBubble("Thanks, " + payload.name.split(' ')[0] + "! I've passed your details and our conversation to the real Victor. He'll be in touch soon.", 'bot');
+      } catch (err) {
+        leadStatus.textContent = err.message || 'Could not send. Please use the contact form below.';
+      } finally { btn.disabled = false; }
+    });
+
+    // Direct link: victorbuildsai.com/#chat (or ?chat, or the /chat/ shortcut
+    // page) lands with the chat already open, so it can be shared on its own.
+    // ?ask=Your+question pre-fills the first question too.
+    (function openFromLink() {
+      const params = new URLSearchParams(location.search);
+      const wantsChat = /^#(chat|talk)$/i.test(location.hash) || params.has('chat') || params.has('ask');
+      if (!wantsChat) return;
+      setTimeout(() => {
+        openPanel();
+        const ask = (params.get('ask') || '').trim();
+        if (ask) { input.value = ask.slice(0, 1500); autosize(); }
+      }, 400);
+    })();
+  })();
+
+  // "Check My Fit" -- posts to check-job-fit, which fetches a job link
+  // server-side (or uses pasted text directly), scores it against Victor's
+  // profile via Gemini with structured JSON output, and returns a
+  // calibrated 0-100 fit score with a short rationale.
+  (function initJobFitWidget() {
+    const launcher = document.getElementById('jobFitLauncher');
+    const overlay = document.getElementById('jobFitOverlay');
+    const closeBtn = document.getElementById('jobFitClose');
+    const form = document.getElementById('jobFitForm');
+    const input = document.getElementById('jobFitInput');
+    const submitBtn = document.getElementById('jobFitSubmit');
+    const resultEl = document.getElementById('jobFitResult');
+    if (!launcher || !overlay || !form) return;
+
+    const FIT_ENDPOINT = 'https://wownxeielqhubwfzqqor.supabase.co/functions/v1/check-job-fit';
+
+    function scoreColor(pct) {
+      if (pct >= 70) return '#0F7B6C';
+      if (pct >= 40) return '#D97706';
+      return '#DC2626';
+    }
+
+    function escapeHtml(s) {
+      const div = document.createElement('div');
+      div.textContent = s;
+      return div.innerHTML;
+    }
+
+    function renderResult(data) {
+      const color = scoreColor(data.fit_percent);
+      const strengths = (data.strengths || []).map(s => `<li style="margin-bottom:0.35rem;display:flex;gap:0.5rem;"><span style="color:#0F7B6C;flex-shrink:0;">&#10003;</span><span>${escapeHtml(s)}</span></li>`).join('');
+      const gaps = (data.gaps || []).map(g => `<li style="margin-bottom:0.35rem;display:flex;gap:0.5rem;"><span style="color:#D97706;flex-shrink:0;">&#8212;</span><span>${escapeHtml(g)}</span></li>`).join('');
+
+      resultEl.innerHTML = `
+        <div style="text-align:center;">
+          <div class="fit-score-ring" style="--fit-pct:${data.fit_percent};--fit-color:${color};">
+            <div class="fit-score-ring-inner">
+              <span style="font-size:1.6rem;line-height:1;color:${color};">${data.fit_percent}%</span>
+              <small>Fit</small>
+            </div>
+          </div>
+          <div style="font-weight:700;color:#16233F;font-size:0.95rem;margin-bottom:0.5rem;">${escapeHtml(data.headline || '')}</div>
+          <p style="font-size:0.85rem;color:#3A4459;line-height:1.55;margin-bottom:1rem;text-align:left;">${escapeHtml(data.rationale || '')}</p>
+        </div>
+        ${strengths ? `<div style="margin-bottom:0.9rem;"><div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#0F7B6C;margin-bottom:0.4rem;">Strengths</div><ul style="font-size:0.83rem;color:#374151;list-style:none;padding:0;">${strengths}</ul></div>` : ''}
+        ${gaps ? `<div><div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#D97706;margin-bottom:0.4rem;">Worth Noting</div><ul style="font-size:0.83rem;color:#374151;list-style:none;padding:0;">${gaps}</ul></div>` : ''}
+      `;
+    }
+
+    function renderError(msg) {
+      resultEl.innerHTML = `<div style="background:#FEF2F2;border:1px solid #FCA5A5;color:#991B1B;font-size:0.83rem;padding:0.75rem 1rem;border-radius:0.6rem;">${escapeHtml(msg)}</div>`;
+    }
+
+    function renderLoading() {
+      resultEl.innerHTML = `<div style="text-align:center;padding:1rem 0;"><div class="fit-spinner"></div><div style="font-size:0.8rem;color:#6B7280;margin-top:0.7rem;">Analyzing fit against Victor's profile\u2026 (this can take up to 15 seconds)</div></div>`;
+    }
+
+    function openModal() {
+      overlay.classList.add('open');
+      input.focus();
+    }
+    function closeModal() {
+      overlay.classList.remove('open');
+    }
+
+    launcher.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const val = input.value.trim();
+      if (!val || submitBtn.disabled) return;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Checking\u2026';
+      renderLoading();
+
+      try {
+        const resp = await fetch(FIT_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ input: val }),
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) {
+          renderError(data.error || 'Something went wrong. Please try again.');
+        } else {
+          renderResult(data);
+        }
+      } catch (err) {
+        renderError('Something went wrong. Please try again.');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Check Fit';
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Premium work samples: gate behind a verified contact (see unlock-premium).
+  (function initPremiumGate() {
+    const overlay = document.getElementById('premiumOverlay');
+    const form = document.getElementById('premiumForm');
+    if (!overlay || !form) return;
+    const ENDPOINT = 'https://wownxeielqhubwfzqqor.supabase.co/functions/v1/unlock-premium';
+    const titleEl = document.getElementById('premiumTitle');
+    const statusEl = document.getElementById('pmStatus');
+    const submitBtn = document.getElementById('pmSubmit');
+    const done = document.getElementById('pmDone');
+    const openLink = document.getElementById('pmOpen');
+    const $ = (id) => document.getElementById(id);
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    let current = null, lastFocus = null;
+
+    const store = {
+      get(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } },
+      set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} },
+    };
+
+    function open(item, title) {
+      // Already unlocked on this browser: go straight to the content
+      // (only trust links on this site -- older unlocks saved a retired address)
+      const saved = store.get('premium_' + item);
+      if (saved && saved.url && !/^https:\/\/www\.victorbuildsai\.com\//.test(saved.url)) {
+        try { localStorage.removeItem('premium_' + item); } catch (e) {}
+      } else if (saved && saved.url) { const w0 = window.open(saved.url, '_blank'); if (w0) { w0.opener = null; return; } }
+      current = item; lastFocus = document.activeElement;
+      titleEl.textContent = title;
+      form.style.display = ''; done.style.display = 'none';
+      statusEl.textContent = ''; statusEl.style.color = '#DC2626';
+      overlay.classList.add('open');
+      $('pmName').focus();
+    }
+    function close() {
+      overlay.classList.remove('open');
+      if (lastFocus) lastFocus.focus();
+    }
+
+    document.addEventListener('click', (e) => {
+      const card = e.target.closest('[data-premium]');
+      if (card) { e.preventDefault(); open(card.dataset.premium, card.dataset.premiumTitle); }
+    });
+    $('premiumClose').addEventListener('click', close);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && overlay.classList.contains('open')) close(); });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        item: current,
+        name: $('pmName').value.trim(),
+        email: $('pmEmail').value.trim(),
+        company: $('pmCompany').value.trim(),
+        role: $('pmRole').value.trim(),
+        website: $('pmWebsite').value,
+      };
+      $('pmName').classList.toggle('invalid', payload.name.length < 2);
+      $('pmEmail').classList.toggle('invalid', !EMAIL_RE.test(payload.email));
+      if (payload.name.length < 2) { statusEl.textContent = 'Please enter your name.'; $('pmName').focus(); return; }
+      if (!EMAIL_RE.test(payload.email)) { statusEl.textContent = "That doesn't look like a valid email address."; $('pmEmail').focus(); return; }
+
+      submitBtn.disabled = true; submitBtn.textContent = 'Verifying\u2026';
+      statusEl.style.color = '#64748B'; statusEl.textContent = 'Checking your email and unlocking\u2026';
+      try {
+        const resp = await fetch(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok || !data.url) {
+          statusEl.style.color = '#DC2626';
+          statusEl.textContent = data.error || 'Something went wrong. Please try again.';
+          if (data.field) { const f = data.field === 'name' ? $('pmName') : $('pmEmail'); f.classList.add('invalid'); f.focus(); }
+          return;
+        }
+        store.set('premium_' + current, { url: data.url });
+        openLink.href = data.url;
+        form.style.display = 'none'; done.style.display = '';
+        // Try to open it straight away; the button stays as a fallback if a popup blocker steps in
+        const w = window.open(data.url, '_blank');
+        if (w) { w.opener = null; setTimeout(close, 1200); } else { openLink.focus(); }
+      } catch (err) {
+        statusEl.style.color = '#DC2626';
+        statusEl.textContent = 'Network error. Please try again.';
+      } finally {
+        submitBtn.disabled = false; submitBtn.innerHTML = 'Unlock &amp; view &rarr;';
+      }
+    });
+    ['pmName', 'pmEmail'].forEach((id) => $(id).addEventListener('input', () => $(id).classList.remove('invalid')));
+  })();
+</script>
+</body>
+</html>

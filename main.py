@@ -48,6 +48,34 @@ app.mount("/static", AssetOnlyStaticFiles(directory="."), name="static")
 templates = Jinja2Templates(directory=".")
 
 
+def _context() -> dict:
+    return {
+            "profile": content.PROFILE,
+            "about": content.ABOUT,
+            "impact": content.IMPACT,
+            "buckets": content.BUCKETS,
+            "timeline": content.TIMELINE,
+            "capabilities": content.CAPABILITIES,
+            "education": content.EDUCATION,
+            "certifications": content.CERTIFICATIONS,
+            "recognition": content.RECOGNITION,
+            "resumes": content.RESUMES,
+            "work_samples": content.WORK_SAMPLES,
+            "articles": content.ARTICLES,
+            "certificates": content.CERTIFICATES,
+            "testimonials": content.TESTIMONIALS,
+            "awards": content.AWARDS,
+    }
+
+
+@app.get("/preview", response_class=HTMLResponse)
+def preview(request: Request):
+    """Concept A redesign (profile card + tabs), served side by side with the
+    live page until it's approved. build_portable.py --preview writes it to
+    preview.html."""
+    return templates.TemplateResponse(request, "template_v2.html", _context())
+
+
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     return templates.TemplateResponse(
